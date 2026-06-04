@@ -1,0 +1,22 @@
+import { PropsWithChildren } from 'react';
+import { StyleSheet, View, ViewStyle } from 'react-native';
+
+import { colors, radius, shadows } from '@/src/theme';
+
+type SoftCardProps = PropsWithChildren<{
+  style?: ViewStyle | ViewStyle[];
+}>;
+
+export function SoftCard({ children, style }: SoftCardProps) {
+  return <View style={[styles.card, style]}>{children}</View>;
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.lg,
+    ...shadows.soft,
+  },
+});
