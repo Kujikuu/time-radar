@@ -105,7 +105,7 @@ export function TimerRing({
       </Svg>
       <View style={styles.center}>
         <Text style={[styles.label, isPaused && styles.pausedLabel]}>{label}</Text>
-        <Text selectable style={styles.time}>{time}</Text>
+        <Text style={styles.time}>{time}</Text>
         <Pressable
           accessibilityLabel={displayAction}
           accessibilityRole="button"
