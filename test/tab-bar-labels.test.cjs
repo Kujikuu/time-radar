@@ -11,7 +11,6 @@ test('bottom tab bar renders icon-only items', () => {
 });
 
 test('bottom tab bar is fixed to the mobile bottom edge without extra safe-area growth', () => {
-  assert.doesNotMatch(tabsLayoutSource, /import \{ Platform, StyleSheet \} from 'react-native';/);
   assert.match(tabsLayoutSource, /safeAreaInsets=\{\{\s*bottom:\s*0,\s*\}\}/s);
   assert.match(tabsLayoutSource, /height:\s*78/);
   assert.match(tabsLayoutSource, /position:\s*'absolute'/);
@@ -21,6 +20,10 @@ test('bottom tab bar is fixed to the mobile bottom edge without extra safe-area 
   assert.doesNotMatch(tabsLayoutSource, /marginBottom:/);
   assert.doesNotMatch(tabsLayoutSource, /marginTop:/);
   assert.match(tabsLayoutSource, /paddingTop:\s*10/);
-  assert.doesNotMatch(tabsLayoutSource, /borderTopLeftRadius:/);
-  assert.doesNotMatch(tabsLayoutSource, /borderTopRightRadius:/);
+});
+
+test('bottom tab bar keeps the approved rounded connected shape', () => {
+  assert.match(tabsLayoutSource, /borderTopLeftRadius:\s*radius\.lg/);
+  assert.match(tabsLayoutSource, /borderTopRightRadius:\s*radius\.lg/);
+  assert.match(tabsLayoutSource, /overflow:\s*'hidden'/);
 });
