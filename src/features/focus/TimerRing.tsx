@@ -105,8 +105,9 @@ export function TimerRing({
       </Svg>
       <View style={styles.center}>
         <Text style={[styles.label, isPaused && styles.pausedLabel]}>{label}</Text>
-        <Text style={styles.time}>{time}</Text>
+        <Text selectable style={styles.time}>{time}</Text>
         <Pressable
+          accessibilityLabel={displayAction}
           accessibilityRole="button"
           onPress={onPrimaryAction}
           style={({ pressed }) => [
@@ -126,6 +127,7 @@ export function TimerRing({
           <View style={styles.secondaryActions}>
             {onReset ? (
               <Pressable
+                accessibilityLabel="Reset timer"
                 accessibilityRole="button"
                 onPress={onReset}
                 hitSlop={8}
@@ -135,6 +137,7 @@ export function TimerRing({
             ) : null}
             {onComplete ? (
               <Pressable
+                accessibilityLabel="Complete current phase"
                 accessibilityRole="button"
                 onPress={onComplete}
                 hitSlop={8}

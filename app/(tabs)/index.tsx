@@ -44,7 +44,10 @@ export default function HomeScreen() {
 
       <View style={styles.sectionHeader}>
         <Text style={styles.smallTitle}>Your Progress</Text>
-        <Pressable onPress={() => router.push('/(tabs)/stats' as never)}>
+        <Pressable
+          accessibilityLabel="Open full stats"
+          accessibilityRole="button"
+          onPress={() => router.push('/(tabs)/stats' as never)}>
           <Text style={styles.linkText}>See all</Text>
         </Pressable>
       </View>

@@ -349,6 +349,8 @@ function SwitchRow({
         <Text style={styles.helper}>{helper}</Text>
       </View>
       <Switch
+        accessibilityLabel={label}
+        accessibilityState={{ disabled, checked: value }}
         disabled={disabled}
         value={value}
         onValueChange={onValueChange}

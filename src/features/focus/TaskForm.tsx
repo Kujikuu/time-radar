@@ -58,6 +58,7 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
         <View style={styles.field}>
           <Text style={styles.label}>Task Name</Text>
           <TextInput
+            accessibilityLabel="Task name"
             value={title}
             onChangeText={setTitle}
             style={styles.input}
@@ -118,6 +119,7 @@ function NumberField({
     <View style={styles.numberRow}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        accessibilityLabel={label}
         value={value}
         onChangeText={(nextValue) => onChangeText(nextValue.replace(/[^0-9]/g, ''))}
         keyboardType="number-pad"

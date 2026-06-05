@@ -14,6 +14,7 @@ type FocusTaskCardProps = {
 export function FocusTaskCard({ task }: FocusTaskCardProps) {
   return (
     <Pressable
+      accessibilityLabel={`Open ${task.title} focus task, ${task.focusMinutes} minutes`}
       accessibilityRole="button"
       onPress={() => router.push(`/session/${task.id}`)}
       style={({ pressed }) => pressed && styles.pressed}>
