@@ -1,9 +1,7 @@
-import { IconChartDots, IconRadar } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { ViewStyle } from 'react-native';
 
-import { AppIcon, IconButton, MetricCard, Screen, SoftCard } from '@/src/components';
+import { MetricCard, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import { useFocusTimer, useProgressMetrics, useStats, useTasks } from '@/src/features/focus/hooks';
 import { TimerRing } from '@/src/features/focus/TimerRing';
@@ -24,14 +22,7 @@ export default function HomeScreen() {
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.appTitle}>TimeRadar</Text>
-        </View>
-        <IconButton
-          icon={IconChartDots}
-          label="Open productivity overview"
-          onPress={() => router.push('/(tabs)/stats' as never)}
-        />
+        <Text style={styles.appTitle}>TimeRadar</Text>
       </View>
 
       <View style={styles.sectionHeader}>
@@ -40,11 +31,6 @@ export default function HomeScreen() {
       </View>
 
       <SoftCard style={styles.timerCard}>
-        <View style={styles.timerDust}>
-          {Array.from({ length: 16 }).map((_, index) => (
-            <View key={index} style={[styles.dustDot, dustPosition(index)]} />
-          ))}
-        </View>
         <TimerRing
           label={snapshot.phaseLabel}
           time={snapshot.timer ? snapshot.display : nextTask ? `${nextTask.focusMinutes}:00` : '0:00'}
@@ -85,40 +71,8 @@ export default function HomeScreen() {
         </SoftCard>
       )}
 
-      <SoftCard style={styles.tipCard}>
-        <View style={styles.tipIcon}>
-          <AppIcon icon={IconRadar} size={22} color={colors.accentDark} />
-        </View>
-        <View style={styles.tipCopy}>
-          <Text style={styles.tipTitle}>Keep your rhythm tight</Text>
-          <Text style={styles.tipText}>Start with one clean session, then review your focus score.</Text>
-        </View>
-      </SoftCard>
     </Screen>
   );
-}
-
-function dustPosition(index: number) {
-  const positions: Pick<ViewStyle, 'left' | 'top'>[] = [
-    { left: '10%', top: '24%' },
-    { left: '18%', top: '48%' },
-    { left: '14%', top: '70%' },
-    { left: '30%', top: '18%' },
-    { left: '38%', top: '82%' },
-    { left: '52%', top: '12%' },
-    { left: '58%', top: '76%' },
-    { left: '72%', top: '22%' },
-    { left: '80%', top: '48%' },
-    { left: '86%', top: '70%' },
-    { left: '23%', top: '32%' },
-    { left: '40%', top: '38%' },
-    { left: '64%', top: '35%' },
-    { left: '74%', top: '61%' },
-    { left: '31%', top: '63%' },
-    { left: '54%', top: '58%' },
-  ];
-
-  return positions[index];
 }
 
 const styles = StyleSheet.create({
@@ -161,16 +115,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingVertical: spacing.xxl,
   },
-  timerDust: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  dustDot: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: colors.accentSoft,
-  },
   smallTitle: {
     color: colors.text,
     fontFamily: typography.family,
@@ -190,24 +134,6 @@ const styles = StyleSheet.create({
   emptyCard: {
     gap: 5,
     padding: spacing.lg,
-  },
-  tipCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  tipIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfacePeach,
-  },
-  tipCopy: {
-    flex: 1,
-    gap: 3,
   },
   tipTitle: {
     color: colors.text,

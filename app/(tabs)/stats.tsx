@@ -1,13 +1,8 @@
-import {
-  IconBulb,
-  IconCalendar,
-  IconChevronRight,
-  IconTrendingUp,
-} from '@tabler/icons-react-native';
+import { IconTrendingUp } from '@tabler/icons-react-native';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { AppIcon, IconButton, Screen, SegmentedControl, SoftCard } from '@/src/components';
+import { AppIcon, Screen, SegmentedControl } from '@/src/components';
 import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
 import { useStats } from '@/src/features/focus/hooks';
@@ -22,7 +17,6 @@ export default function StatsScreen() {
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
         <Text style={styles.title}>Stats</Text>
-        <IconButton icon={IconCalendar} label="Pick stats date" size={21} />
       </View>
 
       <SegmentedControl<StatsRange>
@@ -55,21 +49,6 @@ export default function StatsScreen() {
         <Text style={styles.sectionTitle}>Focus Distribution</Text>
         <DistributionDonut data={summary.distribution} />
       </View>
-
-      <SoftCard style={styles.noteCard}>
-        <View style={styles.noteIcon}>
-          <AppIcon icon={IconBulb} size={25} color={colors.amber} />
-        </View>
-        <View style={styles.noteCopy}>
-          <Text style={styles.noteTitle}>
-            {summary.focusMinutes > 0 ? 'Great consistency!' : 'Ready when you are'}
-          </Text>
-          <Text style={styles.noteText}>
-            You&apos;ve completed {summary.sessions} focus {summary.sessions === '1' ? 'session' : 'sessions'}.
-          </Text>
-        </View>
-        <AppIcon icon={IconChevronRight} size={24} color={colors.accentDark} />
-      </SoftCard>
     </Screen>
   );
 }
@@ -147,36 +126,5 @@ const styles = StyleSheet.create({
     fontFamily: typography.family,
     fontSize: 15,
     fontWeight: '700',
-  },
-  noteCard: {
-    minHeight: 78,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-    backgroundColor: colors.surfacePeach,
-  },
-  noteIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
-  },
-  noteCopy: {
-    flex: 1,
-    gap: 3,
-  },
-  noteTitle: {
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  noteText: {
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 12,
   },
 });

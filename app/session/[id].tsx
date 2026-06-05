@@ -1,13 +1,8 @@
-import {
-  IconChevronDown,
-  IconChevronLeft,
-  IconDots,
-  IconFileText,
-} from '@tabler/icons-react-native';
+import { IconChevronLeft } from '@tabler/icons-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { AppIcon, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromTask, useFocusTimer, useTaskDetail } from '@/src/features/focus/hooks';
 import { colors, radius, spacing, typography } from '@/src/theme';
@@ -40,18 +35,13 @@ export default function SessionDetailScreen() {
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
         <IconButton icon={IconChevronLeft} label="Go back" onPress={() => router.back()} />
-        <IconButton icon={IconDots} label="More session options" />
       </View>
 
       <View style={styles.hero}>
-        <View style={styles.documentIcon}>
-          <AppIcon icon={IconFileText} size={34} color={colors.accentDark} />
-        </View>
         <Text style={styles.title}>{task.title}</Text>
         <View style={styles.categoryPill}>
           <View style={styles.categoryDot} />
           <Text style={styles.categoryText}>{task.category}</Text>
-          <AppIcon icon={IconChevronDown} size={17} color={colors.accentDark} />
         </View>
       </View>
 
@@ -84,14 +74,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     paddingTop: spacing.md,
-  },
-  documentIcon: {
-    width: 74,
-    height: 74,
-    borderRadius: radius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.accentSoft,
   },
   title: {
     color: colors.text,

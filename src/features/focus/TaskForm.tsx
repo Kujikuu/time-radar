@@ -60,8 +60,6 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Project Proposal"
-            placeholderTextColor={colors.textSoft}
             style={styles.input}
           />
         </View>

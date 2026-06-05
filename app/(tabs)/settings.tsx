@@ -1,12 +1,6 @@
 import {
-  IconBell,
-  IconClock,
-  IconDatabase,
   IconMinus,
   IconPlus,
-  IconRefresh,
-  IconUserCircle,
-  IconVolume,
 } from '@tabler/icons-react-native';
 import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
@@ -49,26 +43,10 @@ export default function SettingsScreen() {
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Settings</Text>
-          <Text style={styles.subtitle}>Make each focus session behave the way you expect.</Text>
-        </View>
-        <View style={styles.headerIcon}>
-          <AppIcon icon={IconUserCircle} size={26} color={colors.text} />
-        </View>
+        <Text style={styles.title}>Settings</Text>
       </View>
 
-      <SoftCard style={styles.profileCard}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>TR</Text>
-        </View>
-        <View style={styles.profileCopy}>
-          <Text style={styles.profileTitle}>Local-first setup</Text>
-          <Text style={styles.profileText}>Tasks, sessions, and preferences are saved on this device.</Text>
-        </View>
-      </SoftCard>
-
-      <SettingsSection icon={IconClock} title="Timer Defaults">
+      <SettingsSection title="Timer Defaults">
         <StepperRow
           label="Focus"
           helper="Default length for new focus tasks."
@@ -126,7 +104,7 @@ export default function SettingsScreen() {
         />
       </SettingsSection>
 
-      <SettingsSection icon={IconRefresh} title="Automation">
+      <SettingsSection title="Automation">
         <SwitchRow
           label="Auto Start Breaks"
           helper="Start break phases automatically after focus."
@@ -149,7 +127,6 @@ export default function SettingsScreen() {
       </SettingsSection>
 
       <SettingsSection
-        icon={IconBell}
         title="Notifications"
         badge={notificationStatusLabel(notificationPermission.status)}>
         <View style={styles.permissionPanel}>
@@ -234,7 +211,7 @@ export default function SettingsScreen() {
         ) : null}
       </SettingsSection>
 
-      <SettingsSection icon={IconVolume} title="Completion Sound">
+      <SettingsSection title="Completion Sound">
         <SwitchRow
           label="System Sound"
           helper="Use the device notification sound when a timer alert appears. Silent mode and Focus modes can still suppress it."
@@ -247,22 +224,15 @@ export default function SettingsScreen() {
         />
       </SettingsSection>
 
-      <SettingsSection icon={IconDatabase} title="Data">
-        <Text style={styles.dataText}>
-          Your current MVP data stays on this device. Export, reset, and Laravel sync controls will fit here when those features are added.
-        </Text>
-      </SettingsSection>
     </Screen>
   );
 }
 
 function SettingsSection({
-  icon,
   title,
   badge,
   children,
 }: {
-  icon: TablerIcon;
   title: string;
   badge?: string;
   children: ReactNode;
@@ -271,9 +241,6 @@ function SettingsSection({
     <SoftCard style={styles.card}>
       <View style={styles.sectionHeader}>
         <View style={styles.sectionTitleWrap}>
-          <View style={styles.sectionIcon}>
-            <AppIcon icon={icon} size={19} color={colors.accentDark} />
-          </View>
           <Text style={styles.sectionTitle}>{title}</Text>
         </View>
         {badge ? <Text style={styles.badge}>{badge}</Text> : null}
@@ -414,60 +381,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
   },
-  subtitle: {
-    maxWidth: 290,
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 13,
-    lineHeight: 19,
-    marginTop: 3,
-  },
-  headerIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfacePeach,
-  },
-  avatarText: {
-    color: colors.accentDark,
-    fontFamily: typography.family,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  profileCopy: {
-    flex: 1,
-    gap: 4,
-  },
-  profileTitle: {
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  profileText: {
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 13,
-    lineHeight: 19,
-  },
   card: {
     padding: spacing.lg,
     gap: spacing.md,
@@ -484,14 +397,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-  },
-  sectionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfacePeach,
   },
   sectionTitle: {
     color: colors.text,
@@ -608,12 +513,5 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.76,
-  },
-  dataText: {
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 13,
-    lineHeight: 20,
-    paddingTop: spacing.xs,
   },
 });
