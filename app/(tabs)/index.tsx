@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { MetricCard, Screen, SoftCard } from '@/src/components';
+import { BrandLogo, MetricCard, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import { useFocusTimer, useProgressMetrics, useStats, useTasks } from '@/src/features/focus/hooks';
 import { TimerRing } from '@/src/features/focus/TimerRing';
@@ -22,7 +22,7 @@ export default function HomeScreen() {
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
-        <Text style={styles.appTitle}>TimeRadar</Text>
+        <BrandLogo />
       </View>
 
       <View style={styles.sectionHeader}>
@@ -85,12 +85,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  appTitle: {
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 24,
-    fontWeight: '400',
   },
   sectionHeader: {
     flexDirection: 'row',

@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { AppIcon, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { AppIcon, BrandLogo, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { useOnboardingStatus } from '@/src/features/focus/hooks';
 import { RadarMark } from '@/src/features/focus/RadarMark';
 import { colors, radius, spacing, typography } from '@/src/theme';
@@ -19,7 +19,7 @@ import { colors, radius, spacing, typography } from '@/src/theme';
 const onboardingSlides = [
   {
     id: 'focus',
-    title: 'TimeRadar',
+    title: null,
     body: 'Focus deeply.\nBuild consistently.\nSee progress clearly.',
     visual: 'radar',
   },
@@ -107,7 +107,7 @@ export default function OnboardingScreen() {
           {onboardingSlides.map((slide) => (
             <View key={slide.id} style={[styles.slide, { width: pageWidth || undefined }]}>
               <View style={styles.copy}>
-                <Text style={styles.title}>{slide.title}</Text>
+                {slide.title ? <Text style={styles.title}>{slide.title}</Text> : <BrandLogo variant="hero" />}
                 <Text style={styles.subtitle}>{slide.body}</Text>
               </View>
               <OnboardingVisual type={slide.visual} />
