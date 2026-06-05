@@ -16,6 +16,11 @@ import {
   resolvePhaseSeconds,
   resolveTimerActualSeconds,
 } from './timer-rules';
+import {
+  resolvePhaseLabel,
+  resolvePrimaryActionLabel,
+  resolveTimerProgress,
+} from './timer-snapshot-rules';
 
 type TaskRow = {
   id: string;
@@ -281,16 +286,17 @@ export async function getActiveTimerSnapshot(db: SQLiteDatabase): Promise<TimerS
   const timer = await getActiveTimer(db);
   const task = timer ? await getTask(db, timer.taskId) : null;
   const remainingSeconds = timer ? resolveRemainingSeconds(timer) : 0;
-  const progress = timer ? 1 - remainingSeconds / timer.plannedSeconds : 0;
 
   return {
     timer,
     task,
     remainingSeconds,
-    progress: timer ? Math.min(Math.max(progress, 0), 1) : 0,
+    progress: timer
+      ? resolveTimerProgress({ plannedSeconds: timer.plannedSeconds, remainingSeconds })
+      : 0,
     display: formatSeconds(remainingSeconds),
-    phaseLabel: timer ? phaseLabel(timer.phase) : 'Focus',
-    primaryActionLabel: timer?.status === 'running' ? 'Pause' : timer ? 'Resume' : 'Start',
+    phaseLabel: timer ? resolvePhaseLabel(timer.phase) : 'Focus',
+    primaryActionLabel: resolvePrimaryActionLabel(timer),
   };
 }
 
@@ -596,18 +602,6 @@ function resolveRemainingSeconds(timer: ActiveTimer) {
   }
 
   return Math.max(0, Math.ceil((new Date(timer.dueAt).getTime() - Date.now()) / 1000));
-}
-
-function phaseLabel(phase: TimerPhase) {
-  if (phase === 'short_break') {
-    return 'Short Break';
-  }
-
-  if (phase === 'long_break') {
-    return 'Long Break';
-  }
-
-  return 'Focus';
 }
 
 export function formatSeconds(seconds: number) {
