@@ -136,6 +136,11 @@ export default function HomeScreen() {
         <SoftCard style={styles.emptyCard}>
           <AppText style={styles.tipTitle}>{t('home.noTasksTitle')}</AppText>
           <AppText style={styles.tipText}>{t('home.noTasksBody')}</AppText>
+          <PrimaryButton
+            style={styles.emptyAction}
+            onPress={() => router.push('/task/new' as never)}>
+            {t('home.noTasksAction')}
+          </PrimaryButton>
         </SoftCard>
       )}
 
@@ -218,8 +223,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   emptyCard: {
-    gap: 5,
+    gap: spacing.sm,
     padding: spacing.lg,
+  },
+  emptyAction: {
+    minHeight: 46,
+    marginTop: spacing.xs,
   },
   tipTitle: {
     color: colors.text,

@@ -24,6 +24,7 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
   const [longBreakMinutes, setLongBreakMinutes] = useState(String(initialValue.longBreakMinutes));
   const [sessions, setSessions] = useState(String(initialValue.sessions));
   const [autoStartBreaks, setAutoStartBreaks] = useState(initialValue.autoStartBreaks);
+  const [titleError, setTitleError] = useState<string | null>(null);
 
   const input = useMemo<TaskInput>(
     () => ({
@@ -54,6 +55,22 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
     ]
   );
 
+  const updateTitle = (nextTitle: string) => {
+    setTitle(nextTitle);
+    if (titleError) {
+      setTitleError(null);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!title.trim()) {
+      setTitleError(t('taskForm.taskNameRequired'));
+      return;
+    }
+
+    onSubmit(input);
+  };
+
   return (
     <View style={styles.wrapper}>
       <SoftCard style={styles.card}>
@@ -61,10 +78,13 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
           <AppText style={styles.label}>{t('taskForm.taskName')}</AppText>
           <TextInput
             accessibilityLabel={t('taskForm.taskNameA11y')}
+            placeholder={t('taskForm.taskNamePlaceholder')}
+            placeholderTextColor={colors.textSoft}
             value={title}
-            onChangeText={setTitle}
+            onChangeText={updateTitle}
             style={[
               styles.input,
+              titleError ? styles.inputError : null,
               {
                 fontFamily: fontFamilyForLocale(locale),
                 textAlign: 'left',
@@ -72,6 +92,7 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
               },
             ]}
           />
+          {titleError ? <AppText style={styles.errorText}>{titleError}</AppText> : null}
         </View>
 
         <View style={styles.field}>
@@ -127,7 +148,7 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
         </View>
       </SoftCard>
 
-      <PrimaryButton onPress={() => onSubmit(input)}>{submitLabel}</PrimaryButton>
+      <PrimaryButton onPress={handleSubmit}>{submitLabel}</PrimaryButton>
     </View>
   );
 }
@@ -202,6 +223,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.backgroundWarm,
+  },
+  inputError: {
+    borderColor: colors.accentDark,
+  },
+  errorText: {
+    color: colors.accentDark,
+    fontFamily: typography.family,
+    fontSize: 12,
+    fontWeight: '600',
+    lineHeight: 17,
   },
   numberRow: {
     minHeight: 48,

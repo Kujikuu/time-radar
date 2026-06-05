@@ -178,7 +178,13 @@ export default function OnboardingScreen() {
             <PrimaryButton onPress={handlePrimaryAction}>
               {activeIndex === onboardingSlides.length - 1 ? t('onboarding.start') : t('common.next')}
             </PrimaryButton>
-            <AppText style={styles.skip}>{t('onboarding.skip')}</AppText>
+            <Pressable
+              accessibilityLabel={t('onboarding.skip')}
+              accessibilityRole="button"
+              onPress={() => enterApp()}
+              style={({ pressed }) => [styles.skipButton, pressed && styles.pressed]}>
+              <AppText style={styles.skip}>{t('onboarding.skip')}</AppText>
+            </Pressable>
             <View style={styles.dots}>
               {onboardingSlides.map((slide, index) => (
                 <Pressable
@@ -331,6 +337,11 @@ const styles = StyleSheet.create({
     fontFamily: typography.family,
     fontSize: 14,
     fontWeight: '700',
+  },
+  skipButton: {
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   skip: {
     color: colors.accentDark,

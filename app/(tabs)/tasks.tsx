@@ -1,8 +1,8 @@
 import { IconClipboardCheck, IconPlus } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, Screen, SoftCard } from '@/src/components';
+import { AppIcon, AppText, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import { useTasks } from '@/src/features/focus/hooks';
 import { textAlignForTextDirection } from '@/src/i18n';
@@ -13,19 +13,24 @@ export default function TasksScreen() {
   const { tasks } = useTasks();
   const { direction, t } = useTranslation();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
-  const taskLabel = tasks.length === 1 ? t('units.task') : t('units.tasks');
+  const queueBodyKey =
+    tasks.length === 0
+      ? 'tasks.queueBody.empty'
+      : tasks.length === 1
+        ? 'tasks.queueBody.one'
+        : 'tasks.queueBody.many';
 
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
         <AppText style={[styles.title, styles.contentText, contentText]}>{t('tasks.title')}</AppText>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('tasks.createTask')}
+        <IconButton
+          icon={IconPlus}
+          label={t('tasks.createTask')}
           onPress={() => router.push('/task/new' as never)}
-          style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
-          <AppIcon icon={IconPlus} size={22} color={colors.accentDark} />
-        </Pressable>
+          color={colors.accentDark}
+          style={styles.addButton}
+        />
       </View>
 
       <SoftCard style={styles.summaryCard}>
@@ -37,16 +42,30 @@ export default function TasksScreen() {
             {t('tasks.queueTitle')}
           </AppText>
           <AppText style={[styles.summaryText, styles.contentText, contentText]}>
-            {t('tasks.queueBody', { values: { count: tasks.length, taskLabel } })}
+            {t(queueBodyKey, { values: { count: tasks.length } })}
           </AppText>
         </View>
       </SoftCard>
 
-      <View style={styles.list}>
-        {tasks.map((task) => (
-          <FocusTaskCard key={task.id} task={task} />
-        ))}
-      </View>
+      {tasks.length > 0 ? (
+        <View style={styles.list}>
+          {tasks.map((task) => (
+            <FocusTaskCard key={task.id} task={task} />
+          ))}
+        </View>
+      ) : (
+        <SoftCard style={styles.emptyCard}>
+          <AppText style={[styles.emptyTitle, styles.contentText, contentText]}>
+            {t('tasks.emptyTitle')}
+          </AppText>
+          <AppText style={[styles.emptyText, styles.contentText, contentText]}>
+            {t('tasks.emptyBody')}
+          </AppText>
+          <PrimaryButton onPress={() => router.push('/task/new' as never)} style={styles.emptyAction}>
+            {t('tasks.emptyAction')}
+          </PrimaryButton>
+        </SoftCard>
+      )}
     </Screen>
   );
 }
@@ -72,12 +91,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   addButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
   },
   pressed: {
     opacity: 0.78,
@@ -114,5 +128,25 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: spacing.md,
+  },
+  emptyCard: {
+    gap: spacing.sm,
+    padding: spacing.lg,
+  },
+  emptyTitle: {
+    color: colors.text,
+    fontFamily: typography.family,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  emptyText: {
+    color: colors.textMuted,
+    fontFamily: typography.family,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  emptyAction: {
+    minHeight: 46,
+    marginTop: spacing.xs,
   },
 });
