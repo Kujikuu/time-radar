@@ -42,9 +42,9 @@ export const radius = {
 
 export const typography = {
   family: Platform.select({
-    ios: 'Avenir Next',
-    android: 'sans-serif',
-    default: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    ios: 'Poppins',
+    android: 'Poppins',
+    default: 'Poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   }),
   title: 28,
   heading: 22,
