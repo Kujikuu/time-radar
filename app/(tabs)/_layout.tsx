@@ -5,7 +5,7 @@ import {
   IconListDetailsFilled,
   IconSettings,
   IconSettingsFilled,
-  IconSmartHome
+  IconSmartHome,
 } from '@tabler/icons-react-native';
 import { Tabs } from 'expo-router';
 import React from 'react';
@@ -13,7 +13,7 @@ import { StyleSheet } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { AppIcon } from '@/src/components';
-import { colors, radius, typography } from '@/src/theme';
+import { colors, radius } from '@/src/theme';
 
 export default function TabLayout() {
   return (
@@ -23,10 +23,11 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.textMuted,
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarShowLabel: false,
         tabBarStyle: {
-          height: 78,
-          paddingTop: 8,
-          paddingBottom: 12,
+          height: 68,
+          paddingTop: 10,
+          paddingBottom: 10,
           paddingHorizontal: 12,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.border,
@@ -34,11 +35,7 @@ export default function TabLayout() {
         },
         tabBarItemStyle: {
           borderRadius: radius.md,
-        },
-        tabBarLabelStyle: {
-          fontFamily: typography.family,
-          fontSize: 11,
-          fontWeight: '600',
+          justifyContent: 'center',
         },
       }}>
       <Tabs.Screen
@@ -63,14 +60,18 @@ export default function TabLayout() {
         name="stats"
         options={{
           title: 'Stats',
-          tabBarIcon: ({ color, focused }) => <AppIcon icon={focused ? IconChartDots3Filled : IconChartDots3} size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <AppIcon icon={focused ? IconChartDots3Filled : IconChartDots3} size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, focused }) => <AppIcon icon={focused ? IconSettingsFilled : IconSettings} size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <AppIcon icon={focused ? IconSettingsFilled : IconSettings} size={24} color={color} />
+          ),
         }}
       />
     </Tabs>
