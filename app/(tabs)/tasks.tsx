@@ -1,19 +1,26 @@
 import { IconClipboardCheck, IconPlus } from '@tabler/icons-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
-import { focusTasks } from '@/src/features/focus/mock-data';
+import { useTasks } from '@/src/features/focus/hooks';
 import { AppIcon, Screen, SoftCard } from '@/src/components';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function TasksScreen() {
+  const { tasks } = useTasks();
+
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
         <Text style={styles.title}>Tasks</Text>
-        <View style={styles.addButton}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Create task"
+          onPress={() => router.push('/task/new' as never)}
+          style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
           <AppIcon icon={IconPlus} size={22} color={colors.accentDark} />
-        </View>
+        </Pressable>
       </View>
 
       <SoftCard style={styles.summaryCard}>
@@ -23,13 +30,13 @@ export default function TasksScreen() {
         <View style={styles.summaryCopy}>
           <Text style={styles.summaryTitle}>Today&apos;s focus queue</Text>
           <Text style={styles.summaryText}>
-            Keep the first version intentionally simple: task data is mocked and ready for SQLite.
+            {tasks.length} saved {tasks.length === 1 ? 'task' : 'tasks'} ready for focused work.
           </Text>
         </View>
       </SoftCard>
 
       <View style={styles.list}>
-        {focusTasks.map((task) => (
+        {tasks.map((task) => (
           <FocusTaskCard key={task.id} task={task} />
         ))}
       </View>
@@ -61,6 +68,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surface,
+  },
+  pressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.96 }],
   },
   summaryCard: {
     flexDirection: 'row',

@@ -4,6 +4,8 @@ import { colors } from '@/src/theme';
 
 import { BarPoint, DistributionItem, FocusTask, ProgressMetric } from './types';
 
+const now = new Date().toISOString();
+
 export const today = {
   label: 'Today',
   date: 'May 20, Tue',
@@ -50,6 +52,10 @@ export const focusTasks: FocusTask[] = [
     sound: 'Soft Bell',
     backgroundSound: 'None',
     autoStartBreaks: true,
+    sortOrder: 1,
+    archivedAt: null,
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: 'market-research',
@@ -62,6 +68,10 @@ export const focusTasks: FocusTask[] = [
     sound: 'Glass Chime',
     backgroundSound: 'Low Rain',
     autoStartBreaks: false,
+    sortOrder: 2,
+    archivedAt: null,
+    createdAt: now,
+    updatedAt: now,
   },
   {
     id: 'weekly-review',
@@ -74,6 +84,10 @@ export const focusTasks: FocusTask[] = [
     sound: 'Soft Bell',
     backgroundSound: 'None',
     autoStartBreaks: true,
+    sortOrder: 3,
+    archivedAt: null,
+    createdAt: now,
+    updatedAt: now,
   },
 ];
 

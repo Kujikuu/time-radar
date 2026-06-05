@@ -29,6 +29,10 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
           fill="transparent"
         />
         {data.map((item) => {
+          if (total === 0) {
+            return null;
+          }
+
           const portion = item.minutes / total;
           const dash = portion * circumference;
           const strokeDashoffset = -offset;

@@ -10,13 +10,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AppIcon, IconButton, Screen, SegmentedControl, SoftCard } from '@/src/components';
 import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
-import { distribution, hourlyFocus } from '@/src/features/focus/mock-data';
+import { useStats } from '@/src/features/focus/hooks';
+import { StatsRange } from '@/src/features/focus/types';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
-type Range = 'Day' | 'Week' | 'Month' | 'Year';
-
 export default function StatsScreen() {
-  const [range, setRange] = useState<Range>('Day');
+  const [range, setRange] = useState<StatsRange>('Day');
+  const { summary } = useStats(range);
 
   return (
     <Screen contentStyle={styles.screen}>
@@ -25,32 +25,35 @@ export default function StatsScreen() {
         <IconButton icon={IconCalendar} label="Pick stats date" size={21} />
       </View>
 
-      <SegmentedControl<Range>
+      <SegmentedControl<StatsRange>
         options={['Day', 'Week', 'Month', 'Year']}
         value={range}
         onChange={setRange}
       />
 
       <View style={styles.todayBlock}>
-        <Text style={styles.dateLabel}>Today, May 20</Text>
+        <Text style={styles.dateLabel}>{summary.label}</Text>
         <View style={styles.metricRow}>
           <View>
-            <Text style={styles.focusValue}>2h 15m</Text>
+            <Text style={styles.focusValue}>{summary.focusTime}</Text>
             <Text style={styles.focusLabel}>Focus Time</Text>
           </View>
           <View style={styles.trendBadge}>
             <AppIcon icon={IconTrendingUp} size={20} color={colors.green} />
-            <Text style={styles.trendValue}>+23%</Text>
-            <Text style={styles.trendLabel}>vs yesterday</Text>
+            <Text style={styles.trendValue}>
+              {summary.trendPercent > 0 ? '+' : ''}
+              {summary.trendPercent}%
+            </Text>
+            <Text style={styles.trendLabel}>vs previous</Text>
           </View>
         </View>
       </View>
 
-      <FocusBarChart data={hourlyFocus} />
+      <FocusBarChart data={summary.hourlyFocus} />
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Focus Distribution</Text>
-        <DistributionDonut data={distribution} />
+        <DistributionDonut data={summary.distribution} />
       </View>
 
       <SoftCard style={styles.noteCard}>
@@ -58,8 +61,12 @@ export default function StatsScreen() {
           <AppIcon icon={IconBulb} size={25} color={colors.amber} />
         </View>
         <View style={styles.noteCopy}>
-          <Text style={styles.noteTitle}>Great consistency!</Text>
-          <Text style={styles.noteText}>You&apos;ve completed 3 sessions today.</Text>
+          <Text style={styles.noteTitle}>
+            {summary.focusMinutes > 0 ? 'Great consistency!' : 'Ready when you are'}
+          </Text>
+          <Text style={styles.noteText}>
+            You&apos;ve completed {summary.sessions} focus {summary.sessions === '1' ? 'session' : 'sessions'}.
+          </Text>
         </View>
         <AppIcon icon={IconChevronRight} size={24} color={colors.accentDark} />
       </SoftCard>

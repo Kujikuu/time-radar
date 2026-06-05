@@ -5,16 +5,36 @@ import {
   IconFileText,
 } from '@tabler/icons-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { AppIcon, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
-import { SessionOptionRow } from '@/src/features/focus/SessionOptionRow';
-import { focusTasks } from '@/src/features/focus/mock-data';
+import { TaskForm } from '@/src/features/focus/TaskForm';
+import { taskInputFromTask, useFocusTimer, useTaskDetail } from '@/src/features/focus/hooks';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function SessionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const task = focusTasks.find((item) => item.id === id) ?? focusTasks[0];
+  const { task, save } = useTaskDetail(id);
+  const { start } = useFocusTimer();
+
+  if (!task) {
+    return (
+      <Screen contentStyle={styles.screen}>
+        <View style={styles.header}>
+          <IconButton icon={IconChevronLeft} label="Go back" onPress={() => router.back()} />
+        </View>
+        <SoftCard style={styles.emptyCard}>
+          <Text style={styles.optionTitle}>Task not found</Text>
+          <Text style={styles.optionSubtitle}>Go back and choose another focus task.</Text>
+        </SoftCard>
+      </Screen>
+    );
+  }
+
+  const handleStart = async () => {
+    await start(task.id);
+    router.replace('/(tabs)' as never);
+  };
 
   return (
     <Screen contentStyle={styles.screen}>
@@ -35,32 +55,15 @@ export default function SessionDetailScreen() {
         </View>
       </View>
 
-      <SoftCard style={styles.optionsCard}>
-        <SessionOptionRow label="Focus Duration" value={`${task.focusMinutes} min`} />
-        <SessionOptionRow label="Short Break" value={`${task.shortBreakMinutes} min`} />
-        <SessionOptionRow label="Long Break" value={`${task.longBreakMinutes} min`} />
-        <SessionOptionRow label="Sessions" value={`${task.sessions}`} />
-      </SoftCard>
-
-      <SoftCard style={styles.optionsCard}>
-        <View style={styles.switchRow}>
-          <View>
-            <Text style={styles.optionTitle}>Auto Start Breaks</Text>
-            <Text style={styles.optionSubtitle}>Start breaks automatically</Text>
-          </View>
-          <Switch
-            value={task.autoStartBreaks}
-            trackColor={{ false: colors.borderStrong, true: colors.accentSoft }}
-            thumbColor={colors.accent}
-          />
-        </View>
-        <SessionOptionRow label="Sound" value={task.sound} />
-        <SessionOptionRow label="Background Sound" value={task.backgroundSound} />
-      </SoftCard>
+      <TaskForm
+        key={task.updatedAt}
+        initialValue={taskInputFromTask(task)}
+        submitLabel="Save Changes"
+        onSubmit={save}
+      />
 
       <View style={styles.footerActions}>
-        <PrimaryButton>Start Session</PrimaryButton>
-        <Text style={styles.saveLink}>Save as Preset</Text>
+        <PrimaryButton onPress={handleStart}>Start Session</PrimaryButton>
       </View>
     </Screen>
   );
@@ -117,18 +120,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  optionsCard: {
-    overflow: 'hidden',
-    paddingHorizontal: spacing.lg,
-  },
-  switchRow: {
-    minHeight: 62,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    gap: spacing.md,
+  emptyCard: {
+    gap: 5,
+    padding: spacing.lg,
   },
   optionTitle: {
     color: colors.text,
@@ -145,12 +139,5 @@ const styles = StyleSheet.create({
   footerActions: {
     gap: spacing.lg,
     marginTop: 'auto',
-  },
-  saveLink: {
-    color: colors.accentDark,
-    fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '700',
-    textAlign: 'center',
   },
 });

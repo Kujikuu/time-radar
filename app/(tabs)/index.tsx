@@ -1,15 +1,25 @@
 import { IconChartDots, IconRadar } from '@tabler/icons-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ViewStyle } from 'react-native';
 
 import { AppIcon, IconButton, MetricCard, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
+import { useFocusTimer, useProgressMetrics, useStats, useTasks } from '@/src/features/focus/hooks';
 import { TimerRing } from '@/src/features/focus/TimerRing';
-import { focusTasks, progressMetrics, today } from '@/src/features/focus/mock-data';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function HomeScreen() {
-  const nextTask = focusTasks[0];
+  const { tasks } = useTasks();
+  const { summary } = useStats('Day');
+  const progressMetrics = useProgressMetrics(summary);
+  const { snapshot, toggle, reset, completePhase } = useFocusTimer();
+  const nextTask = snapshot.task ?? tasks[0] ?? null;
+  const todayDate = new Date().toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    weekday: 'short',
+  });
 
   return (
     <Screen contentStyle={styles.screen}>
@@ -17,12 +27,16 @@ export default function HomeScreen() {
         <View>
           <Text style={styles.appTitle}>TimeRadar</Text>
         </View>
-        <IconButton icon={IconChartDots} label="Open productivity overview" />
+        <IconButton
+          icon={IconChartDots}
+          label="Open productivity overview"
+          onPress={() => router.push('/(tabs)/stats' as never)}
+        />
       </View>
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>{today.label}</Text>
-        <Text style={styles.date}>{today.date}</Text>
+        <Text style={styles.sectionTitle}>Today</Text>
+        <Text style={styles.date}>{todayDate}</Text>
       </View>
 
       <SoftCard style={styles.timerCard}>
@@ -31,12 +45,22 @@ export default function HomeScreen() {
             <View key={index} style={[styles.dustDot, dustPosition(index)]} />
           ))}
         </View>
-        <TimerRing label={today.timerLabel} time={today.timerDisplay} />
+        <TimerRing
+          label={snapshot.phaseLabel}
+          time={snapshot.timer ? snapshot.display : nextTask ? `${nextTask.focusMinutes}:00` : '0:00'}
+          progress={snapshot.progress}
+          primaryActionLabel={snapshot.primaryActionLabel}
+          onPrimaryAction={() => toggle(nextTask?.id)}
+          onReset={snapshot.timer ? reset : undefined}
+          onComplete={snapshot.timer ? completePhase : undefined}
+        />
       </SoftCard>
 
       <View style={styles.sectionHeader}>
         <Text style={styles.smallTitle}>Your Progress</Text>
-        <Text style={styles.linkText}>See all</Text>
+        <Pressable onPress={() => router.push('/(tabs)/stats' as never)}>
+          <Text style={styles.linkText}>See all</Text>
+        </Pressable>
       </View>
 
       <View style={styles.metricsGrid}>
@@ -52,7 +76,14 @@ export default function HomeScreen() {
       </View>
 
       <Text style={styles.smallTitle}>Up Next</Text>
-      <FocusTaskCard task={nextTask} />
+      {nextTask ? (
+        <FocusTaskCard task={nextTask} />
+      ) : (
+        <SoftCard style={styles.emptyCard}>
+          <Text style={styles.tipTitle}>No tasks yet</Text>
+          <Text style={styles.tipText}>Create your first focus task to start a session.</Text>
+        </SoftCard>
+      )}
 
       <SoftCard style={styles.tipCard}>
         <View style={styles.tipIcon}>
@@ -125,10 +156,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   timerCard: {
-    minHeight: 270,
+    minHeight: 342,
     justifyContent: 'center',
     overflow: 'hidden',
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.xxl,
   },
   timerDust: {
     ...StyleSheet.absoluteFillObject,
@@ -155,6 +186,10 @@ const styles = StyleSheet.create({
   metricsGrid: {
     flexDirection: 'row',
     gap: spacing.sm,
+  },
+  emptyCard: {
+    gap: 5,
+    padding: spacing.lg,
   },
   tipCard: {
     flexDirection: 'row',

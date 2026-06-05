@@ -5,18 +5,44 @@ import {
   IconMusic,
   IconUserCircle,
 } from '@tabler/icons-react-native';
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { AppIcon, Screen, SoftCard, TablerIcon } from '@/src/components';
+import { useSettings } from '@/src/features/focus/hooks';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
-const settings: { label: string; value: string; icon: TablerIcon }[] = [
-  { label: 'Default focus duration', value: '25 min', icon: IconClock },
-  { label: 'Sound', value: 'Soft Bell', icon: IconBell },
-  { label: 'Background sound', value: 'None', icon: IconMusic },
-];
-
 export default function SettingsScreen() {
+  const { settings, save } = useSettings();
+  const rows: {
+    label: string;
+    value: string;
+    icon: TablerIcon;
+    onPress: () => void;
+  }[] = [
+    {
+      label: 'Default focus duration',
+      value: `${settings.defaultFocusMinutes} min`,
+      icon: IconClock,
+      onPress: () => save({ defaultFocusMinutes: settings.defaultFocusMinutes >= 60 ? 15 : settings.defaultFocusMinutes + 5 }),
+    },
+    {
+      label: 'Sound',
+      value: settings.defaultSound,
+      icon: IconBell,
+      onPress: () =>
+        save({ defaultSound: settings.defaultSound === 'Soft Bell' ? 'Glass Chime' : 'Soft Bell' }),
+    },
+    {
+      label: 'Background sound',
+      value: settings.defaultBackgroundSound,
+      icon: IconMusic,
+      onPress: () =>
+        save({
+          defaultBackgroundSound: settings.defaultBackgroundSound === 'None' ? 'Low Rain' : 'None',
+        }),
+    },
+  ];
+
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
@@ -32,7 +58,7 @@ export default function SettingsScreen() {
         </View>
         <View style={styles.profileCopy}>
           <Text style={styles.profileTitle}>TimeRadar Setup</Text>
-          <Text style={styles.profileText}>Local-first UI shell, ready for SQLite next.</Text>
+          <Text style={styles.profileText}>Local-first focus data saved on this device.</Text>
         </View>
       </SoftCard>
 
@@ -43,13 +69,18 @@ export default function SettingsScreen() {
             <Text style={styles.rowSubtitle}>Start breaks automatically</Text>
           </View>
           <Switch
-            value
+            value={settings.autoStartBreaks}
+            onValueChange={(autoStartBreaks) => save({ autoStartBreaks })}
             trackColor={{ false: colors.borderStrong, true: colors.accentSoft }}
             thumbColor={colors.accent}
           />
         </View>
-        {settings.map((item) => (
-          <View key={item.label} style={styles.row}>
+        {rows.map((item) => (
+          <Pressable
+            accessibilityRole="button"
+            key={item.label}
+            onPress={item.onPress}
+            style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
             <View style={styles.rowLeft}>
               <AppIcon icon={item.icon} size={21} color={colors.accentDark} />
               <Text style={styles.rowTitle}>{item.label}</Text>
@@ -58,7 +89,7 @@ export default function SettingsScreen() {
               <Text style={styles.rowValue}>{item.value}</Text>
               <AppIcon icon={IconChevronRight} size={20} color={colors.text} />
             </View>
-          </View>
+          </Pressable>
         ))}
       </SoftCard>
     </Screen>
@@ -147,6 +178,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
     gap: spacing.md,
+  },
+  pressed: {
+    opacity: 0.78,
   },
   rowLeft: {
     flex: 1,

@@ -1,6 +1,6 @@
 import { IconFileText, IconTrendingUp } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { AppIcon, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { useOnboardingStatus } from '@/src/features/focus/hooks';
 import { RadarMark } from '@/src/features/focus/RadarMark';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
@@ -40,8 +41,16 @@ export default function OnboardingScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [pageWidth, setPageWidth] = useState(0);
+  const { completed, complete } = useOnboardingStatus();
 
-  const enterApp = () => {
+  useEffect(() => {
+    if (completed) {
+      router.replace('/(tabs)' as never);
+    }
+  }, [completed]);
+
+  const enterApp = async () => {
+    await complete();
     router.replace('/(tabs)' as never);
 
     const scrollHost = globalThis as {
@@ -67,6 +76,10 @@ export default function OnboardingScreen() {
 
     goToPage(nextIndex);
   };
+
+  if (completed === null || completed) {
+    return <Screen scroll={false} contentStyle={styles.screen} />;
+  }
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!pageWidth) {
