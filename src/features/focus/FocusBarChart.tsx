@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { memo, useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
 
 import { colors, typography } from '@/src/theme';
@@ -9,25 +10,59 @@ type FocusBarChartProps = {
   data: BarPoint[];
 };
 
-export function FocusBarChart({ data }: FocusBarChartProps) {
-  const width = 310;
-  const height = 160;
-  const top = 12;
-  const chartHeight = 112;
-  const barWidth = 9;
-  const max = 60;
+const chartTicks = [0, 15, 30, 45, 60];
+const chartWidth = 310;
+const chartHeight = 160;
+const chartTop = 12;
+const chartAreaHeight = 112;
+const chartBarWidth = 9;
+const chartMaxMinutes = 60;
+
+export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChartProps) {
+  const total = useMemo(() => data.reduce((sum, point) => sum + point.minutes, 0), [data]);
+  const summary = useMemo(() => `Focus chart, ${total} total minutes`, [total]);
+  const bars = useMemo(() => {
+    const gap = data.length > 1 ? (chartWidth - 52) / (data.length - 1) : 0;
+
+    return data.map((point, index) => {
+      const barX =
+        data.length > 1 ? 38 + gap * index : chartWidth / 2 - chartBarWidth / 2;
+      const labelX = data.length > 1 ? 28 + gap * index : chartWidth / 2 - 10;
+      const barHeight = Math.max(
+        4,
+        (point.minutes / chartMaxMinutes) * chartAreaHeight,
+      );
+      const y = chartTop + chartAreaHeight - barHeight;
+
+      return {
+        key: `${point.label}-${index}`,
+        labelKey: `${point.label}-label-${index}`,
+        label: point.label,
+        labelX,
+        barX,
+        y,
+        barHeight,
+        opacity: point.minutes > 35 ? 0.48 : 0.24,
+      };
+    });
+  }, [data]);
 
   return (
-    <View style={styles.wrapper}>
-      <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
-        {[0, 15, 30, 45, 60].map((tick) => {
-          const y = top + chartHeight - (tick / max) * chartHeight;
+    <View
+      accessible
+      accessibilityLabel={summary}
+      accessibilityRole="image"
+      style={styles.wrapper}>
+      <Svg width="100%" height={chartHeight} viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
+        {chartTicks.map((tick) => {
+          const y =
+            chartTop + chartAreaHeight - (tick / chartMaxMinutes) * chartAreaHeight;
 
           return (
             <Line
               key={tick}
               x1="34"
-              x2={width - 8}
+              x2={chartWidth - 8}
               y1={y}
               y2={y}
               stroke={colors.borderStrong}
@@ -36,8 +71,9 @@ export function FocusBarChart({ data }: FocusBarChartProps) {
             />
           );
         })}
-        {[0, 15, 30, 45, 60].map((tick) => {
-          const y = top + chartHeight - (tick / max) * chartHeight + 4;
+        {chartTicks.map((tick) => {
+          const y =
+            chartTop + chartAreaHeight - (tick / chartMaxMinutes) * chartAreaHeight + 4;
 
           return (
             <SvgText
@@ -51,55 +87,38 @@ export function FocusBarChart({ data }: FocusBarChartProps) {
             </SvgText>
           );
         })}
-        {data.map((point, index) => {
-          const gap = (width - 52) / (data.length - 1);
-          const x = 38 + gap * index;
-          const barHeight = Math.max(4, (point.minutes / max) * chartHeight);
-          const y = top + chartHeight - barHeight;
-
-          return (
-            <Rect
-              key={`${point.label}-${index}`}
-              x={x}
-              y={y}
-              width={barWidth}
-              height={barHeight}
-              rx={4}
-              fill={colors.accent}
-              opacity={point.minutes > 35 ? 0.48 : 0.24}
-            />
-          );
-        })}
-        {data.map((point, index) => {
-          const gap = (width - 52) / (data.length - 1);
-          const x = 28 + gap * index;
-
-          return index % 2 === 0 ? (
+        {bars.map((bar) => (
+          <Rect
+            key={bar.key}
+            x={bar.barX}
+            y={bar.y}
+            width={chartBarWidth}
+            height={bar.barHeight}
+            rx={4}
+            fill={colors.accent}
+            opacity={bar.opacity}
+          />
+        ))}
+        {bars.map((bar, index) =>
+          index % 2 === 0 ? (
             <SvgText
-              key={`${point.label}-label-${index}`}
-              x={x}
-              y={height - 7}
+              key={bar.labelKey}
+              x={bar.labelX}
+              y={chartHeight - 7}
               fill={colors.textMuted}
               fontSize="10"
               fontFamily={typography.family}>
-              {point.label}
+              {bar.label}
             </SvgText>
-          ) : null;
-        })}
+          ) : null,
+        )}
       </Svg>
-      <Text style={styles.caption}>Focus Time</Text>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   wrapper: {
     marginTop: 8,
-  },
-  caption: {
-    position: 'absolute',
-    left: 0,
-    bottom: -2,
-    opacity: 0,
   },
 });
