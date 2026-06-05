@@ -1,11 +1,11 @@
 import {
-  IconChartDots3,
-  IconChartDots3Filled,
+  IconChartPie,
+  IconChartPieFilled,
   IconListDetails,
   IconListDetailsFilled,
   IconSettings,
   IconSettingsFilled,
-  IconSmartHome,
+  IconSmartHome
 } from '@tabler/icons-react-native';
 import { Tabs } from 'expo-router';
 import React from 'react';
@@ -71,7 +71,7 @@ export default function TabLayout() {
         options={{
           title: 'Stats',
           tabBarIcon: ({ color, focused }) => (
-            <AppIcon icon={focused ? IconChartDots3Filled : IconChartDots3} size={24} color={color} />
+            <AppIcon icon={focused ? IconChartPieFilled : IconChartPie} size={24} color={color} />
           ),
         }}
       />

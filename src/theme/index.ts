@@ -46,7 +46,7 @@ export const typography = {
     android: 'Poppins',
     default: 'Poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   }),
-  title: 28,
+  title: 26,
   heading: 22,
   subheading: 17,
   body: 15,

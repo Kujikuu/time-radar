@@ -368,20 +368,19 @@ function Divider() {
 const styles = StyleSheet.create({
   screen: {
     gap: spacing.lg,
-    paddingBottom: 112,
+    paddingBottom: 100,
   },
   header: {
-    minHeight: 54,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: spacing.md,
   },
   title: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: typography.title,
+    fontWeight: 'bold',
   },
   card: {
     padding: spacing.lg,

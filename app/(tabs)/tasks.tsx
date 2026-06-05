@@ -2,9 +2,9 @@ import { IconClipboardCheck, IconPlus } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { AppIcon, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import { useTasks } from '@/src/features/focus/hooks';
-import { AppIcon, Screen, SoftCard } from '@/src/components';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function TasksScreen() {
@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 24,
-    fontWeight: '500',
+    fontSize: typography.title,
+    fontWeight: 'bold',
   },
   addButton: {
     width: 42,

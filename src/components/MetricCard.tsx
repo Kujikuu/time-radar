@@ -20,7 +20,7 @@ const toneColor = {
 export function MetricCard({ icon, value, label, tone = 'accent' }: MetricCardProps) {
   return (
     <View accessible accessibilityLabel={`${label}: ${value}`} style={styles.card}>
-      <AppIcon icon={icon} size={25} color={toneColor[tone]} />
+      <AppIcon icon={icon} size={24} color={toneColor[tone]} />
       <Text selectable style={styles.value}>
         {value}
       </Text>
@@ -32,11 +32,11 @@ export function MetricCard({ icon, value, label, tone = 'accent' }: MetricCardPr
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 100,
+    minHeight: 120,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
+    gap: 6,
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,

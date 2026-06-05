@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 24,
-    fontWeight: '500',
+    fontSize: typography.title,
+    fontWeight: 'bold',
   },
   todayBlock: {
     gap: spacing.md,

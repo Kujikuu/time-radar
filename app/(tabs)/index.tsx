@@ -16,7 +16,7 @@ export default function HomeScreen() {
   const todayDate = new Date().toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-    weekday: 'short',
+    weekday: 'long',
   });
 
   return (
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -97,8 +97,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: typography.heading,
+    fontWeight: 'bold',
   },
   date: {
     color: colors.textMuted,
