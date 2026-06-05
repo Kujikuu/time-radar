@@ -5,7 +5,7 @@ import {
   IconListDetailsFilled,
   IconSettings,
   IconSettingsFilled,
-  IconSmartHome
+  IconSmartHome,
 } from '@tabler/icons-react-native';
 import { Tabs } from 'expo-router';
 import React from 'react';
@@ -13,9 +13,45 @@ import { StyleSheet } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { AppIcon } from '@/src/components';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
+import {
+  bottomTabRouteOrder,
+  type BottomTabRouteName,
+} from '@/src/navigation/tab-rules';
 import { colors, radius } from '@/src/theme';
 
 export default function TabLayout() {
+  const { direction, t } = useTranslation();
+  const tabConfig = {
+    index: {
+      title: t('home.title'),
+      icon: IconSmartHome,
+      activeIcon: IconSmartHome,
+    },
+    tasks: {
+      title: t('tasks.title'),
+      icon: IconListDetails,
+      activeIcon: IconListDetailsFilled,
+    },
+    stats: {
+      title: t('stats.title'),
+      icon: IconChartPie,
+      activeIcon: IconChartPieFilled,
+    },
+    settings: {
+      title: t('settings.title'),
+      icon: IconSettings,
+      activeIcon: IconSettingsFilled,
+    },
+  } satisfies Record<
+    BottomTabRouteName,
+    {
+      title: string;
+      icon: typeof IconSmartHome;
+      activeIcon: typeof IconSmartHome;
+    }
+  >;
+
   return (
     <Tabs
       safeAreaInsets={{
@@ -48,42 +84,26 @@ export default function TabLayout() {
           justifyContent: 'center',
         },
       }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <AppIcon icon={focused ? IconSmartHome : IconSmartHome} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="tasks"
-        options={{
-          title: 'Tasks',
-          tabBarIcon: ({ color, focused }) => (
-            <AppIcon icon={focused ? IconListDetailsFilled : IconListDetails} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          title: 'Stats',
-          tabBarIcon: ({ color, focused }) => (
-            <AppIcon icon={focused ? IconChartPieFilled : IconChartPie} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, focused }) => (
-            <AppIcon icon={focused ? IconSettingsFilled : IconSettings} size={24} color={color} />
-          ),
-        }}
-      />
+      {bottomTabRouteOrder(direction).map((name) => {
+        const config = tabConfig[name];
+
+        return (
+          <Tabs.Screen
+            key={name}
+            name={name}
+            options={{
+              title: config.title,
+              tabBarIcon: ({ color, focused }) => (
+                <AppIcon
+                  icon={focused ? config.activeIcon : config.icon}
+                  size={24}
+                  color={color}
+                />
+              ),
+            }}
+          />
+        );
+      })}
     </Tabs>
   );
 }

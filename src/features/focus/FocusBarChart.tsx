@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
 
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, typography } from '@/src/theme';
 
 import { BarPoint } from './types';
@@ -19,8 +20,12 @@ const chartBarWidth = 9;
 const chartMaxMinutes = 60;
 
 export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChartProps) {
+  const { locale, t } = useTranslation();
   const total = useMemo(() => data.reduce((sum, point) => sum + point.minutes, 0), [data]);
-  const summary = useMemo(() => `Focus chart, ${total} total minutes`, [total]);
+  const summary = useMemo(
+    () => t('stats.chartSummary', { values: { minutes: total } }),
+    [t, total]
+  );
   const bars = useMemo(() => {
     const gap = data.length > 1 ? (chartWidth - 52) / (data.length - 1) : 0;
 
@@ -83,7 +88,7 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
               fill={colors.textMuted}
               fontSize="10"
               fontFamily={typography.family}>
-              {tick}m
+              {locale === 'ar' ? `${tick}د` : `${tick}m`}
             </SvgText>
           );
         })}

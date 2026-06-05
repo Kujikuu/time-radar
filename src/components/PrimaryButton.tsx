@@ -1,7 +1,9 @@
 import { PropsWithChildren } from 'react';
-import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 
 import { colors, radius, typography } from '@/src/theme';
+
+import { AppText } from './AppText';
 
 type PrimaryButtonProps = PropsWithChildren<{
   accessibilityLabel?: string;
@@ -33,7 +35,7 @@ export function PrimaryButton({
         pressed && !disabled && styles.pressed,
         style,
       ]}>
-      <Text style={styles.label}>{children}</Text>
+      <AppText style={styles.label}>{children}</AppText>
     </Pressable>
   );
 }

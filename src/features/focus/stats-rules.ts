@@ -6,6 +6,8 @@ import type {
   StatsRange,
   StatsSummary,
 } from './types';
+import type { AppLocale } from '../../i18n';
+import { formatAppDate, statsRangeLabel } from '../../i18n';
 
 export type FocusCategoryColors = Record<FocusCategory, string>;
 
@@ -15,6 +17,7 @@ type StatsSummaryInput = {
   previousSessions: FocusSession[];
   categoryColors: FocusCategoryColors;
   now?: Date;
+  locale?: AppLocale;
 };
 
 const focusCategories: FocusCategory[] = ['Work', 'Study', 'Personal'];
@@ -25,6 +28,7 @@ export function buildStatsSummary({
   previousSessions,
   categoryColors,
   now = new Date(),
+  locale = 'en',
 }: StatsSummaryInput): StatsSummary {
   const focusSessions = sessions.filter((session) => session.phase === 'focus');
   const previousFocusSessions = previousSessions.filter((session) => session.phase === 'focus');
@@ -39,13 +43,13 @@ export function buildStatsSummary({
 
   return {
     range,
-    label: rangeLabel(range, now),
+    label: rangeLabel(range, now, locale),
     focusTime: formatMinutes(focusMinutes),
     focusMinutes,
     sessions: String(focusSessions.length),
     focusScore: `${Math.min(100, focusSessions.length * 25)}%`,
     trendPercent,
-    hourlyFocus: buildBars(range, focusSessions),
+    hourlyFocus: buildBars(range, focusSessions, locale),
     distribution: buildDistribution(focusSessions, categoryColors),
   };
 }
@@ -53,17 +57,18 @@ export function buildStatsSummary({
 export function emptyStats(
   range: StatsRange,
   categoryColors: FocusCategoryColors,
-  now = new Date()
+  now = new Date(),
+  locale: AppLocale = 'en'
 ): StatsSummary {
   return {
     range,
-    label: rangeLabel(range, now),
+    label: rangeLabel(range, now, locale),
     focusTime: formatMinutes(0),
     focusMinutes: 0,
     sessions: '0',
     focusScore: '0%',
     trendPercent: 0,
-    hourlyFocus: buildBars(range, []),
+    hourlyFocus: buildBars(range, [], locale),
     distribution: buildDistribution([], categoryColors),
   };
 }
@@ -122,17 +127,23 @@ function formatMinutes(minutes: number) {
   return `${minutes}m`;
 }
 
-function buildBars(range: StatsRange, sessions: FocusSession[]): BarPoint[] {
+function buildBars(
+  range: StatsRange,
+  sessions: FocusSession[],
+  locale: AppLocale = 'en'
+): BarPoint[] {
   if (range === 'Day') {
     const buckets = [0, 3, 6, 9, 12, 15, 18, 21, 24];
 
     return buckets.map((hour) => ({
       label:
-        hour === 0 || hour === 24
-          ? '12 AM'
-          : hour === 12
-            ? '12 PM'
-            : `${hour % 12} ${hour < 12 ? 'AM' : 'PM'}`,
+        locale === 'ar'
+          ? arabicHourLabel(hour)
+          : hour === 0 || hour === 24
+            ? '12 AM'
+            : hour === 12
+              ? '12 PM'
+              : `${hour % 12} ${hour < 12 ? 'AM' : 'PM'}`,
       minutes: sumSessions(
         sessions.filter((session) => {
           const sessionHour = new Date(session.startedAt).getHours();
@@ -144,9 +155,13 @@ function buildBars(range: StatsRange, sessions: FocusSession[]): BarPoint[] {
 
   const labels =
     range === 'Week'
-      ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      ? locale === 'ar'
+        ? ['اثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت', 'أحد']
+        : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
       : range === 'Year'
-        ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        ? locale === 'ar'
+          ? ['ينا', 'فبر', 'مار', 'أبر', 'ماي', 'يون', 'يول', 'أغس', 'سبت', 'أكت', 'نوف', 'ديس']
+          : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
         : ['1', '5', '10', '15', '20', '25', '30'];
 
   return labels.map((label, index) => ({
@@ -183,10 +198,23 @@ function sumSessions(sessions: FocusSession[]) {
   return Math.round(sessions.reduce((sum, session) => sum + session.actualSeconds, 0) / 60);
 }
 
-function rangeLabel(range: StatsRange, now: Date) {
+function rangeLabel(range: StatsRange, now: Date, locale: AppLocale = 'en') {
   if (range === 'Day') {
-    return `Today, ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    const day = formatAppDate(locale, now, { month: 'short', day: 'numeric' });
+    return `${locale === 'ar' ? 'اليوم' : 'Today'}, ${day}`;
   }
 
-  return range;
+  return statsRangeLabel(locale, range);
+}
+
+function arabicHourLabel(hour: number) {
+  if (hour === 0 || hour === 24) {
+    return '12 ص';
+  }
+
+  if (hour === 12) {
+    return '12 م';
+  }
+
+  return `${hour % 12} ${hour < 12 ? 'ص' : 'م'}`;
 }

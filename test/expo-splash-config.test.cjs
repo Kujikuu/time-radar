@@ -20,3 +20,31 @@ test('Expo splash screen owns startup branding', () => {
   assert.equal(splashPlugin[1].backgroundColor, '#FCF8F4');
   assert.equal(splashPlugin[1].dark.backgroundColor, '#FCF8F4');
 });
+
+test('Expo config declares device localization and RTL support', () => {
+  const localizationPlugin = getPluginConfig('expo-localization');
+
+  assert.ok(packageJson.dependencies['expo-localization']);
+  assert.ok(packageJson.dependencies['i18n-js']);
+  assert.ok(localizationPlugin);
+  assert.deepEqual(localizationPlugin[1].supportedLocales.ios, ['en', 'ar']);
+  assert.deepEqual(localizationPlugin[1].supportedLocales.android, ['en', 'ar']);
+  assert.equal(appConfig.expo.extra.supportsRTL, true);
+});
+
+test('Expo font plugin embeds Poppins and Thmanyah Sans native font assets', () => {
+  const fontPlugin = getPluginConfig('expo-font');
+  const androidFamilies = fontPlugin[1].android.fonts.map((font) => font.fontFamily);
+  const iosFonts = fontPlugin[1].ios.fonts;
+
+  assert.ok(androidFamilies.includes('Poppins'));
+  assert.ok(androidFamilies.includes('Thmanyah Sans'));
+  assert.ok(
+    iosFonts.includes('./assets/fonts/thmanyahsans/thmanyahsans-Regular.otf'),
+    'Thmanyah Sans regular font is embedded for iOS'
+  );
+  assert.ok(
+    iosFonts.includes('./assets/fonts/thmanyahsans/thmanyahsans-Bold.otf'),
+    'Thmanyah Sans bold font is embedded for iOS'
+  );
+});

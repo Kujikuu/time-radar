@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { colors, radius, typography } from '@/src/theme';
 
+import { AppText } from './AppText';
 import { AppIcon, TablerIcon } from './AppIcon';
 
 type MetricCardProps = {
@@ -21,10 +22,10 @@ export function MetricCard({ icon, value, label, tone = 'accent' }: MetricCardPr
   return (
     <View accessible accessibilityLabel={`${label}: ${value}`} style={styles.card}>
       <AppIcon icon={icon} size={24} color={toneColor[tone]} />
-      <Text selectable style={styles.value}>
+      <AppText selectable style={styles.value}>
         {value}
-      </Text>
-      <Text style={styles.label}>{label}</Text>
+      </AppText>
+      <AppText style={styles.label}>{label}</AppText>
     </View>
   );
 }

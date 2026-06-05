@@ -1,7 +1,7 @@
 import { IconChevronRight } from '@tabler/icons-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { AppIcon, TablerIcon } from '@/src/components';
+import { AppIcon, AppText, TablerIcon } from '@/src/components';
 import { colors, typography } from '@/src/theme';
 
 type SessionOptionRowProps = {
@@ -19,10 +19,10 @@ export function SessionOptionRow({
 }: SessionOptionRowProps) {
   return (
     <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
+      <AppText style={styles.label}>{label}</AppText>
       <View style={styles.valueWrap}>
         {icon ? <AppIcon icon={icon} size={18} color={colors.textMuted} /> : null}
-        <Text style={styles.value}>{value}</Text>
+        <AppText style={styles.value}>{value}</AppText>
         {showChevron ? (
           <AppIcon icon={IconChevronRight} size={20} color={colors.text} />
         ) : null}

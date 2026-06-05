@@ -12,6 +12,9 @@
     "src/features/focus/timer-rules.ts",
     "src/features/focus/timer-snapshot-rules.ts",
     "src/features/focus/notification-rules.ts",
-    "src/features/focus/stats-rules.ts"
+    "src/features/focus/notification-prompt-rules.ts",
+    "src/features/focus/stats-rules.ts",
+    "src/i18n/**/*.ts",
+    "src/navigation/**/*.ts"
   ]
 }

@@ -5,6 +5,7 @@ export type TimerPhase = 'focus' | 'short_break' | 'long_break';
 export type TimerStatus = 'running' | 'paused';
 export type SessionStatus = 'completed' | 'reset';
 export type StatsRange = 'Day' | 'Week' | 'Month' | 'Year';
+export type AppLanguagePreference = 'system' | 'en' | 'ar';
 
 export type FocusTask = {
   id: string;
@@ -37,6 +38,8 @@ export type TaskInput = {
 
 export type AppSettings = {
   onboardingCompleted: boolean;
+  notificationPermissionPromptCompleted: boolean;
+  languagePreference: AppLanguagePreference;
   defaultFocusMinutes: number;
   defaultShortBreakMinutes: number;
   defaultLongBreakMinutes: number;

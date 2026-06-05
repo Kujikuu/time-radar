@@ -1,8 +1,9 @@
 import { usePathname } from 'expo-router';
 import { PropsWithChildren, useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { colors } from '@/src/theme';
 
 type ScreenProps = PropsWithChildren<{
@@ -13,6 +14,9 @@ type ScreenProps = PropsWithChildren<{
 export function Screen({ children, scroll = true, contentStyle }: ScreenProps) {
   const pathname = usePathname();
   const scrollRef = useRef<ScrollView>(null);
+  const { direction } = useLocale();
+  const webDirectionProps =
+    Platform.OS === 'web' ? ({ dir: direction } as Record<string, string>) : {};
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
@@ -21,7 +25,11 @@ export function Screen({ children, scroll = true, contentStyle }: ScreenProps) {
     scrollHost.scrollTo?.(0, 0);
   }, [pathname]);
 
-  const content = <View style={[styles.content, contentStyle]}>{children}</View>;
+  const content = (
+    <View {...webDirectionProps} style={[styles.content, contentStyle]}>
+      {children}
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>

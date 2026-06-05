@@ -1,22 +1,27 @@
 import { IconClipboardCheck, IconPlus } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, Screen, SoftCard } from '@/src/components';
+import { AppIcon, AppText, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import { useTasks } from '@/src/features/focus/hooks';
+import { textAlignForTextDirection } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function TasksScreen() {
   const { tasks } = useTasks();
+  const { direction, t } = useTranslation();
+  const contentText = { textAlign: textAlignForTextDirection(direction) };
+  const taskLabel = tasks.length === 1 ? t('units.task') : t('units.tasks');
 
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
-        <Text style={styles.title}>Tasks</Text>
+        <AppText style={[styles.title, styles.contentText, contentText]}>{t('tasks.title')}</AppText>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Create task"
+          accessibilityLabel={t('tasks.createTask')}
           onPress={() => router.push('/task/new' as never)}
           style={({ pressed }) => [styles.addButton, pressed && styles.pressed]}>
           <AppIcon icon={IconPlus} size={22} color={colors.accentDark} />
@@ -28,10 +33,12 @@ export default function TasksScreen() {
           <AppIcon icon={IconClipboardCheck} size={25} color={colors.accentDark} />
         </View>
         <View style={styles.summaryCopy}>
-          <Text style={styles.summaryTitle}>Today&apos;s focus queue</Text>
-          <Text style={styles.summaryText}>
-            {tasks.length} saved {tasks.length === 1 ? 'task' : 'tasks'} ready for focused work.
-          </Text>
+          <AppText style={[styles.summaryTitle, styles.contentText, contentText]}>
+            {t('tasks.queueTitle')}
+          </AppText>
+          <AppText style={[styles.summaryText, styles.contentText, contentText]}>
+            {t('tasks.queueBody', { values: { count: tasks.length, taskLabel } })}
+          </AppText>
         </View>
       </SoftCard>
 
@@ -60,6 +67,9 @@ const styles = StyleSheet.create({
     fontFamily: typography.family,
     fontSize: typography.title,
     fontWeight: 'bold',
+  },
+  contentText: {
+    width: '100%',
   },
   addButton: {
     width: 42,

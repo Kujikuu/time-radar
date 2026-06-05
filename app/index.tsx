@@ -7,32 +7,33 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 
-import { AppIcon, BrandLogo, PrimaryButton, Screen, SoftCard } from '@/src/components';
-import { useOnboardingStatus } from '@/src/features/focus/hooks';
+import { AppIcon, AppText, BrandLogo, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
+import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/notification-prompt-rules';
 import { RadarMark } from '@/src/features/focus/RadarMark';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 const onboardingSlides = [
   {
     id: 'focus',
-    title: null,
-    body: 'Focus deeply.\nBuild consistently.\nSee progress clearly.',
+    titleKey: null,
+    bodyKey: 'onboarding.slides.focusBody',
     visual: 'radar',
   },
   {
     id: 'sessions',
-    title: 'Shape every block',
-    body: 'Choose the task, set the rhythm, and keep breaks predictable.',
+    titleKey: 'onboarding.slides.sessionsTitle',
+    bodyKey: 'onboarding.slides.sessionsBody',
     visual: 'session',
   },
   {
     id: 'progress',
-    title: 'Read your focus signal',
-    body: 'Track sessions, focus time, and distribution without clutter.',
+    titleKey: 'onboarding.slides.progressTitle',
+    bodyKey: 'onboarding.slides.progressBody',
     visual: 'stats',
   },
 ] as const;
@@ -41,7 +42,16 @@ export default function OnboardingScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [pageWidth, setPageWidth] = useState(0);
-  const { completed, complete } = useOnboardingStatus();
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+  const { settings, loading, save } = useSettings();
+  const notificationPermission = useNotificationPermissionStatus();
+  const { t } = useTranslation();
+  const completed = loading ? null : settings.onboardingCompleted;
+  const shouldOfferNotifications = shouldShowNotificationPermissionPrompt({
+    settings,
+    permissionStatus: notificationPermission.status,
+    placement: 'onboarding',
+  });
 
   useEffect(() => {
     if (completed) {
@@ -49,8 +59,10 @@ export default function OnboardingScreen() {
     }
   }, [completed]);
 
-  const enterApp = async () => {
-    await complete();
+  const enterApp = async (
+    updates: Partial<typeof settings> = {}
+  ) => {
+    await save({ onboardingCompleted: true, ...updates });
     router.replace('/(tabs)' as never);
 
     const scrollHost = globalThis as {
@@ -70,6 +82,11 @@ export default function OnboardingScreen() {
     const nextIndex = activeIndex + 1;
 
     if (nextIndex >= onboardingSlides.length) {
+      if (shouldOfferNotifications) {
+        setShowNotificationPrompt(true);
+        return;
+      }
+
       enterApp();
       return;
     }
@@ -90,6 +107,22 @@ export default function OnboardingScreen() {
     setActiveIndex(Math.min(Math.max(nextIndex, 0), onboardingSlides.length - 1));
   };
 
+  const handleAllowNotifications = async () => {
+    const status = await notificationPermission.request();
+
+    await enterApp({
+      notificationPermissionPromptCompleted: true,
+      notificationsEnabled: status === 'granted',
+    });
+  };
+
+  const handleSkipNotifications = async () => {
+    await enterApp({
+      notificationPermissionPromptCompleted: true,
+      notificationsEnabled: false,
+    });
+  };
+
   return (
     <Screen scroll={false} contentStyle={styles.screen}>
       <View
@@ -107,8 +140,12 @@ export default function OnboardingScreen() {
           {onboardingSlides.map((slide) => (
             <View key={slide.id} style={[styles.slide, { width: pageWidth || undefined }]}>
               <View style={styles.copy}>
-                {slide.title ? <Text style={styles.title}>{slide.title}</Text> : <BrandLogo variant="hero" />}
-                <Text style={styles.subtitle}>{slide.body}</Text>
+                {slide.titleKey ? (
+                  <AppText style={styles.title}>{t(slide.titleKey)}</AppText>
+                ) : (
+                  <BrandLogo variant="hero" />
+                )}
+                <AppText style={styles.subtitle}>{t(slide.bodyKey)}</AppText>
               </View>
               <OnboardingVisual type={slide.visual} />
             </View>
@@ -117,27 +154,52 @@ export default function OnboardingScreen() {
       </View>
 
       <View style={styles.actions}>
-        <PrimaryButton onPress={handlePrimaryAction}>
-          {activeIndex === onboardingSlides.length - 1 ? "Let's Focus" : 'Next'}
-        </PrimaryButton>
-        <Text style={styles.skip}>I&apos;ll do this later</Text>
-        <View style={styles.dots}>
-          {onboardingSlides.map((slide, index) => (
+        {showNotificationPrompt ? (
+          <SoftCard style={styles.notificationCard}>
+            <View style={styles.notificationCopy}>
+              <AppText style={styles.notificationTitle}>
+                {t('onboarding.notificationTitle')}
+              </AppText>
+              <AppText style={styles.notificationBody}>{t('onboarding.notificationBody')}</AppText>
+            </View>
+            <PrimaryButton onPress={handleAllowNotifications}>
+              {t('common.allowNotifications')}
+            </PrimaryButton>
             <Pressable
-              accessibilityLabel={`Go to onboarding page ${index + 1}`}
+              accessibilityLabel={t('common.notNow')}
               accessibilityRole="button"
-              key={slide.id}
-              onPress={() => goToPage(index)}
-              style={[styles.dot, index === activeIndex && styles.activeDot]}
-            />
-          ))}
-        </View>
+              onPress={handleSkipNotifications}
+              style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+              <AppText style={styles.secondaryButtonText}>{t('common.notNow')}</AppText>
+            </Pressable>
+          </SoftCard>
+        ) : (
+          <>
+            <PrimaryButton onPress={handlePrimaryAction}>
+              {activeIndex === onboardingSlides.length - 1 ? t('onboarding.start') : t('common.next')}
+            </PrimaryButton>
+            <AppText style={styles.skip}>{t('onboarding.skip')}</AppText>
+            <View style={styles.dots}>
+              {onboardingSlides.map((slide, index) => (
+                <Pressable
+                  accessibilityLabel={t('onboarding.pageA11y', { values: { page: index + 1 } })}
+                  accessibilityRole="button"
+                  key={slide.id}
+                  onPress={() => goToPage(index)}
+                  style={[styles.dot, index === activeIndex && styles.activeDot]}
+                />
+              ))}
+            </View>
+          </>
+        )}
       </View>
     </Screen>
   );
 }
 
 function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['visual'] }) {
+  const { t } = useTranslation();
+
   if (type === 'radar') {
     return <RadarMark />;
   }
@@ -149,15 +211,21 @@ function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['v
           <View style={styles.sessionIcon}>
             <AppIcon icon={IconFileText} size={30} color={colors.accentDark} />
           </View>
-          <Text style={styles.visualTitle}>Project Proposal</Text>
+          <AppText style={styles.visualTitle}>{t('onboarding.visual.projectProposal')}</AppText>
           <View style={styles.timerPill}>
-            <Text style={styles.timerPillText}>25:00</Text>
+            <AppText style={styles.timerPillText}>25:00</AppText>
           </View>
           <View style={styles.sessionRows}>
-            {['Focus Duration', 'Short Break', 'Long Break'].map((label, index) => (
+            {[
+              t('taskForm.focusDuration'),
+              t('taskForm.shortBreak'),
+              t('taskForm.longBreak'),
+            ].map((label, index) => (
               <View key={label} style={styles.sessionRow}>
-                <Text style={styles.sessionLabel}>{label}</Text>
-                <Text style={styles.sessionValue}>{index === 0 ? '25 min' : index === 1 ? '5 min' : '15 min'}</Text>
+                <AppText style={styles.sessionLabel}>{label}</AppText>
+                <AppText style={styles.sessionValue}>
+                  {index === 0 ? `25 ${t('units.min')}` : index === 1 ? `5 ${t('units.min')}` : `15 ${t('units.min')}`}
+                </AppText>
               </View>
             ))}
           </View>
@@ -170,21 +238,21 @@ function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['v
     <View style={styles.visualShell}>
       <SoftCard style={styles.statsCard}>
         <View style={styles.statHeader}>
-          <Text style={styles.visualTitle}>Today</Text>
+          <AppText style={styles.visualTitle}>{t('onboarding.visual.today')}</AppText>
           <View style={styles.trendBadge}>
             <AppIcon icon={IconTrendingUp} size={18} color={colors.green} />
-            <Text style={styles.trendText}>+23%</Text>
+            <AppText style={styles.trendText}>+23%</AppText>
           </View>
         </View>
-        <Text style={styles.bigMetric}>2h 15m</Text>
+        <AppText style={styles.bigMetric}>2h 15m</AppText>
         <View style={styles.bars}>
           {[18, 42, 26, 70, 92, 54, 34, 48].map((height, index) => (
             <View key={`${height}-${index}`} style={[styles.bar, { height }]} />
           ))}
         </View>
         <View style={styles.scoreRow}>
-          <Text style={styles.sessionLabel}>Focus Score</Text>
-          <Text style={styles.sessionValue}>85%</Text>
+          <AppText style={styles.sessionLabel}>{t('metrics.focusScore')}</AppText>
+          <AppText style={styles.sessionValue}>85%</AppText>
         </View>
       </SoftCard>
     </View>
@@ -231,12 +299,48 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingHorizontal: 14,
   },
+  notificationCard: {
+    gap: spacing.md,
+    padding: spacing.lg,
+  },
+  notificationCopy: {
+    gap: spacing.sm,
+  },
+  notificationTitle: {
+    color: colors.text,
+    fontFamily: typography.family,
+    fontSize: 17,
+    fontWeight: '700',
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  notificationBody: {
+    color: colors.textMuted,
+    fontFamily: typography.family,
+    fontSize: 13,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  secondaryButton: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryButtonText: {
+    color: colors.accentDark,
+    fontFamily: typography.family,
+    fontSize: 14,
+    fontWeight: '700',
+  },
   skip: {
     color: colors.accentDark,
     fontFamily: typography.family,
     fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  pressed: {
+    opacity: 0.76,
   },
   dots: {
     flexDirection: 'row',

@@ -1,7 +1,10 @@
 import { memo, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
+import { AppText } from '@/src/components';
+import { focusCategoryLabel, textAlignForTextDirection } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, typography } from '@/src/theme';
 
 import { DistributionItem } from './types';
@@ -11,6 +14,8 @@ type DistributionDonutProps = {
 };
 
 export const DistributionDonut = memo(function DistributionDonut({ data }: DistributionDonutProps) {
+  const { direction, locale, t } = useTranslation();
+  const legendText = { textAlign: textAlignForTextDirection(direction) };
   const size = 128;
   const strokeWidth = 32;
   const radius = (size - strokeWidth) / 2;
@@ -18,15 +23,15 @@ export const DistributionDonut = memo(function DistributionDonut({ data }: Distr
   const total = useMemo(() => data.reduce((sum, item) => sum + item.minutes, 0), [data]);
   const summary = useMemo(() => {
     if (total === 0) {
-      return '0m total';
+      return t('stats.zeroTotal');
     }
 
     const values = data
-      .map((item) => `${item.label} ${formatMinutes(item.minutes)}`)
+      .map((item) => `${focusCategoryLabel(locale, item.label)} ${formatMinutes(item.minutes, locale)}`)
       .join(', ');
 
-    return `${formatMinutes(total)} total, ${values}`;
-  }, [data, total]);
+    return `${t('stats.totalMinutes', { values: { value: formatMinutes(total, locale) } })}, ${values}`;
+  }, [data, locale, t, total]);
   const segments = useMemo(() => {
     let offset = 0;
 
@@ -54,7 +59,7 @@ export const DistributionDonut = memo(function DistributionDonut({ data }: Distr
   return (
     <View
       accessible
-      accessibilityLabel={`Focus distribution, ${summary}`}
+      accessibilityLabel={t('stats.distributionSummary', { values: { summary } })}
       accessibilityRole="image"
       style={styles.wrapper}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -86,10 +91,12 @@ export const DistributionDonut = memo(function DistributionDonut({ data }: Distr
         {data.map((item) => (
           <View key={item.label} style={styles.legendRow}>
             <View style={[styles.dot, { backgroundColor: item.color }]} />
-            <Text style={styles.legendLabel}>{item.label}</Text>
-            <Text selectable style={styles.legendValue}>
-              {formatMinutes(item.minutes)}
-            </Text>
+            <AppText style={[styles.legendLabel, legendText]}>
+              {focusCategoryLabel(locale, item.label)}
+            </AppText>
+            <AppText selectable style={[styles.legendValue, legendText]}>
+              {formatMinutes(item.minutes, locale)}
+            </AppText>
           </View>
         ))}
       </View>
@@ -97,14 +104,19 @@ export const DistributionDonut = memo(function DistributionDonut({ data }: Distr
   );
 });
 
-function formatMinutes(minutes: number) {
+function formatMinutes(minutes: number, locale = 'en') {
   if (minutes >= 60) {
     const hours = Math.floor(minutes / 60);
     const remaining = minutes % 60;
+
+    if (locale === 'ar') {
+      return remaining ? `${hours}س ${remaining}د` : `${hours}س`;
+    }
+
     return remaining ? `${hours}h ${remaining}m` : `${hours}h`;
   }
 
-  return `${minutes}m`;
+  return locale === 'ar' ? `${minutes}د` : `${minutes}m`;
 }
 
 const styles = StyleSheet.create({

@@ -1,4 +1,5 @@
 export { AppIcon } from './AppIcon';
+export { AppText } from './AppText';
 export type { TablerIcon } from './AppIcon';
 export { BrandLogo } from './BrandLogo';
 export { IconButton } from './IconButton';

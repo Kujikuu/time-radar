@@ -1,8 +1,10 @@
 import { IconFileText, IconPlayerPlay } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, SoftCard } from '@/src/components';
+import { AppIcon, AppText, SoftCard } from '@/src/components';
+import { textAlignForTextDirection } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, typography } from '@/src/theme';
 
 import { FocusTask } from './types';
@@ -12,9 +14,14 @@ type FocusTaskCardProps = {
 };
 
 export function FocusTaskCard({ task }: FocusTaskCardProps) {
+  const { direction, formatDuration, t } = useTranslation();
+  const contentText = { textAlign: textAlignForTextDirection(direction) };
+
   return (
     <Pressable
-      accessibilityLabel={`Open ${task.title} focus task, ${task.focusMinutes} minutes`}
+      accessibilityLabel={t('tasks.openTask', {
+        values: { title: task.title, minutes: task.focusMinutes },
+      })}
       accessibilityRole="button"
       onPress={() => router.push(`/session/${task.id}`)}
       style={({ pressed }) => pressed && styles.pressed}>
@@ -23,8 +30,10 @@ export function FocusTaskCard({ task }: FocusTaskCardProps) {
           <AppIcon icon={IconFileText} size={26} color={colors.accentDark} />
         </View>
         <View style={styles.copy}>
-          <Text style={styles.title}>{task.title}</Text>
-          <Text style={styles.meta}>{task.focusMinutes} min</Text>
+          <AppText style={[styles.title, styles.contentText, contentText]}>{task.title}</AppText>
+          <AppText style={[styles.meta, styles.contentText, contentText]}>
+            {formatDuration(task.focusMinutes)}
+          </AppText>
         </View>
         <View style={styles.playButton}>
           <AppIcon icon={IconPlayerPlay} size={18} color={colors.text} />
@@ -56,6 +65,9 @@ const styles = StyleSheet.create({
   copy: {
     flex: 1,
     gap: 4,
+  },
+  contentText: {
+    width: '100%',
   },
   title: {
     color: colors.text,

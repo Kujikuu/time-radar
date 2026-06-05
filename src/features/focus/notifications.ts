@@ -1,6 +1,9 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { getDeviceAppLocale } from '@/src/i18n/device';
+import { translate } from '@/src/i18n';
+
 import type { AppSettings, FocusTask, TimerPhase } from './types';
 import {
   isPhaseNotificationEnabled,
@@ -112,13 +115,19 @@ export async function scheduleTimerCompletionNotification({
   }
 
   const scheduledIds: string[] = [];
+  const locale = getDeviceAppLocale(settings.languagePreference);
 
   if (plan.warningDelaySeconds) {
     scheduledIds.push(
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'Focus almost done',
-          body: `${task.title} has ${formatWarningSeconds(settings.timerWarningSeconds)} left.`,
+          title: translate(locale, 'notificationContent.focusAlmostDoneTitle'),
+          body: translate(locale, 'notificationContent.focusAlmostDoneBody', {
+            values: {
+              title: task.title,
+              time: formatWarningSeconds(settings.timerWarningSeconds, locale),
+            },
+          }),
           data: timerNotificationData(task.id),
           sound: false,
         },
@@ -130,8 +139,8 @@ export async function scheduleTimerCompletionNotification({
   scheduledIds.push(
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: completionTitle(phase),
-        body: completionBody(phase, task.title),
+        title: completionTitle(phase, locale),
+        body: completionBody(phase, task.title, locale),
         data: timerNotificationData(task.id),
         sound: settings.completionSoundEnabled ? 'default' : false,
       },
@@ -169,10 +178,12 @@ export async function presentTimerCompletionNotification({
   }
 
   try {
+    const locale = getDeviceAppLocale(settings.languagePreference);
+
     return await Notifications.scheduleNotificationAsync({
       content: {
-        title: completionTitle(phase),
-        body: completionBody(phase, task.title),
+        title: completionTitle(phase, locale),
+        body: completionBody(phase, task.title, locale),
         data: timerNotificationData(task.id),
         sound: plan.shouldPlaySound ? 'default' : false,
       },
@@ -206,19 +217,7 @@ export async function cancelTimerNotifications(): Promise<void> {
 }
 
 export function notificationStatusLabel(status: TimerNotificationPermissionStatus) {
-  if (status === 'granted') {
-    return 'Allowed';
-  }
-
-  if (status === 'denied') {
-    return 'Blocked';
-  }
-
-  if (status === 'unsupported') {
-    return 'Not available on web';
-  }
-
-  return 'Not enabled';
+  return translate(getDeviceAppLocale(), `settings.permissionStatus.${status}`);
 }
 
 function configureTimerNotificationChannel() {
@@ -227,8 +226,8 @@ function configureTimerNotificationChannel() {
   }
 
   return Notifications.setNotificationChannelAsync(TIMER_CHANNEL_ID, {
-    name: 'Timer Completion',
-    description: 'Focus and break completion alerts.',
+    name: translate(getDeviceAppLocale(), 'notificationContent.channelName'),
+    description: translate(getDeviceAppLocale(), 'notificationContent.channelDescription'),
     importance: Notifications.AndroidImportance.HIGH,
     sound: 'default',
     vibrationPattern: [0, 180, 120, 180],
@@ -281,31 +280,35 @@ function timerNotificationData(taskId: string) {
   };
 }
 
-function completionTitle(phase: TimerPhase) {
+function completionTitle(phase: TimerPhase, locale = getDeviceAppLocale()) {
   if (phase === 'focus') {
-    return 'Focus complete';
+    return translate(locale, 'notificationContent.focusCompleteTitle');
   }
 
   if (phase === 'long_break') {
-    return 'Long break complete';
+    return translate(locale, 'notificationContent.longBreakCompleteTitle');
   }
 
-  return 'Break complete';
+  return translate(locale, 'notificationContent.breakCompleteTitle');
 }
 
-function completionBody(phase: TimerPhase, taskTitle: string) {
+function completionBody(phase: TimerPhase, taskTitle: string, locale = getDeviceAppLocale()) {
   if (phase === 'focus') {
-    return `${taskTitle} is complete. Time for a break.`;
+    return translate(locale, 'notificationContent.focusCompleteBody', {
+      values: { title: taskTitle },
+    });
   }
 
-  return `${taskTitle} is ready for the next focus session.`;
+  return translate(locale, 'notificationContent.breakCompleteBody', {
+    values: { title: taskTitle },
+  });
 }
 
-function formatWarningSeconds(seconds: number) {
+function formatWarningSeconds(seconds: number, locale = getDeviceAppLocale()) {
   if (seconds < 60) {
-    return `${seconds} seconds`;
+    return `${seconds} ${translate(locale, seconds === 1 ? 'units.second' : 'units.seconds')}`;
   }
 
   const minutes = Math.round(seconds / 60);
-  return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+  return `${minutes} ${translate(locale, minutes === 1 ? 'units.minute' : 'units.minutes')}`;
 }

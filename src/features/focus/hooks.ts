@@ -4,6 +4,8 @@ import { type SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
+import type { AppLocale } from '@/src/i18n';
+import { formatDuration, translate } from '@/src/i18n';
 import { colors } from '@/src/theme';
 
 import { triggerFocusHaptic } from './haptics';
@@ -350,9 +352,11 @@ async function syncActiveTimerNotification(db: SQLiteDatabase) {
   }
 }
 
-export function useStats(range: StatsRange) {
+export function useStats(range: StatsRange, locale: AppLocale = 'en') {
   const db = useSQLiteContext();
-  const [summary, setSummary] = useState<StatsSummary>(() => emptyStats(range, focusCategoryColors));
+  const [summary, setSummary] = useState<StatsSummary>(() =>
+    emptyStats(range, focusCategoryColors, new Date(), locale)
+  );
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
@@ -369,10 +373,11 @@ export function useStats(range: StatsRange) {
         sessions,
         previousSessions,
         categoryColors: focusCategoryColors,
+        locale,
       })
     );
     setLoading(false);
-  }, [db, range]);
+  }, [db, locale, range]);
 
   useFocusEffect(
     useCallback(() => {
@@ -383,32 +388,35 @@ export function useStats(range: StatsRange) {
   return { summary, loading, reload };
 }
 
-export function useProgressMetrics(summary: StatsSummary): ProgressMetric[] {
+export function useProgressMetrics(
+  summary: StatsSummary,
+  locale: AppLocale = 'en'
+): ProgressMetric[] {
   return useMemo(
     () => [
       {
         id: 'sessions',
         icon: IconClock,
         value: summary.sessions,
-        label: 'Sessions',
+        label: translate(locale, 'metrics.sessions'),
         tone: 'accent',
       },
       {
         id: 'focus-time',
         icon: IconFlame,
-        value: summary.focusTime,
-        label: 'Focus Time',
+        value: formatDuration(locale, summary.focusMinutes),
+        label: translate(locale, 'metrics.focusTime'),
         tone: 'accent',
       },
       {
         id: 'score',
         icon: IconTargetArrow,
         value: summary.focusScore,
-        label: 'Focus Score',
+        label: translate(locale, 'metrics.focusScore'),
         tone: 'green',
       },
     ],
-    [summary.focusScore, summary.focusTime, summary.sessions]
+    [locale, summary.focusMinutes, summary.focusScore, summary.sessions]
   );
 }
 

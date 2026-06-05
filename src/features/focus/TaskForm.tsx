@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Switch, TextInput, View } from 'react-native';
 
-import { PrimaryButton, SegmentedControl, SoftCard } from '@/src/components';
+import { AppText, PrimaryButton, SegmentedControl, SoftCard } from '@/src/components';
+import { focusCategoryOptions, fontFamilyForLocale, textAlignForTextDirection } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 import { FocusCategory, TaskInput } from './types';
@@ -12,9 +14,9 @@ type TaskFormProps = {
   onSubmit: (input: TaskInput) => void | Promise<void>;
 };
 
-const categories: FocusCategory[] = ['Work', 'Study', 'Personal'];
-
 export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps) {
+  const { direction, locale, t } = useTranslation();
+  const toggleText = { textAlign: textAlignForTextDirection(direction) };
   const [title, setTitle] = useState(initialValue.title);
   const [category, setCategory] = useState<FocusCategory>(initialValue.category);
   const [focusMinutes, setFocusMinutes] = useState(String(initialValue.focusMinutes));
@@ -56,43 +58,67 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
     <View style={styles.wrapper}>
       <SoftCard style={styles.card}>
         <View style={styles.field}>
-          <Text style={styles.label}>Task Name</Text>
+          <AppText style={styles.label}>{t('taskForm.taskName')}</AppText>
           <TextInput
-            accessibilityLabel="Task name"
+            accessibilityLabel={t('taskForm.taskNameA11y')}
             value={title}
             onChangeText={setTitle}
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                fontFamily: fontFamilyForLocale(locale),
+                textAlign: 'left',
+                writingDirection: direction,
+              },
+            ]}
           />
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Category</Text>
-          <SegmentedControl options={categories} value={category} onChange={setCategory} />
+          <AppText style={styles.label}>{t('taskForm.category')}</AppText>
+          <SegmentedControl
+            options={focusCategoryOptions(locale)}
+            value={category}
+            onChange={setCategory}
+          />
         </View>
       </SoftCard>
 
       <SoftCard style={styles.card}>
-        <NumberField label="Focus Duration" value={focusMinutes} onChangeText={setFocusMinutes} />
         <NumberField
-          label="Short Break"
+          label={t('taskForm.focusDuration')}
+          value={focusMinutes}
+          onChangeText={setFocusMinutes}
+        />
+        <NumberField
+          label={t('taskForm.shortBreak')}
           value={shortBreakMinutes}
           onChangeText={setShortBreakMinutes}
         />
         <NumberField
-          label="Long Break"
+          label={t('taskForm.longBreak')}
           value={longBreakMinutes}
           onChangeText={setLongBreakMinutes}
         />
-        <NumberField label="Sessions Before Long Break" value={sessions} onChangeText={setSessions} />
+        <NumberField
+          label={t('taskForm.sessionsBeforeLongBreak')}
+          value={sessions}
+          onChangeText={setSessions}
+        />
       </SoftCard>
 
       <SoftCard style={styles.card}>
         <View style={styles.switchRow}>
           <View style={styles.switchCopy}>
-            <Text style={styles.label}>Auto Start Breaks</Text>
-            <Text style={styles.helper}>Start break phases automatically after focus.</Text>
+            <AppText style={[styles.label, styles.toggleText, toggleText]}>
+              {t('taskForm.autoStartBreaks')}
+            </AppText>
+            <AppText style={[styles.helper, styles.toggleText, toggleText]}>
+              {t('taskForm.autoStartBreaksHelper')}
+            </AppText>
           </View>
           <Switch
+            accessibilityLabel={t('taskForm.autoStartBreaks')}
             value={autoStartBreaks}
             onValueChange={setAutoStartBreaks}
             trackColor={{ false: colors.borderStrong, true: colors.accentSoft }}
@@ -115,15 +141,24 @@ function NumberField({
   value: string;
   onChangeText: (value: string) => void;
 }) {
+  const { direction, locale } = useTranslation();
+
   return (
     <View style={styles.numberRow}>
-      <Text style={styles.label}>{label}</Text>
+      <AppText style={styles.label}>{label}</AppText>
       <TextInput
         accessibilityLabel={label}
         value={value}
         onChangeText={(nextValue) => onChangeText(nextValue.replace(/[^0-9]/g, ''))}
         keyboardType="number-pad"
-        style={styles.numberInput}
+        style={[
+          styles.numberInput,
+          {
+            fontFamily: fontFamilyForLocale(locale),
+            textAlign: 'center',
+            writingDirection: direction,
+          },
+        ]}
       />
     </View>
   );
@@ -198,5 +233,8 @@ const styles = StyleSheet.create({
   switchCopy: {
     flex: 1,
     gap: 3,
+  },
+  toggleText: {
+    width: '100%',
   },
 });

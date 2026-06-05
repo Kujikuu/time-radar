@@ -1,23 +1,37 @@
 import {
+  IconLanguage,
   IconMinus,
   IconPlus,
 } from '@tabler/icons-react-native';
 import { type ReactNode } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Switch, View } from 'react-native';
 
-import { AppIcon, PrimaryButton, Screen, SoftCard, type TablerIcon } from '@/src/components';
+import {
+  AppIcon,
+  AppText,
+  IconButton,
+  PrimaryButton,
+  Screen,
+  SoftCard,
+  type TablerIcon,
+} from '@/src/components';
 import { triggerFocusHaptic } from '@/src/features/focus/haptics';
 import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
-import { notificationStatusLabel } from '@/src/features/focus/notifications';
+import { languageTogglePreferenceForLocale, textAlignForTextDirection } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function SettingsScreen() {
   const { settings, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
+  const { direction, locale, setLanguagePreference, t } = useTranslation();
   const notificationsAvailable = notificationPermission.status === 'granted';
   const notificationsBlocked = notificationPermission.status === 'denied';
   const notificationsUnsupported = notificationPermission.status === 'unsupported';
   const canRequestNotifications = notificationPermission.status === 'undetermined';
+  const languageToggleLabel =
+    locale === 'ar' ? t('settings.switchToEnglish') : t('settings.switchToArabic');
+  const tileText = { textAlign: textAlignForTextDirection(direction) };
 
   const enableNotifications = async () => {
     const status =
@@ -27,6 +41,10 @@ export default function SettingsScreen() {
 
     triggerFocusHaptic(settings, status === 'granted' ? 'start' : 'selection');
     await save({ notificationsEnabled: status === 'granted' });
+  };
+
+  const openSystemSettings = () => {
+    Linking.openSettings().catch(() => undefined);
   };
 
   const setNotificationsEnabled = async (enabled: boolean) => {
@@ -40,18 +58,33 @@ export default function SettingsScreen() {
     await enableNotifications();
   };
 
+  const updateLanguagePreference = async () => {
+    const languagePreference = languageTogglePreferenceForLocale(locale);
+
+    triggerFocusHaptic(settings, 'selection');
+    setLanguagePreference(languagePreference);
+    await save({ languagePreference });
+  };
+
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
+        <AppText style={styles.title}>{t('settings.title')}</AppText>
+        <IconButton
+          icon={IconLanguage}
+          label={languageToggleLabel}
+          onPress={updateLanguagePreference}
+          color={colors.accentDark}
+          style={styles.languageButton}
+        />
       </View>
 
-      <SettingsSection title="Timer Defaults">
+      <SettingsSection title={t('settings.timerDefaults')}>
         <StepperRow
-          label="Focus"
-          helper="Default length for new focus tasks."
+          label={t('settings.focus')}
+          helper={t('settings.focusHelper')}
           value={settings.defaultFocusMinutes}
-          suffix="min"
+          suffix={t('units.min')}
           min={5}
           max={180}
           step={5}
@@ -62,10 +95,10 @@ export default function SettingsScreen() {
         />
         <Divider />
         <StepperRow
-          label="Short Break"
-          helper="The quick reset between focus sessions."
+          label={t('settings.shortBreak')}
+          helper={t('settings.shortBreakHelper')}
           value={settings.defaultShortBreakMinutes}
-          suffix="min"
+          suffix={t('units.min')}
           min={1}
           max={60}
           step={1}
@@ -76,10 +109,10 @@ export default function SettingsScreen() {
         />
         <Divider />
         <StepperRow
-          label="Long Break"
-          helper="Recovery time after a full cycle."
+          label={t('settings.longBreak')}
+          helper={t('settings.longBreakHelper')}
           value={settings.defaultLongBreakMinutes}
-          suffix="min"
+          suffix={t('units.min')}
           min={5}
           max={120}
           step={5}
@@ -90,10 +123,10 @@ export default function SettingsScreen() {
         />
         <Divider />
         <StepperRow
-          label="Long Break After"
-          helper="Number of focus sessions before a long break."
+          label={t('settings.longBreakAfter')}
+          helper={t('settings.longBreakAfterHelper')}
           value={settings.defaultSessions}
-          suffix="sessions"
+          suffix={t('units.sessions')}
           min={1}
           max={12}
           step={1}
@@ -104,10 +137,10 @@ export default function SettingsScreen() {
         />
       </SettingsSection>
 
-      <SettingsSection title="Automation">
+      <SettingsSection title={t('settings.automation')}>
         <SwitchRow
-          label="Auto Start Breaks"
-          helper="Start break phases automatically after focus."
+          label={t('settings.autoStartBreaks')}
+          helper={t('settings.autoStartBreaksHelper')}
           value={settings.autoStartBreaks}
           onValueChange={(autoStartBreaks) => {
             triggerFocusHaptic(settings, 'selection');
@@ -116,8 +149,8 @@ export default function SettingsScreen() {
         />
         <Divider />
         <SwitchRow
-          label="Haptic Feedback"
-          helper="Use subtle taps for timer start, pause, reset, and completion."
+          label={t('settings.hapticFeedback')}
+          helper={t('settings.hapticFeedbackHelper')}
           value={settings.hapticsEnabled}
           onValueChange={(hapticsEnabled) => {
             triggerFocusHaptic(hapticsEnabled || settings.hapticsEnabled, hapticsEnabled ? 'start' : 'selection');
@@ -127,40 +160,47 @@ export default function SettingsScreen() {
       </SettingsSection>
 
       <SettingsSection
-        title="Notifications"
-        badge={notificationStatusLabel(notificationPermission.status)}>
+        title={t('settings.notifications')}
+        badge={t(`settings.permissionStatus.${notificationPermission.status}`)}>
         <View style={styles.permissionPanel}>
           <View style={styles.permissionCopy}>
-            <Text style={styles.permissionTitle}>
-              {notificationsAvailable ? 'Completion alerts are ready' : 'Enable timer alerts'}
-            </Text>
-            <Text style={styles.helper}>
+            <AppText style={[styles.permissionTitle, styles.tileText, tileText]}>
+              {notificationsAvailable
+                ? t('settings.notificationsReady')
+                : t('settings.notificationsEnable')}
+            </AppText>
+            <AppText style={[styles.helper, styles.tileText, tileText]}>
               {notificationsBlocked
-                ? 'Notifications are blocked in system settings. TimeRadar cannot schedule alerts until they are allowed.'
+                ? t('settings.notificationsBlocked')
                 : notificationsUnsupported
-                  ? 'Local notifications are not available in the web preview.'
-                  : 'TimeRadar can alert you when a focus or break phase finishes.'}
-            </Text>
+                  ? t('settings.notificationsUnsupported')
+                  : t('settings.notificationsAvailable')}
+            </AppText>
           </View>
           {canRequestNotifications ? (
             <PrimaryButton style={styles.permissionButton} onPress={enableNotifications}>
-              Allow
+              {t('settings.allow')}
+            </PrimaryButton>
+          ) : null}
+          {notificationsBlocked ? (
+            <PrimaryButton style={styles.systemSettingsButton} onPress={openSystemSettings}>
+              {t('common.openSystemSettings')}
             </PrimaryButton>
           ) : null}
         </View>
 
         <Divider />
         <SwitchRow
-          label="Timer Alerts"
-          helper="Schedule a local alert for the active timer."
+          label={t('settings.timerAlerts')}
+          helper={t('settings.timerAlertsHelper')}
           value={settings.notificationsEnabled && notificationsAvailable}
           disabled={notificationsBlocked || notificationsUnsupported}
           onValueChange={setNotificationsEnabled}
         />
         <Divider />
         <SwitchRow
-          label="Focus Complete"
-          helper="Notify when a focus phase finishes."
+          label={t('settings.focusComplete')}
+          helper={t('settings.focusCompleteHelper')}
           value={settings.focusCompleteNotificationsEnabled}
           disabled={!settings.notificationsEnabled || !notificationsAvailable}
           onValueChange={(focusCompleteNotificationsEnabled) => {
@@ -170,8 +210,8 @@ export default function SettingsScreen() {
         />
         <Divider />
         <SwitchRow
-          label="Break Complete"
-          helper="Notify when short or long breaks finish."
+          label={t('settings.breakComplete')}
+          helper={t('settings.breakCompleteHelper')}
           value={settings.breakCompleteNotificationsEnabled}
           disabled={!settings.notificationsEnabled || !notificationsAvailable}
           onValueChange={(breakCompleteNotificationsEnabled) => {
@@ -181,8 +221,8 @@ export default function SettingsScreen() {
         />
         <Divider />
         <SwitchRow
-          label="Focus Warning"
-          helper="Show a quiet reminder before focus ends."
+          label={t('settings.focusWarning')}
+          helper={t('settings.focusWarningHelper')}
           value={settings.timerWarningEnabled}
           disabled={!settings.notificationsEnabled || !notificationsAvailable}
           onValueChange={(timerWarningEnabled) => {
@@ -194,10 +234,10 @@ export default function SettingsScreen() {
           <>
             <Divider />
             <StepperRow
-              label="Warning Time"
-              helper="How early the focus warning appears."
+              label={t('settings.warningTime')}
+              helper={t('settings.warningTimeHelper')}
               value={settings.timerWarningSeconds}
-              suffix="sec"
+              suffix={t('units.sec')}
               min={30}
               max={600}
               step={30}
@@ -211,10 +251,10 @@ export default function SettingsScreen() {
         ) : null}
       </SettingsSection>
 
-      <SettingsSection title="Completion Sound">
+      <SettingsSection title={t('settings.completionSound')}>
         <SwitchRow
-          label="System Sound"
-          helper="Use the device notification sound when a timer alert appears. Silent mode and Focus modes can still suppress it."
+          label={t('settings.systemSound')}
+          helper={t('settings.systemSoundHelper')}
           value={settings.completionSoundEnabled}
           disabled={!settings.notificationsEnabled || !notificationsAvailable}
           onValueChange={(completionSoundEnabled) => {
@@ -237,13 +277,16 @@ function SettingsSection({
   badge?: string;
   children: ReactNode;
 }) {
+  const { direction } = useTranslation();
+  const tileText = { textAlign: textAlignForTextDirection(direction) };
+
   return (
     <SoftCard style={styles.card}>
       <View style={styles.sectionHeader}>
         <View style={styles.sectionTitleWrap}>
-          <Text style={styles.sectionTitle}>{title}</Text>
+          <AppText style={[styles.sectionTitle, styles.tileText, tileText]}>{title}</AppText>
         </View>
-        {badge ? <Text style={styles.badge}>{badge}</Text> : null}
+        {badge ? <AppText style={styles.badge}>{badge}</AppText> : null}
       </View>
       <View style={styles.sectionBody}>{children}</View>
     </SoftCard>
@@ -273,26 +316,28 @@ function StepperRow({
 }) {
   const canDecrease = !disabled && value > min;
   const canIncrease = !disabled && value < max;
+  const { direction, t } = useTranslation();
+  const tileText = { textAlign: textAlignForTextDirection(direction) };
 
   return (
     <View style={[styles.controlRow, disabled && styles.disabled]}>
       <View style={styles.controlCopy}>
-        <Text style={styles.rowTitle}>{label}</Text>
-        <Text style={styles.helper}>{helper}</Text>
+        <AppText style={[styles.rowTitle, styles.tileText, tileText]}>{label}</AppText>
+        <AppText style={[styles.helper, styles.tileText, tileText]}>{helper}</AppText>
       </View>
       <View style={styles.stepper}>
         <StepperButton
-          label={`Decrease ${label}`}
+          label={t('settings.decrease', { values: { label } })}
           icon={IconMinus}
           disabled={!canDecrease}
           onPress={() => onChange(Math.max(min, value - step))}
         />
         <View style={styles.stepperValue}>
-          <Text style={styles.stepperNumber}>{value}</Text>
-          <Text style={styles.stepperSuffix}>{suffix}</Text>
+          <AppText style={styles.stepperNumber}>{value}</AppText>
+          <AppText style={styles.stepperSuffix}>{suffix}</AppText>
         </View>
         <StepperButton
-          label={`Increase ${label}`}
+          label={t('settings.increase', { values: { label } })}
           icon={IconPlus}
           disabled={!canIncrease}
           onPress={() => onChange(Math.min(max, value + step))}
@@ -342,11 +387,14 @@ function SwitchRow({
   disabled?: boolean;
   onValueChange: (value: boolean) => void;
 }) {
+  const { direction } = useTranslation();
+  const tileText = { textAlign: textAlignForTextDirection(direction) };
+
   return (
     <View style={[styles.controlRow, disabled && styles.disabled]}>
       <View style={styles.controlCopy}>
-        <Text style={styles.rowTitle}>{label}</Text>
-        <Text style={styles.helper}>{helper}</Text>
+        <AppText style={[styles.rowTitle, styles.tileText, tileText]}>{label}</AppText>
+        <AppText style={[styles.helper, styles.tileText, tileText]}>{helper}</AppText>
       </View>
       <Switch
         accessibilityLabel={label}
@@ -382,6 +430,9 @@ const styles = StyleSheet.create({
     fontSize: typography.title,
     fontWeight: 'bold',
   },
+  languageButton: {
+    backgroundColor: colors.surfaceMuted,
+  },
   card: {
     padding: spacing.lg,
     gap: spacing.md,
@@ -404,6 +455,9 @@ const styles = StyleSheet.create({
     fontFamily: typography.family,
     fontSize: 16,
     fontWeight: '700',
+  },
+  tileText: {
+    width: '100%',
   },
   badge: {
     overflow: 'hidden',
@@ -486,6 +540,7 @@ const styles = StyleSheet.create({
   },
   permissionPanel: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: spacing.md,
     paddingVertical: spacing.sm,
@@ -503,6 +558,11 @@ const styles = StyleSheet.create({
   permissionButton: {
     minHeight: 42,
     minWidth: 86,
+    paddingHorizontal: spacing.md,
+  },
+  systemSettingsButton: {
+    minHeight: 42,
+    minWidth: 180,
     paddingHorizontal: spacing.md,
   },
   divider: {

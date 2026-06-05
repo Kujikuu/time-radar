@@ -4,10 +4,11 @@ import {
   IconPlayerPlay,
   IconRefresh,
 } from '@tabler/icons-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
-import { AppIcon } from '@/src/components';
+import { AppIcon, AppText } from '@/src/components';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, typography } from '@/src/theme';
 
 type TimerRingProps = {
@@ -15,6 +16,7 @@ type TimerRingProps = {
   time: string;
   progress?: number;
   primaryActionLabel?: string;
+  primaryActionState?: 'start' | 'pause' | 'resume';
   onPrimaryAction?: () => void;
   onReset?: () => void;
   onComplete?: () => void;
@@ -25,10 +27,12 @@ export function TimerRing({
   time,
   progress = 0,
   primaryActionLabel = 'Start',
+  primaryActionState = 'start',
   onPrimaryAction,
   onReset,
   onComplete,
 }: TimerRingProps) {
+  const { t } = useTranslation();
   const size = 300;
   const strokeWidth = 14;
   const markerRadius = 8.5;
@@ -43,15 +47,10 @@ export function TimerRing({
   const markerY = size / 2 + Math.sin(markerAngle) * radius;
   const progressOpacity = 0.62 - clampedProgress * 0.34;
   const trackOpacity = 0.18;
-  const isPaused = primaryActionLabel === 'Resume';
+  const isPaused = primaryActionState === 'resume';
   const hasActiveTimer = Boolean(onReset || onComplete);
-  const displayAction =
-    primaryActionLabel === 'Start'
-      ? 'Start Focus'
-      : primaryActionLabel === 'Resume'
-        ? 'Resume'
-        : primaryActionLabel;
-  const PrimaryIcon = primaryActionLabel === 'Pause' ? IconPlayerPause : IconPlayerPlay;
+  const displayAction = primaryActionLabel;
+  const PrimaryIcon = primaryActionState === 'pause' ? IconPlayerPause : IconPlayerPlay;
 
   return (
     <View style={styles.wrapper}>
@@ -104,8 +103,8 @@ export function TimerRing({
         />
       </Svg>
       <View style={styles.center}>
-        <Text style={[styles.label, isPaused && styles.pausedLabel]}>{label}</Text>
-        <Text style={styles.time}>{time}</Text>
+        <AppText style={[styles.label, isPaused && styles.pausedLabel]}>{label}</AppText>
+        <AppText style={styles.time}>{time}</AppText>
         <Pressable
           accessibilityLabel={displayAction}
           accessibilityRole="button"
@@ -115,7 +114,9 @@ export function TimerRing({
             isPaused && styles.resumeButton,
             pressed && styles.pressed,
           ]}>
-          <Text style={[styles.startLabel, isPaused && styles.resumeLabel]}>{displayAction}</Text>
+          <AppText style={[styles.startLabel, isPaused && styles.resumeLabel]}>
+            {displayAction}
+          </AppText>
           <AppIcon
             icon={PrimaryIcon}
             color={isPaused ? colors.accentDark : colors.white}
@@ -127,7 +128,7 @@ export function TimerRing({
           <View style={styles.secondaryActions}>
             {onReset ? (
               <Pressable
-                accessibilityLabel="Reset timer"
+                accessibilityLabel={t('timer.actions.reset')}
                 accessibilityRole="button"
                 onPress={onReset}
                 hitSlop={8}
@@ -137,7 +138,7 @@ export function TimerRing({
             ) : null}
             {onComplete ? (
               <Pressable
-                accessibilityLabel="Complete current phase"
+                accessibilityLabel={t('timer.actions.complete')}
                 accessibilityRole="button"
                 onPress={onComplete}
                 hitSlop={8}

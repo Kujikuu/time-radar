@@ -1,9 +1,13 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { colors, radius, typography } from '@/src/theme';
 
+import { AppText } from './AppText';
+
+type SegmentedControlOption<T extends string> = T | { value: T; label: string };
+
 type SegmentedControlProps<T extends string> = {
-  options: T[];
+  options: SegmentedControlOption<T>[];
   value: T;
   onChange: (value: T) => void;
 };
@@ -16,17 +20,19 @@ export function SegmentedControl<T extends string>({
   return (
     <View style={styles.wrapper}>
       {options.map((option) => {
-        const isActive = option === value;
+        const optionValue = typeof option === 'string' ? option : option.value;
+        const label = typeof option === 'string' ? option : option.label;
+        const isActive = optionValue === value;
 
         return (
           <Pressable
-            accessibilityLabel={option}
+            accessibilityLabel={label}
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
-            key={option}
-            onPress={() => onChange(option)}
+            key={optionValue}
+            onPress={() => onChange(optionValue)}
             style={[styles.segment, isActive && styles.activeSegment]}>
-            <Text style={[styles.label, isActive && styles.activeLabel]}>{option}</Text>
+            <AppText style={[styles.label, isActive && styles.activeLabel]}>{label}</AppText>
           </Pressable>
         );
       })}

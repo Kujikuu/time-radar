@@ -1,26 +1,29 @@
 import { IconChevronLeft } from '@tabler/icons-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { AppText, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromTask, useFocusTimer, useTaskDetail } from '@/src/features/focus/hooks';
+import { focusCategoryLabel } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function SessionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { task, save } = useTaskDetail(id);
   const { start } = useFocusTimer();
+  const { locale, t } = useTranslation();
 
   if (!task) {
     return (
       <Screen contentStyle={styles.screen}>
         <View style={styles.header}>
-          <IconButton icon={IconChevronLeft} label="Go back" onPress={() => router.back()} />
+          <IconButton icon={IconChevronLeft} label={t('common.goBack')} onPress={() => router.back()} />
         </View>
         <SoftCard style={styles.emptyCard}>
-          <Text style={styles.optionTitle}>Task not found</Text>
-          <Text style={styles.optionSubtitle}>Go back and choose another focus task.</Text>
+          <AppText style={styles.optionTitle}>{t('session.taskNotFound')}</AppText>
+          <AppText style={styles.optionSubtitle}>{t('session.taskNotFoundBody')}</AppText>
         </SoftCard>
       </Screen>
     );
@@ -34,26 +37,26 @@ export default function SessionDetailScreen() {
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
-        <IconButton icon={IconChevronLeft} label="Go back" onPress={() => router.back()} />
+        <IconButton icon={IconChevronLeft} label={t('common.goBack')} onPress={() => router.back()} />
       </View>
 
       <View style={styles.hero}>
-        <Text style={styles.title}>{task.title}</Text>
+        <AppText style={styles.title}>{task.title}</AppText>
         <View style={styles.categoryPill}>
           <View style={styles.categoryDot} />
-          <Text style={styles.categoryText}>{task.category}</Text>
+          <AppText style={styles.categoryText}>{focusCategoryLabel(locale, task.category)}</AppText>
         </View>
       </View>
 
       <TaskForm
         key={task.updatedAt}
         initialValue={taskInputFromTask(task)}
-        submitLabel="Save Changes"
+        submitLabel={t('taskForm.saveChanges')}
         onSubmit={save}
       />
 
       <View style={styles.footerActions}>
-        <PrimaryButton onPress={handleStart}>Start Session</PrimaryButton>
+        <PrimaryButton onPress={handleStart}>{t('session.startSession')}</PrimaryButton>
       </View>
     </Screen>
   );

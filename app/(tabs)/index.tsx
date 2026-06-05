@@ -1,23 +1,66 @@
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { BrandLogo, MetricCard, Screen, SoftCard } from '@/src/components';
+import { AppText, BrandLogo, MetricCard, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
-import { useFocusTimer, useProgressMetrics, useStats, useTasks } from '@/src/features/focus/hooks';
+import {
+  useFocusTimer,
+  useNotificationPermissionStatus,
+  useProgressMetrics,
+  useSettings,
+  useStats,
+  useTasks,
+} from '@/src/features/focus/hooks';
+import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/notification-prompt-rules';
 import { TimerRing } from '@/src/features/focus/TimerRing';
+import { timerPhaseLabel } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function HomeScreen() {
   const { tasks } = useTasks();
-  const { summary } = useStats('Day');
-  const progressMetrics = useProgressMetrics(summary);
+  const { formatDate, locale, t } = useTranslation();
+  const { summary } = useStats('Day', locale);
+  const progressMetrics = useProgressMetrics(summary, locale);
   const { snapshot, toggle, reset, completePhase } = useFocusTimer();
+  const { settings, save } = useSettings();
+  const notificationPermission = useNotificationPermissionStatus();
   const nextTask = snapshot.task ?? tasks[0] ?? null;
-  const todayDate = new Date().toLocaleDateString('en-US', {
+  const todayDate = formatDate(new Date(), {
     month: 'short',
     day: 'numeric',
     weekday: 'long',
   });
+  const primaryActionState = !snapshot.timer
+    ? 'start'
+    : snapshot.timer.status === 'running'
+      ? 'pause'
+      : 'resume';
+  const primaryActionLabel =
+    primaryActionState === 'start'
+      ? t('timer.actions.startFocus')
+      : t(`timer.actions.${primaryActionState}`);
+  const phaseLabel = snapshot.timer
+    ? timerPhaseLabel(locale, snapshot.timer.phase)
+    : t('timer.phase.focus');
+  const showNotificationPrompt = shouldShowNotificationPermissionPrompt({
+    settings,
+    permissionStatus: notificationPermission.status,
+    placement: 'home',
+  });
+
+  const allowNotifications = async () => {
+    const status = await notificationPermission.request();
+
+    await save({
+      notificationPermissionPromptCompleted: true,
+      notificationsEnabled: status === 'granted',
+    });
+  };
+
+  const dismissNotificationPrompt = async () => {
+    await save({ notificationPermissionPromptCompleted: true });
+  };
 
   return (
     <Screen contentStyle={styles.screen}>
@@ -26,16 +69,38 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Today</Text>
-        <Text style={styles.date}>{todayDate}</Text>
+        <AppText style={styles.sectionTitle}>{t('home.today')}</AppText>
+        <AppText style={styles.date}>{todayDate}</AppText>
       </View>
+
+      {showNotificationPrompt ? (
+        <SoftCard style={styles.notificationPrompt}>
+          <View style={styles.notificationCopy}>
+            <AppText style={styles.tipTitle}>{t('home.notificationTitle')}</AppText>
+            <AppText style={styles.tipText}>{t('home.notificationBody')}</AppText>
+          </View>
+          <View style={styles.notificationActions}>
+            <PrimaryButton style={styles.notificationButton} onPress={allowNotifications}>
+              {t('common.allowNotifications')}
+            </PrimaryButton>
+            <Pressable
+              accessibilityLabel={t('common.notNow')}
+              accessibilityRole="button"
+              onPress={dismissNotificationPrompt}
+              style={({ pressed }) => [styles.dismissButton, pressed && styles.pressed]}>
+              <AppText style={styles.dismissButtonText}>{t('common.notNow')}</AppText>
+            </Pressable>
+          </View>
+        </SoftCard>
+      ) : null}
 
       <SoftCard style={styles.timerCard}>
         <TimerRing
-          label={snapshot.phaseLabel}
+          label={phaseLabel}
           time={snapshot.timer ? snapshot.display : nextTask ? `${nextTask.focusMinutes}:00` : '0:00'}
           progress={snapshot.progress}
-          primaryActionLabel={snapshot.primaryActionLabel}
+          primaryActionLabel={primaryActionLabel}
+          primaryActionState={primaryActionState}
           onPrimaryAction={() => toggle(nextTask?.id)}
           onReset={snapshot.timer ? reset : undefined}
           onComplete={snapshot.timer ? () => completePhase(false) : undefined}
@@ -43,12 +108,12 @@ export default function HomeScreen() {
       </SoftCard>
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.smallTitle}>Your Progress</Text>
+        <AppText style={styles.smallTitle}>{t('home.progress')}</AppText>
         <Pressable
-          accessibilityLabel="Open full stats"
+          accessibilityLabel={t('home.openStats')}
           accessibilityRole="button"
           onPress={() => router.push('/(tabs)/stats' as never)}>
-          <Text style={styles.linkText}>See all</Text>
+          <AppText style={styles.linkText}>{t('common.seeAll')}</AppText>
         </Pressable>
       </View>
 
@@ -64,13 +129,13 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      <Text style={styles.smallTitle}>Up Next</Text>
+      <AppText style={styles.smallTitle}>{t('home.upNext')}</AppText>
       {nextTask ? (
         <FocusTaskCard task={nextTask} />
       ) : (
         <SoftCard style={styles.emptyCard}>
-          <Text style={styles.tipTitle}>No tasks yet</Text>
-          <Text style={styles.tipText}>Create your first focus task to start a session.</Text>
+          <AppText style={styles.tipTitle}>{t('home.noTasksTitle')}</AppText>
+          <AppText style={styles.tipText}>{t('home.noTasksBody')}</AppText>
         </SoftCard>
       )}
 
@@ -128,6 +193,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
   },
+  notificationPrompt: {
+    gap: spacing.md,
+    padding: spacing.lg,
+  },
+  notificationCopy: {
+    gap: 5,
+  },
+  notificationActions: {
+    gap: spacing.sm,
+  },
+  notificationButton: {
+    minHeight: 46,
+  },
+  dismissButton: {
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dismissButtonText: {
+    color: colors.accentDark,
+    fontFamily: typography.family,
+    fontSize: 13,
+    fontWeight: '700',
+  },
   emptyCard: {
     gap: 5,
     padding: spacing.lg,
@@ -143,5 +232,8 @@ const styles = StyleSheet.create({
     fontFamily: typography.family,
     fontSize: 12,
     lineHeight: 17,
+  },
+  pressed: {
+    opacity: 0.76,
   },
 });

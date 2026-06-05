@@ -2,10 +2,12 @@ import { type SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'time-radar.db';
 
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 5;
 
 const defaultSettings = {
   onboarding_completed: 'false',
+  notification_permission_prompt_completed: 'false',
+  app_language: 'system',
   default_focus_minutes: '25',
   default_short_break_minutes: '5',
   default_long_break_minutes: '15',
@@ -150,6 +152,19 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     if (currentVersion < 3) {
       await seedSettings(db, {
         haptics_enabled: defaultSettings.haptics_enabled,
+      });
+    }
+
+    if (currentVersion < 4) {
+      await seedSettings(db, {
+        notification_permission_prompt_completed:
+          defaultSettings.notification_permission_prompt_completed,
+      });
+    }
+
+    if (currentVersion < 5) {
+      await seedSettings(db, {
+        app_language: defaultSettings.app_language,
       });
     }
 

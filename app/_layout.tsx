@@ -10,12 +10,14 @@ import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { type Href, router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { SQLiteProvider } from 'expo-sqlite';
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { DATABASE_NAME, migrateDatabase } from '@/src/features/focus/database';
+import { getSettings } from '@/src/features/focus/repository';
+import { LocaleProvider, useLocale } from '@/src/i18n/LocaleProvider';
 import { colors } from '@/src/theme';
 
 export const unstable_settings = {
@@ -37,6 +39,10 @@ export default function RootLayout() {
     Poppins_600SemiBold,
     Poppins_700Bold,
     Poppins_800ExtraBold,
+    'Thmanyah Sans': require('../assets/fonts/thmanyahsans/thmanyahsans-Regular.otf'),
+    'Thmanyah Sans Medium': require('../assets/fonts/thmanyahsans/thmanyahsans-Medium.otf'),
+    'Thmanyah Sans Bold': require('../assets/fonts/thmanyahsans/thmanyahsans-Bold.otf'),
+    'Thmanyah Sans Black': require('../assets/fonts/thmanyahsans/thmanyahsans-Black.otf'),
   });
 
   useTimerNotificationObserver();
@@ -65,17 +71,43 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={navigationTheme}>
-      <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDatabase}>
-        <Stack initialRouteName="index">
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
-          <Stack.Screen name="task/new" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="dark" backgroundColor={colors.background} />
-      </SQLiteProvider>
+      <LocaleProvider>
+        <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDatabase}>
+          <LanguagePreferenceSync />
+          <Stack initialRouteName="index">
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
+            <Stack.Screen name="task/new" options={{ headerShown: false }} />
+          </Stack>
+          <StatusBar style="dark" backgroundColor={colors.background} />
+        </SQLiteProvider>
+      </LocaleProvider>
     </ThemeProvider>
   );
+}
+
+function LanguagePreferenceSync() {
+  const db = useSQLiteContext();
+  const { setLanguagePreference } = useLocale();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getSettings(db)
+      .then((settings) => {
+        if (isMounted) {
+          setLanguagePreference(settings.languagePreference);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [db, setLanguagePreference]);
+
+  return null;
 }
 
 function useTimerNotificationObserver() {

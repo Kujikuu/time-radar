@@ -1,15 +1,18 @@
-import { IconChevronLeft } from '@tabler/icons-react-native';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { IconButton, Screen } from '@/src/components';
+import { AppText, IconButton, Screen } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromSettings, useCreateTask, useSettings } from '@/src/features/focus/hooks';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function NewTaskScreen() {
   const createTask = useCreateTask();
   const { settings } = useSettings();
+  const { direction, t } = useTranslation();
+  const BackIcon = direction === 'rtl' ? IconChevronRight : IconChevronLeft;
 
   const handleSubmit = async (input: ReturnType<typeof taskInputFromSettings>) => {
     const taskId = await createTask(input);
@@ -19,14 +22,14 @@ export default function NewTaskScreen() {
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
-        <IconButton icon={IconChevronLeft} label="Go back" onPress={() => router.back()} />
-        <Text style={styles.title}>New Task</Text>
+        <IconButton icon={BackIcon} label={t('common.goBack')} onPress={() => router.back()} />
+        <AppText style={styles.title}>{t('session.newTask')}</AppText>
         <View style={styles.headerSpacer} />
       </View>
 
       <TaskForm
         initialValue={taskInputFromSettings(settings)}
-        submitLabel="Create Task"
+        submitLabel={t('taskForm.createTask')}
         onSubmit={handleSubmit}
       />
     </Screen>

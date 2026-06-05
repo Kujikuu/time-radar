@@ -2,6 +2,7 @@ import { type SQLiteDatabase } from 'expo-sqlite';
 
 import {
   ActiveTimer,
+  AppLanguagePreference,
   AppSettings,
   FocusCategory,
   FocusSession,
@@ -71,6 +72,8 @@ type SessionRow = {
 
 export const defaultSettings: AppSettings = {
   onboardingCompleted: false,
+  notificationPermissionPromptCompleted: false,
+  languagePreference: 'system',
   defaultFocusMinutes: 25,
   defaultShortBreakMinutes: 5,
   defaultLongBreakMinutes: 15,
@@ -180,6 +183,9 @@ export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {
 
   return {
     onboardingCompleted: settings.get('onboarding_completed') === 'true',
+    notificationPermissionPromptCompleted:
+      settings.get('notification_permission_prompt_completed') === 'true',
+    languagePreference: readLanguagePreference(settings.get('app_language')),
     defaultFocusMinutes: readNumberSetting(settings, 'default_focus_minutes', 25),
     defaultShortBreakMinutes: readNumberSetting(settings, 'default_short_break_minutes', 5),
     defaultLongBreakMinutes: readNumberSetting(settings, 'default_long_break_minutes', 15),
@@ -213,6 +219,15 @@ export async function updateSettings(
 
   if (values.onboardingCompleted !== undefined) {
     entries.push(['onboarding_completed', String(values.onboardingCompleted)]);
+  }
+  if (values.notificationPermissionPromptCompleted !== undefined) {
+    entries.push([
+      'notification_permission_prompt_completed',
+      String(values.notificationPermissionPromptCompleted),
+    ]);
+  }
+  if (values.languagePreference !== undefined) {
+    entries.push(['app_language', values.languagePreference]);
   }
   if (values.defaultFocusMinutes !== undefined) {
     entries.push(['default_focus_minutes', String(clampMinutes(values.defaultFocusMinutes, 1, 180))]);
@@ -628,6 +643,10 @@ function clampMinutes(value: number, min: number, max: number) {
 function readNumberSetting(settings: Map<string, string>, key: string, fallback: number) {
   const parsed = Number(settings.get(key));
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function readLanguagePreference(value: string | undefined): AppLanguagePreference {
+  return value === 'en' || value === 'ar' || value === 'system' ? value : 'system';
 }
 
 function createId(prefix: string) {

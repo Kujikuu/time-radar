@@ -57,6 +57,27 @@
                     "weight": 800
                   }
                 ]
+              },
+              {
+                "fontFamily": "Thmanyah Sans",
+                "fontDefinitions": [
+                  {
+                    "path": "./assets/fonts/thmanyahsans/thmanyahsans-Regular.otf",
+                    "weight": 400
+                  },
+                  {
+                    "path": "./assets/fonts/thmanyahsans/thmanyahsans-Medium.otf",
+                    "weight": 500
+                  },
+                  {
+                    "path": "./assets/fonts/thmanyahsans/thmanyahsans-Bold.otf",
+                    "weight": 700
+                  },
+                  {
+                    "path": "./assets/fonts/thmanyahsans/thmanyahsans-Black.otf",
+                    "weight": 900
+                  }
+                ]
               }
             ]
           },
@@ -66,7 +87,11 @@
               "node_modules/@expo-google-fonts/poppins/500Medium/Poppins_500Medium.ttf",
               "node_modules/@expo-google-fonts/poppins/600SemiBold/Poppins_600SemiBold.ttf",
               "node_modules/@expo-google-fonts/poppins/700Bold/Poppins_700Bold.ttf",
-              "node_modules/@expo-google-fonts/poppins/800ExtraBold/Poppins_800ExtraBold.ttf"
+              "node_modules/@expo-google-fonts/poppins/800ExtraBold/Poppins_800ExtraBold.ttf",
+              "./assets/fonts/thmanyahsans/thmanyahsans-Regular.otf",
+              "./assets/fonts/thmanyahsans/thmanyahsans-Medium.otf",
+              "./assets/fonts/thmanyahsans/thmanyahsans-Bold.otf",
+              "./assets/fonts/thmanyahsans/thmanyahsans-Black.otf"
             ]
           }
         }
@@ -90,6 +115,21 @@
           "color": "#F47E61",
           "defaultChannel": "timer-completion"
         }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": [
+              "en",
+              "ar"
+            ],
+            "android": [
+              "en",
+              "ar"
+            ]
+          }
+        }
       ]
     ],
     "experiments": {
@@ -98,6 +138,7 @@
     },
     "extra": {
       "router": {},
+      "supportsRTL": true,
       "eas": {
         "projectId": "cc37c24e-87bc-4faa-a083-2ba6922df59c"
       }
