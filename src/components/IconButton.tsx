@@ -1,13 +1,11 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ComponentProps } from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 
-import { colors, radius, shadows } from '@/src/theme';
+import { colors, radius } from '@/src/theme';
 
-type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
+import { AppIcon, TablerIcon } from './AppIcon';
 
 type IconButtonProps = {
-  name: IconName;
+  icon: TablerIcon;
   onPress?: () => void;
   color?: string;
   size?: number;
@@ -16,7 +14,7 @@ type IconButtonProps = {
 };
 
 export function IconButton({
-  name,
+  icon,
   onPress,
   color = colors.text,
   size = 22,
@@ -29,7 +27,7 @@ export function IconButton({
       accessibilityRole="button"
       onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && styles.pressed, style]}>
-      <MaterialCommunityIcons name={name} color={color} size={size} />
+      <AppIcon icon={icon} color={color} size={size} />
     </Pressable>
   );
 }
@@ -44,7 +42,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
-    ...shadows.small,
   },
   pressed: {
     opacity: 0.78,

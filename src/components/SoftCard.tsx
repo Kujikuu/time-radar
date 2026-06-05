@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 
-import { colors, radius, shadows } from '@/src/theme';
+import { colors, radius } from '@/src/theme';
 
 type SoftCardProps = PropsWithChildren<{
   style?: ViewStyle | ViewStyle[];
@@ -17,6 +17,5 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: radius.lg,
-    ...shadows.soft,
   },
 });

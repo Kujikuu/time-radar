@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
 
-import { colors, radius, shadows, typography } from '@/src/theme';
+import { colors, radius, typography } from '@/src/theme';
 
 type PrimaryButtonProps = PropsWithChildren<{
   onPress?: () => void;
@@ -26,7 +26,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.accent,
-    ...shadows.small,
   },
   pressed: {
     opacity: 0.86,

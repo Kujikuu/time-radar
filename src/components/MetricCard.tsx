@@ -1,11 +1,11 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { ComponentProps } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors, radius, shadows, typography } from '@/src/theme';
+import { colors, radius, typography } from '@/src/theme';
+
+import { AppIcon, TablerIcon } from './AppIcon';
 
 type MetricCardProps = {
-  icon: ComponentProps<typeof MaterialCommunityIcons>['name'];
+  icon: TablerIcon;
   value: string;
   label: string;
   tone?: 'accent' | 'green' | 'amber';
@@ -20,7 +20,7 @@ const toneColor = {
 export function MetricCard({ icon, value, label, tone = 'accent' }: MetricCardProps) {
   return (
     <View style={styles.card}>
-      <MaterialCommunityIcons name={icon} size={25} color={toneColor[tone]} />
+      <AppIcon icon={icon} size={25} color={toneColor[tone]} />
       <Text style={styles.value}>{value}</Text>
       <Text style={styles.label}>{label}</Text>
     </View>
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
-    ...shadows.small,
   },
   value: {
     color: colors.text,

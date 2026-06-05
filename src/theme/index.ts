@@ -19,7 +19,6 @@ export const colors = {
   greenSoft: '#DCE9D9',
   blue: '#91B8D1',
   blueSoft: '#DDECF3',
-  shadow: '#A98C7D',
   white: '#FFFFFF',
 };
 
@@ -52,21 +51,4 @@ export const typography = {
   subheading: 17,
   body: 15,
   caption: 12,
-};
-
-export const shadows = {
-  soft: {
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.13,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 14 },
-    elevation: 7,
-  },
-  small: {
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 4,
-  },
 };
