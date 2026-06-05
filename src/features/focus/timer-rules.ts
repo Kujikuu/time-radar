@@ -41,7 +41,7 @@ export function resolveCompletedTimerTransition({
   };
 }
 
-export function resolveNextTimerPhase(
+function resolveNextTimerPhase(
   currentPhase: TimerPhase,
   completedFocusCount: number,
   sessionsBeforeLongBreak: number

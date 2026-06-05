@@ -216,10 +216,6 @@ export async function cancelTimerNotifications(): Promise<void> {
   );
 }
 
-export function notificationStatusLabel(status: TimerNotificationPermissionStatus) {
-  return translate(getDeviceAppLocale(), `settings.permissionStatus.${status}`);
-}
-
 function configureTimerNotificationChannel() {
   if (Platform.OS !== 'android') {
     return Promise.resolve(null);

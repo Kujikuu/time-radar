@@ -21,7 +21,6 @@ import {
   completeTimerPhase,
   createTask,
   defaultSettings,
-  formatSeconds,
   getActiveTimerSnapshot,
   getSessionsBetween,
   getSettings,
@@ -56,29 +55,6 @@ const focusCategoryColors: FocusCategoryColors = {
   Study: colors.greenSoft,
   Personal: colors.blue,
 };
-
-export function useOnboardingStatus() {
-  const db = useSQLiteContext();
-  const [completed, setCompleted] = useState<boolean | null>(null);
-
-  const reload = useCallback(async () => {
-    const settings = await getSettings(db);
-    setCompleted(settings.onboardingCompleted);
-  }, [db]);
-
-  useFocusEffect(
-    useCallback(() => {
-      reload();
-    }, [reload])
-  );
-
-  const complete = useCallback(async () => {
-    await updateSettings(db, { onboardingCompleted: true });
-    setCompleted(true);
-  }, [db]);
-
-  return { completed, complete, reload };
-}
 
 export function useTasks() {
   const db = useSQLiteContext();
@@ -447,5 +423,3 @@ export function taskInputFromTask(task: FocusTask): TaskInput {
     autoStartBreaks: task.autoStartBreaks,
   };
 }
-
-export { formatSeconds };

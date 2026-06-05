@@ -29,8 +29,6 @@ test('resolveAppLocale honors explicit language preference before device locale'
 });
 
 test('locale helpers select RTL direction and Thmanyah Sans only for Arabic', () => {
-  assert.equal(i18n.isRTLLocale('ar'), true);
-  assert.equal(i18n.isRTLLocale('en'), false);
   assert.equal(i18n.textDirectionForLocale('ar'), 'rtl');
   assert.equal(i18n.textDirectionForLocale('en'), 'ltr');
   assert.equal(i18n.fontFamilyForLocale('ar'), 'Thmanyah Sans');
@@ -54,14 +52,6 @@ test('translated enum options keep stable stored values', () => {
     { value: 'Week', label: 'الأسبوع' },
     { value: 'Month', label: 'الشهر' },
     { value: 'Year', label: 'السنة' },
-  ]);
-});
-
-test('language preference options keep stable setting values', () => {
-  assert.deepEqual(i18n.languagePreferenceOptions('ar'), [
-    { value: 'system', label: 'لغة الجهاز' },
-    { value: 'en', label: 'English' },
-    { value: 'ar', label: 'العربية' },
   ]);
 });
 

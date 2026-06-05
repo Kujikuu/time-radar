@@ -619,7 +619,7 @@ function resolveRemainingSeconds(timer: ActiveTimer) {
   return Math.max(0, Math.ceil((new Date(timer.dueAt).getTime() - Date.now()) / 1000));
 }
 
-export function formatSeconds(seconds: number) {
+function formatSeconds(seconds: number) {
   const safeSeconds = Math.max(seconds, 0);
   const minutes = Math.floor(safeSeconds / 60);
   const remainingSeconds = safeSeconds % 60;

@@ -11,8 +11,8 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
 import { AppIcon } from '@/src/components';
+import { HapticTab } from '@/src/components/HapticTab';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import {
   bottomTabRouteOrder,

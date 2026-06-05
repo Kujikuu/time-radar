@@ -26,9 +26,8 @@ type TranslateOptions = {
 };
 
 export const defaultLocale: AppLocale = 'en';
-export const supportedLocales: AppLocale[] = ['en', 'ar'];
 
-export const translations = {
+const translations = {
   en: {
     fallbackOnly: {
       label: 'English fallback',
@@ -142,11 +141,6 @@ export const translations = {
       title: 'Settings',
       language: 'Language',
       languageHelper: 'Choose the app language or follow your device setting.',
-      languagePreference: {
-        system: 'Device language',
-        en: 'English',
-        ar: 'العربية',
-      },
       switchToArabic: 'Switch to Arabic',
       switchToEnglish: 'Switch to English',
       timerDefaults: 'Default rhythm',
@@ -337,11 +331,6 @@ export const translations = {
       title: 'الإعدادات',
       language: 'اللغة',
       languageHelper: 'اختر لغة التطبيق أو اتبع لغة الجهاز.',
-      languagePreference: {
-        system: 'لغة الجهاز',
-        en: 'English',
-        ar: 'العربية',
-      },
       switchToArabic: 'التبديل إلى العربية',
       switchToEnglish: 'التبديل إلى الإنجليزية',
       timerDefaults: 'إيقاع المؤقت الافتراضي',
@@ -447,7 +436,7 @@ export function resolveAppLocale(
   return defaultLocale;
 }
 
-export function isRTLLocale(locale: AppLocale) {
+function isRTLLocale(locale: AppLocale) {
   return locale === 'ar';
 }
 
@@ -489,15 +478,6 @@ export function statsRangeOptions(locale: AppLocale): { value: StatsRange; label
   }));
 }
 
-export function languagePreferenceOptions(
-  locale: AppLocale
-): { value: AppLanguagePreference; label: string }[] {
-  return (['system', 'en', 'ar'] as AppLanguagePreference[]).map((value) => ({
-    value,
-    label: translate(locale, `settings.languagePreference.${value}`),
-  }));
-}
-
 export function languageTogglePreferenceForLocale(locale: AppLocale): AppLanguagePreference {
   return locale === 'ar' ? 'en' : 'ar';
 }
@@ -514,7 +494,7 @@ export function timerPhaseLabel(locale: AppLocale, phase: TimerPhase) {
   return translate(locale, `timer.phase.${phase}`);
 }
 
-export function localeTagForIntl(locale: AppLocale) {
+function localeTagForIntl(locale: AppLocale) {
   return locale === 'ar' ? 'ar-SA-u-nu-latn' : 'en-US';
 }
 
@@ -526,7 +506,7 @@ export function formatAppDate(
   return new Intl.DateTimeFormat(localeTagForIntl(locale), options).format(date);
 }
 
-export function formatMinutesShort(locale: AppLocale, minutes: number) {
+function formatMinutesShort(locale: AppLocale, minutes: number) {
   if (locale === 'ar') {
     return `${minutes}د`;
   }
