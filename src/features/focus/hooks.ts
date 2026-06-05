@@ -2,6 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { IconClock, IconFlame, IconTargetArrow } from '@tabler/icons-react-native';
 import { type SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 
 import { colors } from '@/src/theme';
 
@@ -222,12 +223,12 @@ export function useFocusTimer() {
   useFocusEffect(
     useCallback(() => {
       reload();
-      syncActiveTimerNotification(db);
+      void syncActiveTimerNotification(db);
     }, [db, reload])
   );
 
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const syncTimerState = async () => {
       const nextSnapshot = await getActiveTimerSnapshot(db);
       setSnapshot(nextSnapshot);
 
@@ -238,9 +239,20 @@ export function useFocusTimer() {
       ) {
         await completePhase();
       }
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
+    const interval = setInterval(syncTimerState, 1000);
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void syncTimerState();
+        void syncActiveTimerNotification(db);
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      subscription.remove();
+    };
   }, [completePhase, db]);
 
   const start = useCallback(
@@ -294,19 +306,23 @@ export function useFocusTimer() {
 }
 
 async function syncActiveTimerNotification(db: SQLiteDatabase) {
-  const [settings, snapshot] = await Promise.all([getSettings(db), getActiveTimerSnapshot(db)]);
+  try {
+    const [settings, snapshot] = await Promise.all([getSettings(db), getActiveTimerSnapshot(db)]);
 
-  if (snapshot.timer?.status === 'running' && snapshot.task) {
-    await scheduleTimerCompletionNotification({
-      task: snapshot.task,
-      phase: snapshot.timer.phase,
-      dueAt: snapshot.timer.dueAt,
-      settings,
-    });
-    return;
+    if (snapshot.timer?.status === 'running' && snapshot.task) {
+      await scheduleTimerCompletionNotification({
+        task: snapshot.task,
+        phase: snapshot.timer.phase,
+        dueAt: snapshot.timer.dueAt,
+        settings,
+      });
+      return;
+    }
+
+    await cancelTimerNotifications();
+  } catch {
+    await cancelTimerNotifications();
   }
-
-  await cancelTimerNotifications();
 }
 
 export function useStats(range: StatsRange) {

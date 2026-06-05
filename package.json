@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "rm -rf .test-build && tsc -p tsconfig.test.json && node --test test/*.test.cjs"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.4.0",

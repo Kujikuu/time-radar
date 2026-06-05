@@ -1,4 +1,4 @@
-import { TablerIcon } from '@/src/components';
+import type { TablerIcon } from '@/src/components';
 
 export type FocusCategory = 'Work' | 'Study' | 'Personal';
 export type TimerPhase = 'focus' | 'short_break' | 'long_break';

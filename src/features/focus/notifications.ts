@@ -1,7 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-import { AppSettings, FocusTask, TimerPhase } from './types';
+import type { AppSettings, FocusTask, TimerPhase } from './types';
+import { isPhaseNotificationEnabled, resolveTimerNotificationPlan } from './notification-rules';
 
 const TIMER_CHANNEL_ID = 'timer-completion';
 const TIMER_NOTIFICATION_SCOPE = 'time-radar-timer';
@@ -33,18 +34,12 @@ export async function getNotificationPermissionStatus(): Promise<TimerNotificati
     return 'unsupported';
   }
 
-  await configureTimerNotificationChannel();
-  const permissions = await Notifications.getPermissionsAsync();
-
-  if (permissions.granted) {
-    return 'granted';
+  try {
+    await configureTimerNotificationChannel();
+    return mapPermissionStatus(await Notifications.getPermissionsAsync());
+  } catch {
+    return 'unsupported';
   }
-
-  if (permissions.status === Notifications.PermissionStatus.DENIED) {
-    return 'denied';
-  }
-
-  return 'undetermined';
 }
 
 export async function requestTimerNotificationPermission(): Promise<TimerNotificationPermissionStatus> {
@@ -59,8 +54,11 @@ export async function requestTimerNotificationPermission(): Promise<TimerNotific
     return existingStatus;
   }
 
-  const permissions = await Notifications.requestPermissionsAsync();
-  return permissions.granted ? 'granted' : permissions.status === 'denied' ? 'denied' : 'undetermined';
+  try {
+    return mapPermissionStatus(await Notifications.requestPermissionsAsync());
+  } catch {
+    return 'unsupported';
+  }
 }
 
 export async function scheduleTimerCompletionNotification({
@@ -86,20 +84,19 @@ export async function scheduleTimerCompletionNotification({
     return [];
   }
 
-  const secondsUntilDue = Math.ceil((new Date(dueAt).getTime() - Date.now()) / 1000);
+  const plan = resolveTimerNotificationPlan({
+    phase,
+    dueAt,
+    settings,
+  });
 
-  if (secondsUntilDue <= 0) {
+  if (!plan.completionDelaySeconds) {
     return [];
   }
 
   const scheduledIds: string[] = [];
 
-  if (
-    settings.timerWarningEnabled &&
-    phase === 'focus' &&
-    settings.timerWarningSeconds > 0 &&
-    secondsUntilDue > settings.timerWarningSeconds + 5
-  ) {
+  if (plan.warningDelaySeconds) {
     scheduledIds.push(
       await Notifications.scheduleNotificationAsync({
         content: {
@@ -108,7 +105,7 @@ export async function scheduleTimerCompletionNotification({
           data: timerNotificationData(task.id),
           sound: false,
         },
-        trigger: timeIntervalTrigger(secondsUntilDue - settings.timerWarningSeconds),
+        trigger: timeIntervalTrigger(plan.warningDelaySeconds),
       })
     );
   }
@@ -121,7 +118,7 @@ export async function scheduleTimerCompletionNotification({
         data: timerNotificationData(task.id),
         sound: settings.completionSoundEnabled ? 'default' : false,
       },
-      trigger: timeIntervalTrigger(secondsUntilDue),
+      trigger: timeIntervalTrigger(plan.completionDelaySeconds),
     })
   );
 
@@ -133,13 +130,19 @@ export async function cancelTimerNotifications(): Promise<void> {
     return;
   }
 
-  const pendingNotifications = await Notifications.getAllScheduledNotificationsAsync();
+  let pendingNotifications: Awaited<ReturnType<typeof Notifications.getAllScheduledNotificationsAsync>>;
+
+  try {
+    pendingNotifications = await Notifications.getAllScheduledNotificationsAsync();
+  } catch {
+    return;
+  }
 
   await Promise.all(
     pendingNotifications
       .filter((notification) => notification.content.data?.scope === TIMER_NOTIFICATION_SCOPE)
       .map((notification) =>
-        Notifications.cancelScheduledNotificationAsync(notification.identifier)
+        Notifications.cancelScheduledNotificationAsync(notification.identifier).catch(() => undefined)
       )
   );
 }
@@ -175,20 +178,42 @@ function configureTimerNotificationChannel() {
   });
 }
 
-function isPhaseNotificationEnabled(phase: TimerPhase, settings: AppSettings) {
-  if (phase === 'focus') {
-    return settings.focusCompleteNotificationsEnabled;
-  }
-
-  return settings.breakCompleteNotificationsEnabled;
-}
-
 function timeIntervalTrigger(seconds: number): Notifications.TimeIntervalTriggerInput {
   return {
     type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
     seconds: Math.max(1, Math.round(seconds)),
     channelId: TIMER_CHANNEL_ID,
   };
+}
+
+function mapPermissionStatus(
+  permissions: Notifications.NotificationPermissionsStatus
+): TimerNotificationPermissionStatus {
+  if (permissions.granted) {
+    return 'granted';
+  }
+
+  if (Platform.OS === 'ios' && permissions.ios?.status !== undefined) {
+    if (
+      permissions.ios.status === Notifications.IosAuthorizationStatus.AUTHORIZED ||
+      permissions.ios.status === Notifications.IosAuthorizationStatus.PROVISIONAL ||
+      permissions.ios.status === Notifications.IosAuthorizationStatus.EPHEMERAL
+    ) {
+      return 'granted';
+    }
+
+    if (permissions.ios.status === Notifications.IosAuthorizationStatus.DENIED) {
+      return 'denied';
+    }
+
+    return 'undetermined';
+  }
+
+  if (permissions.status === Notifications.PermissionStatus.DENIED) {
+    return 'denied';
+  }
+
+  return 'undetermined';
 }
 
 function timerNotificationData(taskId: string) {

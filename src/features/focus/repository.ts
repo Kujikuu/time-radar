@@ -11,6 +11,7 @@ import {
   TimerSnapshot,
   TimerStatus,
 } from './types';
+import { resolveCompletedTimerTransition, resolvePhaseSeconds } from './timer-rules';
 
 type TaskRow = {
   id: string;
@@ -296,12 +297,14 @@ export async function startTimer(db: SQLiteDatabase, taskId: string): Promise<vo
     return;
   }
 
+  const plannedSeconds = resolvePhaseSeconds(task, 'focus');
+
   await upsertTimer(db, {
     task,
     phase: 'focus',
     status: 'running',
-    plannedSeconds: task.focusMinutes * 60,
-    remainingSeconds: task.focusMinutes * 60,
+    plannedSeconds,
+    remainingSeconds: plannedSeconds,
     completedFocusCount: 0,
   });
 }
@@ -389,19 +392,19 @@ export async function completeTimerPhase(db: SQLiteDatabase): Promise<void> {
     ]
   );
 
-  const completedFocusCount =
-    timer.phase === 'focus' ? timer.completedFocusCount + 1 : timer.completedFocusCount;
-  const nextPhase = nextTimerPhase(timer.phase, completedFocusCount, task.sessions);
-  const nextSeconds = phaseSeconds(task, nextPhase);
-  const shouldRun = timer.phase === 'focus' && task.autoStartBreaks;
+  const transition = resolveCompletedTimerTransition({
+    task,
+    currentPhase: timer.phase,
+    completedFocusCount: timer.completedFocusCount,
+  });
 
   await upsertTimer(db, {
     task,
-    phase: nextPhase,
-    status: shouldRun ? 'running' : 'paused',
-    plannedSeconds: nextSeconds,
-    remainingSeconds: nextSeconds,
-    completedFocusCount,
+    phase: transition.nextPhase,
+    status: transition.nextStatus,
+    plannedSeconds: transition.nextSeconds,
+    remainingSeconds: transition.nextSeconds,
+    completedFocusCount: transition.completedFocusCount,
   });
 }
 
@@ -504,30 +507,6 @@ async function upsertTimer(
       nowIso,
     ]
   );
-}
-
-function nextTimerPhase(
-  currentPhase: TimerPhase,
-  completedFocusCount: number,
-  sessionsBeforeLongBreak: number
-): TimerPhase {
-  if (currentPhase !== 'focus') {
-    return 'focus';
-  }
-
-  return completedFocusCount % sessionsBeforeLongBreak === 0 ? 'long_break' : 'short_break';
-}
-
-function phaseSeconds(task: FocusTask, phase: TimerPhase) {
-  if (phase === 'short_break') {
-    return task.shortBreakMinutes * 60;
-  }
-
-  if (phase === 'long_break') {
-    return task.longBreakMinutes * 60;
-  }
-
-  return task.focusMinutes * 60;
 }
 
 function mapTask(row: TaskRow): FocusTask {

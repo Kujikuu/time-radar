@@ -23,6 +23,7 @@ export default function SettingsScreen() {
   const notificationsAvailable = notificationPermission.status === 'granted';
   const notificationsBlocked = notificationPermission.status === 'denied';
   const notificationsUnsupported = notificationPermission.status === 'unsupported';
+  const canRequestNotifications = notificationPermission.status === 'undetermined';
 
   const enableNotifications = async () => {
     const status =
@@ -164,7 +165,7 @@ export default function SettingsScreen() {
                   : 'TimeRadar can alert you when a focus or break phase finishes.'}
             </Text>
           </View>
-          {!notificationsAvailable && !notificationsUnsupported ? (
+          {canRequestNotifications ? (
             <PrimaryButton style={styles.permissionButton} onPress={enableNotifications}>
               Allow
             </PrimaryButton>
@@ -176,7 +177,7 @@ export default function SettingsScreen() {
           label="Timer Alerts"
           helper="Schedule a local alert for the active timer."
           value={settings.notificationsEnabled && notificationsAvailable}
-          disabled={!notificationsAvailable}
+          disabled={notificationsBlocked || notificationsUnsupported}
           onValueChange={setNotificationsEnabled}
         />
         <Divider />
