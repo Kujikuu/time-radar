@@ -2,7 +2,11 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import type { AppSettings, FocusTask, TimerPhase } from './types';
-import { isPhaseNotificationEnabled, resolveTimerNotificationPlan } from './notification-rules';
+import {
+  isPhaseNotificationEnabled,
+  resolveImmediateCompletionNotificationPlan,
+  resolveTimerNotificationPlan,
+} from './notification-rules';
 
 const TIMER_CHANNEL_ID = 'timer-completion';
 const TIMER_NOTIFICATION_SCOPE = 'time-radar-timer';
@@ -18,6 +22,13 @@ type TimerNotificationInput = {
   phase: TimerPhase;
   dueAt: string | null;
   settings: AppSettings;
+};
+
+type ImmediateTimerCompletionNotificationInput = {
+  task: FocusTask;
+  phase: TimerPhase;
+  settings: AppSettings;
+  automaticForegroundCompletion: boolean;
 };
 
 Notifications.setNotificationHandler({
@@ -47,8 +58,14 @@ export async function requestTimerNotificationPermission(): Promise<TimerNotific
     return 'unsupported';
   }
 
-  await configureTimerNotificationChannel();
-  const existingStatus = await getNotificationPermissionStatus();
+  let existingStatus: TimerNotificationPermissionStatus;
+
+  try {
+    await configureTimerNotificationChannel();
+    existingStatus = await getNotificationPermissionStatus();
+  } catch {
+    return 'unsupported';
+  }
 
   if (existingStatus === 'granted' || existingStatus === 'denied') {
     return existingStatus;
@@ -123,6 +140,47 @@ export async function scheduleTimerCompletionNotification({
   );
 
   return scheduledIds;
+}
+
+export async function presentTimerCompletionNotification({
+  task,
+  phase,
+  settings,
+  automaticForegroundCompletion,
+}: ImmediateTimerCompletionNotificationInput): Promise<string | null> {
+  if (Platform.OS === 'web') {
+    return null;
+  }
+
+  const plan = resolveImmediateCompletionNotificationPlan({
+    phase,
+    settings,
+    automaticForegroundCompletion,
+  });
+
+  if (!plan.shouldPresent) {
+    return null;
+  }
+
+  const permissionStatus = await getNotificationPermissionStatus();
+
+  if (permissionStatus !== 'granted') {
+    return null;
+  }
+
+  try {
+    return await Notifications.scheduleNotificationAsync({
+      content: {
+        title: completionTitle(phase),
+        body: completionBody(phase, task.title),
+        data: timerNotificationData(task.id),
+        sound: plan.shouldPlaySound ? 'default' : false,
+      },
+      trigger: null,
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function cancelTimerNotifications(): Promise<void> {

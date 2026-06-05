@@ -5,7 +5,7 @@ import {
   IconRefresh,
 } from '@tabler/icons-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
 import { AppIcon } from '@/src/components';
 import { colors, typography } from '@/src/theme';
@@ -29,10 +29,10 @@ export function TimerRing({
   onReset,
   onComplete,
 }: TimerRingProps) {
-  const size = 280;
-  const strokeWidth = 9;
-  const markerRadius = 5.5;
-  const markerStrokeWidth = 2.5;
+  const size = 300;
+  const strokeWidth = 14;
+  const markerRadius = 8.5;
+  const markerStrokeWidth = 4.5;
   const markerClearance = markerRadius + markerStrokeWidth + 2;
   const radius = size / 2 - Math.max(strokeWidth / 2, markerClearance);
   const circumference = 2 * Math.PI * radius;

@@ -12,6 +12,17 @@ type TimerNotificationPlan = {
   warningDelaySeconds: number | null;
 };
 
+type ImmediateCompletionNotificationPlanInput = {
+  phase: TimerPhase;
+  settings: AppSettings;
+  automaticForegroundCompletion: boolean;
+};
+
+type ImmediateCompletionNotificationPlan = {
+  shouldPresent: boolean;
+  shouldPlaySound: boolean;
+};
+
 export function resolveTimerNotificationPlan({
   phase,
   dueAt,
@@ -44,6 +55,22 @@ export function isPhaseNotificationEnabled(phase: TimerPhase, settings: AppSetti
   }
 
   return settings.breakCompleteNotificationsEnabled;
+}
+
+export function resolveImmediateCompletionNotificationPlan({
+  phase,
+  settings,
+  automaticForegroundCompletion,
+}: ImmediateCompletionNotificationPlanInput): ImmediateCompletionNotificationPlan {
+  const shouldPresent =
+    automaticForegroundCompletion &&
+    settings.notificationsEnabled &&
+    isPhaseNotificationEnabled(phase, settings);
+
+  return {
+    shouldPresent,
+    shouldPlaySound: shouldPresent && settings.completionSoundEnabled,
+  };
 }
 
 function resolveWarningDelaySeconds({

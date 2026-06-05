@@ -11,7 +11,11 @@ import {
   TimerSnapshot,
   TimerStatus,
 } from './types';
-import { resolveCompletedTimerTransition, resolvePhaseSeconds } from './timer-rules';
+import {
+  resolveCompletedTimerTransition,
+  resolvePhaseSeconds,
+  resolveTimerActualSeconds,
+} from './timer-rules';
 
 type TaskRow = {
   id: string;
@@ -299,6 +303,8 @@ export async function startTimer(db: SQLiteDatabase, taskId: string): Promise<vo
 
   const plannedSeconds = resolvePhaseSeconds(task, 'focus');
 
+  await recordActiveTimerReset(db);
+
   await upsertTimer(db, {
     task,
     phase: 'focus',
@@ -348,6 +354,7 @@ export async function resumeTimer(db: SQLiteDatabase): Promise<void> {
 }
 
 export async function resetTimer(db: SQLiteDatabase): Promise<void> {
+  await recordActiveTimerReset(db);
   await db.runAsync('DELETE FROM active_timer WHERE id = 1');
 }
 
@@ -406,6 +413,55 @@ export async function completeTimerPhase(db: SQLiteDatabase): Promise<void> {
     remainingSeconds: transition.nextSeconds,
     completedFocusCount: transition.completedFocusCount,
   });
+}
+
+async function recordActiveTimerReset(db: SQLiteDatabase): Promise<void> {
+  const timer = await getActiveTimer(db);
+
+  if (!timer) {
+    return;
+  }
+
+  const task = await getTask(db, timer.taskId);
+
+  if (!task) {
+    await db.runAsync('DELETE FROM active_timer WHERE id = 1');
+    return;
+  }
+
+  const endedAt = new Date().toISOString();
+  const actualSeconds = resolveTimerActualSeconds({
+    status: timer.status,
+    plannedSeconds: timer.plannedSeconds,
+    remainingSeconds: timer.remainingSeconds,
+    dueAt: timer.dueAt,
+  });
+
+  await db.runAsync(
+    `INSERT INTO focus_sessions (
+      id,
+      task_id,
+      task_title,
+      category,
+      phase_type,
+      started_at,
+      ended_at,
+      planned_seconds,
+      actual_seconds,
+      status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'reset')`,
+    [
+      createId('session'),
+      task.id,
+      task.title,
+      task.category,
+      timer.phase,
+      timer.startedAt,
+      endedAt,
+      timer.plannedSeconds,
+      actualSeconds,
+    ]
+  );
 }
 
 export async function getSessionsBetween(

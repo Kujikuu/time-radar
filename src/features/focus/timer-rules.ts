@@ -16,6 +16,14 @@ type CompletedTimerTransition = {
   nextSeconds: number;
 };
 
+type TimerActualSecondsInput = {
+  status: TimerStatus;
+  plannedSeconds: number;
+  remainingSeconds: number;
+  dueAt: string | null;
+  nowMs?: number;
+};
+
 export function resolveCompletedTimerTransition({
   task,
   currentPhase,
@@ -59,4 +67,24 @@ export function resolvePhaseSeconds(
   }
 
   return task.focusMinutes * 60;
+}
+
+export function resolveTimerActualSeconds({
+  status,
+  plannedSeconds,
+  remainingSeconds,
+  dueAt,
+  nowMs = Date.now(),
+}: TimerActualSecondsInput) {
+  const resolvedRemainingSeconds =
+    status === 'running' && dueAt
+      ? Math.ceil((new Date(dueAt).getTime() - nowMs) / 1000)
+      : remainingSeconds;
+  const actualSeconds = plannedSeconds - resolvedRemainingSeconds;
+
+  if (!Number.isFinite(actualSeconds)) {
+    return 0;
+  }
+
+  return Math.min(Math.max(Math.round(actualSeconds), 0), plannedSeconds);
 }

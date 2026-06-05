@@ -38,7 +38,7 @@ export default function HomeScreen() {
           primaryActionLabel={snapshot.primaryActionLabel}
           onPrimaryAction={() => toggle(nextTask?.id)}
           onReset={snapshot.timer ? reset : undefined}
-          onComplete={snapshot.timer ? completePhase : undefined}
+          onComplete={snapshot.timer ? () => completePhase(false) : undefined}
         />
       </SoftCard>
 

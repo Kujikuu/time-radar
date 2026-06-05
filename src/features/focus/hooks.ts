@@ -10,6 +10,7 @@ import { triggerFocusHaptic } from './haptics';
 import {
   cancelTimerNotifications,
   getNotificationPermissionStatus,
+  presentTimerCompletionNotification,
   requestTimerNotificationPermission,
   scheduleTimerCompletionNotification,
   TimerNotificationPermissionStatus,
@@ -204,15 +205,28 @@ export function useFocusTimer() {
     setSnapshot(await getActiveTimerSnapshot(db));
   }, [db]);
 
-  const completePhase = useCallback(async () => {
+  const completePhase = useCallback(async (notifyForegroundCompletion = false) => {
     if (completingRef.current) {
       return;
     }
 
     completingRef.current = true;
     try {
+      const completionSnapshot = await getActiveTimerSnapshot(db);
+      const settings = await getSettings(db);
+
       await completeTimerPhase(db);
-      triggerFocusHaptic(await getSettings(db), 'complete');
+      triggerFocusHaptic(settings, 'complete');
+
+      if (completionSnapshot.timer && completionSnapshot.task) {
+        await presentTimerCompletionNotification({
+          task: completionSnapshot.task,
+          phase: completionSnapshot.timer.phase,
+          settings,
+          automaticForegroundCompletion: notifyForegroundCompletion,
+        });
+      }
+
       await syncActiveTimerNotification(db);
       await reload();
     } finally {
@@ -228,7 +242,7 @@ export function useFocusTimer() {
   );
 
   useEffect(() => {
-    const syncTimerState = async () => {
+    const syncTimerState = async (notifyForegroundCompletion = false) => {
       const nextSnapshot = await getActiveTimerSnapshot(db);
       setSnapshot(nextSnapshot);
 
@@ -237,14 +251,16 @@ export function useFocusTimer() {
         nextSnapshot.remainingSeconds <= 0 &&
         !completingRef.current
       ) {
-        await completePhase();
+        await completePhase(notifyForegroundCompletion);
       }
     };
 
-    const interval = setInterval(syncTimerState, 1000);
+    const interval = setInterval(() => {
+      void syncTimerState(AppState.currentState === 'active');
+    }, 1000);
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
-        void syncTimerState();
+        void syncTimerState(false);
         void syncActiveTimerNotification(db);
       }
     });

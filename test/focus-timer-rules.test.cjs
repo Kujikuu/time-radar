@@ -78,6 +78,41 @@ test('break phase advances back to a paused focus session', () => {
   assert.equal(transition.nextSeconds, 25 * 60);
 });
 
+test('timer actual seconds are capped for paused, running, and overdue timers', () => {
+  const nowMs = Date.parse('2026-01-01T10:10:00.000Z');
+
+  assert.equal(
+    timerRules.resolveTimerActualSeconds({
+      status: 'paused',
+      plannedSeconds: 25 * 60,
+      remainingSeconds: 15 * 60,
+      dueAt: null,
+      nowMs,
+    }),
+    10 * 60
+  );
+  assert.equal(
+    timerRules.resolveTimerActualSeconds({
+      status: 'running',
+      plannedSeconds: 25 * 60,
+      remainingSeconds: 25 * 60,
+      dueAt: '2026-01-01T10:25:00.000Z',
+      nowMs,
+    }),
+    10 * 60
+  );
+  assert.equal(
+    timerRules.resolveTimerActualSeconds({
+      status: 'running',
+      plannedSeconds: 25 * 60,
+      remainingSeconds: 25 * 60,
+      dueAt: '2026-01-01T10:00:00.000Z',
+      nowMs,
+    }),
+    25 * 60
+  );
+});
+
 test('notification plan schedules completion and focus warning when eligible', () => {
   const plan = notificationRules.resolveTimerNotificationPlan({
     phase: 'focus',
@@ -108,4 +143,27 @@ test('notification plan skips disabled break alerts and expired timers', () => {
   assert.equal(disabledBreakPlan.warningDelaySeconds, null);
   assert.equal(expiredPlan.completionDelaySeconds, null);
   assert.equal(expiredPlan.warningDelaySeconds, null);
+});
+
+test('foreground completion alert only presents for automatic eligible completions', () => {
+  const eligiblePlan = notificationRules.resolveImmediateCompletionNotificationPlan({
+    phase: 'focus',
+    settings,
+    automaticForegroundCompletion: true,
+  });
+  const manualPlan = notificationRules.resolveImmediateCompletionNotificationPlan({
+    phase: 'focus',
+    settings,
+    automaticForegroundCompletion: false,
+  });
+  const disabledPlan = notificationRules.resolveImmediateCompletionNotificationPlan({
+    phase: 'focus',
+    settings: { ...settings, notificationsEnabled: false },
+    automaticForegroundCompletion: true,
+  });
+
+  assert.equal(eligiblePlan.shouldPresent, true);
+  assert.equal(eligiblePlan.shouldPlaySound, true);
+  assert.equal(manualPlan.shouldPresent, false);
+  assert.equal(disabledPlan.shouldPresent, false);
 });
