@@ -44,6 +44,13 @@ export type AppSettings = {
   defaultSound: string;
   defaultBackgroundSound: string;
   autoStartBreaks: boolean;
+  notificationsEnabled: boolean;
+  focusCompleteNotificationsEnabled: boolean;
+  breakCompleteNotificationsEnabled: boolean;
+  completionSoundEnabled: boolean;
+  timerWarningEnabled: boolean;
+  timerWarningSeconds: number;
+  hapticsEnabled: boolean;
 };
 
 export type ActiveTimer = {

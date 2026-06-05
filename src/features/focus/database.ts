@@ -2,7 +2,25 @@ import { type SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'time-radar.db';
 
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 3;
+
+const defaultSettings = {
+  onboarding_completed: 'false',
+  default_focus_minutes: '25',
+  default_short_break_minutes: '5',
+  default_long_break_minutes: '15',
+  default_sessions: '4',
+  default_sound: 'Soft Bell',
+  default_background_sound: 'None',
+  auto_start_breaks: 'true',
+  notifications_enabled: 'false',
+  focus_complete_notifications_enabled: 'true',
+  break_complete_notifications_enabled: 'true',
+  completion_sound_enabled: 'true',
+  timer_warning_enabled: 'false',
+  timer_warning_seconds: '60',
+  haptics_enabled: 'true',
+};
 
 const seedTasks = [
   {
@@ -118,6 +136,23 @@ export async function migrateDatabase(db: SQLiteDatabase) {
       await seedInitialData(db);
     }
 
+    if (currentVersion < 2) {
+      await seedSettings(db, {
+        notifications_enabled: defaultSettings.notifications_enabled,
+        focus_complete_notifications_enabled: defaultSettings.focus_complete_notifications_enabled,
+        break_complete_notifications_enabled: defaultSettings.break_complete_notifications_enabled,
+        completion_sound_enabled: defaultSettings.completion_sound_enabled,
+        timer_warning_enabled: defaultSettings.timer_warning_enabled,
+        timer_warning_seconds: defaultSettings.timer_warning_seconds,
+      });
+    }
+
+    if (currentVersion < 3) {
+      await seedSettings(db, {
+        haptics_enabled: defaultSettings.haptics_enabled,
+      });
+    }
+
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
   });
 }
@@ -164,18 +199,13 @@ async function seedInitialData(db: SQLiteDatabase) {
     }
   }
 
-  const defaults = {
-    onboarding_completed: 'false',
-    default_focus_minutes: '25',
-    default_short_break_minutes: '5',
-    default_long_break_minutes: '15',
-    default_sessions: '4',
-    default_sound: 'Soft Bell',
-    default_background_sound: 'None',
-    auto_start_breaks: 'true',
-  };
+  await seedSettings(db, defaultSettings);
+}
 
-  for (const [key, value] of Object.entries(defaults)) {
+async function seedSettings(db: SQLiteDatabase, settings: Record<string, string>) {
+  const now = new Date().toISOString();
+
+  for (const [key, value] of Object.entries(settings)) {
     await db.runAsync(
       'INSERT OR IGNORE INTO app_settings (key, value, updated_at) VALUES (?, ?, ?)',
       [key, value, now]

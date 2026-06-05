@@ -68,6 +68,13 @@ export const defaultSettings: AppSettings = {
   defaultSound: 'Soft Bell',
   defaultBackgroundSound: 'None',
   autoStartBreaks: true,
+  notificationsEnabled: false,
+  focusCompleteNotificationsEnabled: true,
+  breakCompleteNotificationsEnabled: true,
+  completionSoundEnabled: true,
+  timerWarningEnabled: false,
+  timerWarningSeconds: 60,
+  hapticsEnabled: true,
 };
 
 export async function getTasks(db: SQLiteDatabase): Promise<FocusTask[]> {
@@ -171,6 +178,19 @@ export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {
     defaultBackgroundSound:
       settings.get('default_background_sound') ?? defaultSettings.defaultBackgroundSound,
     autoStartBreaks: settings.get('auto_start_breaks') !== 'false',
+    notificationsEnabled: settings.get('notifications_enabled') === 'true',
+    focusCompleteNotificationsEnabled:
+      settings.get('focus_complete_notifications_enabled') !== 'false',
+    breakCompleteNotificationsEnabled:
+      settings.get('break_complete_notifications_enabled') !== 'false',
+    completionSoundEnabled: settings.get('completion_sound_enabled') !== 'false',
+    timerWarningEnabled: settings.get('timer_warning_enabled') === 'true',
+    timerWarningSeconds: readNumberSetting(
+      settings,
+      'timer_warning_seconds',
+      defaultSettings.timerWarningSeconds
+    ),
+    hapticsEnabled: settings.get('haptics_enabled') !== 'false',
   };
 }
 
@@ -210,6 +230,36 @@ export async function updateSettings(
   }
   if (values.autoStartBreaks !== undefined) {
     entries.push(['auto_start_breaks', String(values.autoStartBreaks)]);
+  }
+  if (values.notificationsEnabled !== undefined) {
+    entries.push(['notifications_enabled', String(values.notificationsEnabled)]);
+  }
+  if (values.focusCompleteNotificationsEnabled !== undefined) {
+    entries.push([
+      'focus_complete_notifications_enabled',
+      String(values.focusCompleteNotificationsEnabled),
+    ]);
+  }
+  if (values.breakCompleteNotificationsEnabled !== undefined) {
+    entries.push([
+      'break_complete_notifications_enabled',
+      String(values.breakCompleteNotificationsEnabled),
+    ]);
+  }
+  if (values.completionSoundEnabled !== undefined) {
+    entries.push(['completion_sound_enabled', String(values.completionSoundEnabled)]);
+  }
+  if (values.timerWarningEnabled !== undefined) {
+    entries.push(['timer_warning_enabled', String(values.timerWarningEnabled)]);
+  }
+  if (values.timerWarningSeconds !== undefined) {
+    entries.push([
+      'timer_warning_seconds',
+      String(clampMinutes(values.timerWarningSeconds, 10, 600)),
+    ]);
+  }
+  if (values.hapticsEnabled !== undefined) {
+    entries.push(['haptics_enabled', String(values.hapticsEnabled)]);
   }
 
   for (const [key, value] of entries) {

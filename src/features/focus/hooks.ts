@@ -1,10 +1,18 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { IconClock, IconFlame, IconTargetArrow } from '@tabler/icons-react-native';
-import { useSQLiteContext } from 'expo-sqlite';
+import { type SQLiteDatabase, useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { colors } from '@/src/theme';
 
+import { triggerFocusHaptic } from './haptics';
+import {
+  cancelTimerNotifications,
+  getNotificationPermissionStatus,
+  requestTimerNotificationPermission,
+  scheduleTimerCompletionNotification,
+  TimerNotificationPermissionStatus,
+} from './notifications';
 import {
   completeTimerPhase,
   createTask,
@@ -146,11 +154,36 @@ export function useSettings() {
     async (values: Partial<AppSettings>) => {
       await updateSettings(db, values);
       await reload();
+      await syncActiveTimerNotification(db);
     },
     [db, reload]
   );
 
   return { settings, loading, save, reload };
+}
+
+export function useNotificationPermissionStatus() {
+  const [status, setStatus] = useState<TimerNotificationPermissionStatus>('undetermined');
+  const [loading, setLoading] = useState(true);
+
+  const reload = useCallback(async () => {
+    setStatus(await getNotificationPermissionStatus());
+    setLoading(false);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload])
+  );
+
+  const request = useCallback(async () => {
+    const nextStatus = await requestTimerNotificationPermission();
+    setStatus(nextStatus);
+    return nextStatus;
+  }, []);
+
+  return { status, loading, reload, request };
 }
 
 export function useFocusTimer() {
@@ -178,6 +211,8 @@ export function useFocusTimer() {
     completingRef.current = true;
     try {
       await completeTimerPhase(db);
+      triggerFocusHaptic(await getSettings(db), 'complete');
+      await syncActiveTimerNotification(db);
       await reload();
     } finally {
       completingRef.current = false;
@@ -187,7 +222,8 @@ export function useFocusTimer() {
   useFocusEffect(
     useCallback(() => {
       reload();
-    }, [reload])
+      syncActiveTimerNotification(db);
+    }, [db, reload])
   );
 
   useEffect(() => {
@@ -210,6 +246,8 @@ export function useFocusTimer() {
   const start = useCallback(
     async (taskId: string) => {
       await startTimer(db, taskId);
+      triggerFocusHaptic(await getSettings(db), 'start');
+      await syncActiveTimerNotification(db);
       await reload();
     },
     [db, reload]
@@ -220,11 +258,17 @@ export function useFocusTimer() {
       if (!snapshot.timer) {
         if (fallbackTaskId) {
           await startTimer(db, fallbackTaskId);
+          triggerFocusHaptic(await getSettings(db), 'start');
+          await syncActiveTimerNotification(db);
         }
       } else if (snapshot.timer.status === 'running') {
         await pauseTimer(db);
+        triggerFocusHaptic(await getSettings(db), 'pause');
+        await cancelTimerNotifications();
       } else {
         await resumeTimer(db);
+        triggerFocusHaptic(await getSettings(db), 'start');
+        await syncActiveTimerNotification(db);
       }
 
       await reload();
@@ -234,6 +278,8 @@ export function useFocusTimer() {
 
   const reset = useCallback(async () => {
     await resetTimer(db);
+    triggerFocusHaptic(await getSettings(db), 'reset');
+    await cancelTimerNotifications();
     await reload();
   }, [db, reload]);
 
@@ -245,6 +291,22 @@ export function useFocusTimer() {
     completePhase,
     reload,
   };
+}
+
+async function syncActiveTimerNotification(db: SQLiteDatabase) {
+  const [settings, snapshot] = await Promise.all([getSettings(db), getActiveTimerSnapshot(db)]);
+
+  if (snapshot.timer?.status === 'running' && snapshot.task) {
+    await scheduleTimerCompletionNotification({
+      task: snapshot.task,
+      phase: snapshot.timer.phase,
+      dueAt: snapshot.timer.dueAt,
+      settings,
+    });
+    return;
+  }
+
+  await cancelTimerNotifications();
 }
 
 export function useStats(range: StatsRange) {

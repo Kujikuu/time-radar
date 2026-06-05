@@ -41,7 +41,7 @@ export function TimerRing({
   const markerAngle = -Math.PI / 2 + clampedProgress * Math.PI * 2;
   const markerX = size / 2 + Math.cos(markerAngle) * radius;
   const markerY = size / 2 + Math.sin(markerAngle) * radius;
-  const progressOpacity = 0.28 + clampedProgress * 0.34;
+  const progressOpacity = 0.62 - clampedProgress * 0.34;
   const trackOpacity = 0.18;
   const isPaused = primaryActionLabel === 'Resume';
   const hasActiveTimer = Boolean(onReset || onComplete);
@@ -57,7 +57,7 @@ export function TimerRing({
     <View style={styles.wrapper}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <Defs>
-          <SvgLinearGradient id="timerAccent" x1="0" y1="1" x2="1" y2="0">
+          <SvgLinearGradient id="timerAccent" x1="1" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={colors.accentSoft} stopOpacity="0.24" />
             <Stop offset="0.58" stopColor={colors.accent} stopOpacity="0.54" />
             <Stop offset="1" stopColor={colors.accentDark} stopOpacity="0.62" />
