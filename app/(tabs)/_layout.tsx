@@ -18,6 +18,9 @@ import { colors, radius } from '@/src/theme';
 export default function TabLayout() {
   return (
     <Tabs
+      safeAreaInsets={{
+        bottom: 0,
+      }}
       screenOptions={{
         tabBarActiveTintColor: colors.accentDark,
         tabBarInactiveTintColor: colors.textMuted,
@@ -25,13 +28,20 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarShowLabel: false,
         tabBarStyle: {
-          height: 68,
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 78,
           paddingTop: 10,
           paddingBottom: 10,
           paddingHorizontal: 12,
+          borderTopLeftRadius: radius.lg,
+          borderTopRightRadius: radius.lg,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.border,
           backgroundColor: colors.backgroundWarm,
+          overflow: 'hidden',
         },
         tabBarItemStyle: {
           borderRadius: radius.md,
