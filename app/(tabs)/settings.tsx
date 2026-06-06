@@ -1,13 +1,13 @@
 import { IconLanguage } from '@tabler/icons-react-native';
-import { type ReactNode } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
 import {
   AppText,
+  Divider,
   IconButton,
   PrimaryButton,
   Screen,
-  SoftCard,
+  SettingsSection,
   StepperRow,
   SwitchRow,
 } from '@/src/components';
@@ -19,7 +19,7 @@ import {
   textAlignForTextDirection,
 } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
-import { colors, radius, spacing, typography } from '@/src/theme';
+import { colors, spacing, typography } from '@/src/theme';
 
 export default function SettingsScreen() {
   const { settings, save } = useSettings();
@@ -269,36 +269,6 @@ export default function SettingsScreen() {
   );
 }
 
-function SettingsSection({
-  title,
-  badge,
-  children,
-}: {
-  title: string;
-  badge?: string;
-  children: ReactNode;
-}) {
-  const { direction, nativeDirection } = useTranslation();
-  const tileText = { textAlign: textAlignForTextDirection(direction) };
-  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
-
-  return (
-    <SoftCard style={styles.card}>
-      <View style={[styles.sectionHeader, contentRow]}>
-        <View style={styles.sectionTitleWrap}>
-          <AppText style={[styles.sectionTitle, styles.tileText, tileText]}>{title}</AppText>
-        </View>
-        {badge ? <AppText style={styles.badge}>{badge}</AppText> : null}
-      </View>
-      <View style={styles.sectionBody}>{children}</View>
-    </SoftCard>
-  );
-}
-
-function Divider() {
-  return <View style={styles.divider} />;
-}
-
 const styles = StyleSheet.create({
   screen: {
     gap: spacing.lg,
@@ -315,62 +285,21 @@ const styles = StyleSheet.create({
     minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: typography.title,
-    fontWeight: 'bold',
+    fontSize: typography.size.screenTitle,
+    fontWeight: typography.weight.bold,
   },
   languageButton: {
     flexShrink: 0,
     backgroundColor: colors.surfaceMuted,
   },
-  card: {
-    padding: spacing.lg,
-    gap: spacing.md,
-  },
-  sectionHeader: {
-    minHeight: 32,
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  sectionTitleWrap: {
-    flex: 1,
-    minWidth: 0,
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-  },
-  sectionTitle: {
-    alignSelf: 'stretch',
-    flexShrink: 1,
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   tileText: {
     minWidth: 0,
-  },
-  badge: {
-    flexShrink: 0,
-    overflow: 'hidden',
-    borderRadius: radius.pill,
-    borderColor: colors.border,
-    borderWidth: StyleSheet.hairlineWidth,
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 12,
-    fontWeight: '700',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 5,
-    backgroundColor: colors.backgroundWarm,
-  },
-  sectionBody: {
-    gap: 0,
   },
   helper: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.helper,
   },
   permissionPanel: {
     flexWrap: 'wrap',
@@ -386,8 +315,8 @@ const styles = StyleSheet.create({
   permissionTitle: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.control,
+    fontWeight: typography.weight.bold,
   },
   permissionButton: {
     minHeight: 42,
@@ -398,9 +327,5 @@ const styles = StyleSheet.create({
     minHeight: 42,
     minWidth: 180,
     paddingHorizontal: spacing.md,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: colors.border,
   },
 });

@@ -71,12 +71,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 13,
-    fontWeight: '500',
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.medium,
     textAlign: 'center',
   },
   activeLabel: {
     color: colors.accentDark,
-    fontWeight: '700',
+    fontWeight: typography.weight.bold,
   },
 });

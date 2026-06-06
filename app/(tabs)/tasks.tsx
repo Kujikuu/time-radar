@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
     minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: typography.title,
-    fontWeight: 'bold',
+    fontSize: typography.size.screenTitle,
+    fontWeight: typography.weight.bold,
   },
   contentText: {
     minWidth: 0,
@@ -121,14 +121,14 @@ const styles = StyleSheet.create({
   summaryTitle: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.size.bodyLarge,
+    fontWeight: typography.weight.bold,
   },
   summaryText: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: typography.size.small,
+    lineHeight: typography.lineHeight.body,
   },
   list: {
     gap: spacing.md,
@@ -140,14 +140,14 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.size.bodyLarge,
+    fontWeight: typography.weight.bold,
   },
   emptyText: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: typography.size.small,
+    lineHeight: typography.lineHeight.body,
   },
   emptyAction: {
     minHeight: 46,

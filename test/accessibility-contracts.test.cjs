@@ -66,11 +66,12 @@ test('Settings aligns tile copy and control rows to the active reading direction
 });
 
 test('Settings section headers keep titles anchored to the row start', () => {
-  const settingsSource = source('app/(tabs)/settings.tsx');
-  const sectionHeaderStyle = settingsSource.match(/sectionHeader:\s*\{([\s\S]*?)\n  \},/)?.[1] ?? '';
+  const settingsSectionSource = source('src/components/SettingsSection.tsx');
+  const sectionHeaderStyle = settingsSectionSource.match(/sectionHeader:\s*\{([\s\S]*?)\n  \},/)?.[1] ?? '';
   const sectionTitleWrapStyle =
-    settingsSource.match(/sectionTitleWrap:\s*\{([\s\S]*?)\n  \},/)?.[1] ?? '';
-  const sectionTitleStyle = settingsSource.match(/sectionTitle:\s*\{([\s\S]*?)\n  \},/)?.[1] ?? '';
+    settingsSectionSource.match(/sectionTitleWrap:\s*\{([\s\S]*?)\n  \},/)?.[1] ?? '';
+  const sectionTitleStyle =
+    settingsSectionSource.match(/sectionTitle:\s*\{([\s\S]*?)\n  \},/)?.[1] ?? '';
 
   assert.match(sectionHeaderStyle, /alignItems:\s*'flex-start'/);
   assert.match(sectionHeaderStyle, /justifyContent:\s*'space-between'/);

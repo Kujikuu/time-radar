@@ -148,12 +148,12 @@ const styles = StyleSheet.create({
     minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 14,
+    fontSize: typography.size.control,
   },
   legendValue: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: typography.size.control,
+    fontWeight: typography.weight.medium,
   },
 });

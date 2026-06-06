@@ -1,4 +1,3 @@
-import { IconFileText, IconTrendingUp } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -10,32 +9,35 @@ import {
   View,
 } from 'react-native';
 
-import { AppIcon, AppText, BrandLogo, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { AppText, BrandLogo, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
 import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/notification-prompt-rules';
-import { RadarMark } from '@/src/features/focus/RadarMark';
+import {
+  OnboardingVisual,
+  type OnboardingVisualType,
+} from '@/src/features/onboarding/OnboardingVisual';
 import { rowDirectionForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
-import { colors, radius, spacing, typography } from '@/src/theme';
+import { colors, spacing, typography } from '@/src/theme';
 
 const onboardingSlides = [
   {
     id: 'focus',
     titleKey: null,
     bodyKey: 'onboarding.slides.focusBody',
-    visual: 'radar',
+    visual: 'radar' satisfies OnboardingVisualType,
   },
   {
     id: 'sessions',
     titleKey: 'onboarding.slides.sessionsTitle',
     bodyKey: 'onboarding.slides.sessionsBody',
-    visual: 'session',
+    visual: 'session' satisfies OnboardingVisualType,
   },
   {
     id: 'progress',
     titleKey: 'onboarding.slides.progressTitle',
     bodyKey: 'onboarding.slides.progressBody',
-    visual: 'stats',
+    visual: 'stats' satisfies OnboardingVisualType,
   },
 ] as const;
 
@@ -205,69 +207,6 @@ export default function OnboardingScreen() {
   );
 }
 
-function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['visual'] }) {
-  const { direction, nativeDirection, t } = useTranslation();
-  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
-
-  if (type === 'radar') {
-    return <RadarMark />;
-  }
-
-  if (type === 'session') {
-    return (
-      <View style={styles.visualShell}>
-        <SoftCard style={styles.sessionCard}>
-          <View style={styles.sessionIcon}>
-            <AppIcon icon={IconFileText} size={30} color={colors.accentDark} />
-          </View>
-          <AppText style={styles.visualTitle}>{t('onboarding.visual.projectProposal')}</AppText>
-          <View style={styles.timerPill}>
-            <AppText style={styles.timerPillText}>25:00</AppText>
-          </View>
-          <View style={styles.sessionRows}>
-            {[
-              t('taskForm.focusDuration'),
-              t('taskForm.shortBreak'),
-              t('taskForm.longBreak'),
-            ].map((label, index) => (
-              <View key={label} style={[styles.sessionRow, contentRow]}>
-                <AppText style={styles.sessionLabel}>{label}</AppText>
-                <AppText style={styles.sessionValue}>
-                  {index === 0 ? `25 ${t('units.min')}` : index === 1 ? `5 ${t('units.min')}` : `15 ${t('units.min')}`}
-                </AppText>
-              </View>
-            ))}
-          </View>
-        </SoftCard>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.visualShell}>
-      <SoftCard style={styles.statsCard}>
-        <View style={[styles.statHeader, contentRow]}>
-          <AppText style={styles.visualTitle}>{t('onboarding.visual.today')}</AppText>
-          <View style={[styles.trendBadge, contentRow]}>
-            <AppIcon icon={IconTrendingUp} size={18} color={colors.green} />
-            <AppText style={styles.trendText}>+23%</AppText>
-          </View>
-        </View>
-        <AppText style={styles.bigMetric}>2h 15m</AppText>
-        <View style={styles.bars}>
-          {[18, 42, 26, 70, 92, 54, 34, 48].map((height, index) => (
-            <View key={`${height}-${index}`} style={[styles.bar, { height }]} />
-          ))}
-        </View>
-        <View style={[styles.scoreRow, contentRow]}>
-          <AppText style={styles.sessionLabel}>{t('metrics.focusScore')}</AppText>
-          <AppText style={styles.sessionValue}>85%</AppText>
-        </View>
-      </SoftCard>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   screen: {
     justifyContent: 'space-between',
@@ -293,15 +232,15 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 30,
-    fontWeight: '400',
+    fontSize: typography.size.hero,
+    fontWeight: typography.weight.regular,
     letterSpacing: 0,
   },
   subtitle: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 17,
-    lineHeight: 26,
+    fontSize: typography.size.subheading,
+    lineHeight: typography.lineHeight.hero,
     textAlign: 'center',
   },
   actions: {
@@ -318,16 +257,16 @@ const styles = StyleSheet.create({
   notificationTitle: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 17,
-    fontWeight: '700',
-    lineHeight: 24,
+    fontSize: typography.size.subheading,
+    fontWeight: typography.weight.bold,
+    lineHeight: typography.lineHeight.title,
     textAlign: 'center',
   },
   notificationBody: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: typography.size.small,
+    lineHeight: typography.lineHeight.paragraph,
     textAlign: 'center',
   },
   secondaryButton: {
@@ -338,8 +277,8 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: colors.accentDark,
     fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.control,
+    fontWeight: typography.weight.bold,
   },
   skipButton: {
     minHeight: 40,
@@ -349,8 +288,8 @@ const styles = StyleSheet.create({
   skip: {
     color: colors.accentDark,
     fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.control,
+    fontWeight: typography.weight.bold,
     textAlign: 'center',
   },
   pressed: {
@@ -370,116 +309,5 @@ const styles = StyleSheet.create({
   activeDot: {
     width: 24,
     backgroundColor: colors.accent,
-  },
-  visualShell: {
-    width: '100%',
-    maxWidth: 276,
-    alignSelf: 'center',
-  },
-  sessionCard: {
-    alignItems: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  sessionIcon: {
-    width: 58,
-    height: 58,
-    borderRadius: radius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfacePeach,
-  },
-  visualTitle: {
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  timerPill: {
-    minWidth: 104,
-    minHeight: 42,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.accent,
-  },
-  timerPillText: {
-    color: colors.white,
-    fontFamily: typography.family,
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  sessionRows: {
-    width: '100%',
-    gap: spacing.sm,
-    paddingTop: spacing.sm,
-  },
-  sessionRow: {
-    minHeight: 34,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  sessionLabel: {
-    flexShrink: 1,
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  sessionValue: {
-    flexShrink: 0,
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  statsCard: {
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  statHeader: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  trendBadge: {
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surfaceMuted,
-  },
-  trendText: {
-    color: colors.green,
-    fontFamily: typography.family,
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  bigMetric: {
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 32,
-    fontWeight: '400',
-  },
-  bars: {
-    height: 104,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    gap: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.borderStrong,
-  },
-  bar: {
-    flex: 1,
-    maxWidth: 14,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accentSoft,
-  },
-  scoreRow: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
 });

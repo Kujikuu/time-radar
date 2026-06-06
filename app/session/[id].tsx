@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 22,
-    fontWeight: '500',
+    fontSize: typography.size.heading,
+    fontWeight: typography.weight.medium,
     textAlign: 'center',
   },
   categoryPill: {
@@ -103,8 +103,8 @@ const styles = StyleSheet.create({
   categoryText: {
     color: colors.accentDark,
     fontFamily: typography.family,
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.bold,
   },
   emptyCard: {
     gap: 5,
@@ -113,13 +113,13 @@ const styles = StyleSheet.create({
   optionTitle: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: typography.size.control,
+    fontWeight: typography.weight.bold,
   },
   optionSubtitle: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 12,
+    fontSize: typography.size.caption,
     marginTop: 3,
   },
   footerActions: {

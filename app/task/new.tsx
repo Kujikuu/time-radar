@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: typography.size.title,
+    fontWeight: typography.weight.bold,
   },
 });

@@ -178,8 +178,8 @@ const styles = StyleSheet.create({
   label: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.bold,
   },
   input: {
     minHeight: 48,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 16,
+    fontSize: typography.size.bodyLarge,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.backgroundWarm,
   },
@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.accentDark,
     fontFamily: typography.family,
-    fontSize: 12,
-    fontWeight: '600',
-    lineHeight: 17,
+    fontSize: typography.size.caption,
+    fontWeight: typography.weight.semibold,
+    lineHeight: typography.lineHeight.caption,
   },
 });

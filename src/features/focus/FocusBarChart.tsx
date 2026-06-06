@@ -86,7 +86,7 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
               x="0"
               y={y}
               fill={colors.textMuted}
-              fontSize="10"
+              fontSize={typography.size.micro}
               fontFamily={typography.family}>
               {locale === 'ar' ? `${tick}د` : `${tick}m`}
             </SvgText>
@@ -111,7 +111,7 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
               x={bar.labelX}
               y={chartHeight - 7}
               fill={colors.textMuted}
-              fontSize="10"
+              fontSize={typography.size.micro}
               fontFamily={typography.family}>
               {bar.label}
             </SvgText>

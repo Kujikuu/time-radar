@@ -1,5 +1,5 @@
 import { useLocales } from 'expo-localization';
-import { createContext, type PropsWithChildren, useContext, useMemo, useState } from 'react';
+import { createContext, type PropsWithChildren, use, useMemo, useState } from 'react';
 import { I18nManager, Platform } from 'react-native';
 
 import type { AppLanguagePreference } from '@/src/features/focus/types';
@@ -64,11 +64,11 @@ export function LocaleProvider({ children }: PropsWithChildren) {
     [direction, languagePreference, locale, nativeDirection]
   );
 
-  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
+  return <LocaleContext value={value}>{children}</LocaleContext>;
 }
 
 export function useLocale() {
-  return useContext(LocaleContext);
+  return use(LocaleContext);
 }
 
 export function useTranslation() {

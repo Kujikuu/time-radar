@@ -66,9 +66,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: colors.white,
     fontFamily: typography.family,
-    fontSize: 16,
-    fontWeight: '700',
-    lineHeight: 21,
+    fontSize: typography.size.bodyLarge,
+    fontWeight: typography.weight.bold,
+    lineHeight: typography.lineHeight.button,
     textAlign: 'center',
   },
 });

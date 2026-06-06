@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: typography.title,
-    fontWeight: 'bold',
+    fontSize: typography.size.screenTitle,
+    fontWeight: typography.weight.bold,
   },
   contentText: {
     minWidth: 0,
@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
   dateLabel: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.semibold,
   },
   metricRow: {
     alignItems: 'center',
@@ -116,13 +116,13 @@ const styles = StyleSheet.create({
   focusValue: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 34,
-    fontWeight: '400',
+    fontSize: typography.size.stat,
+    fontWeight: typography.weight.regular,
   },
   focusLabel: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 13,
+    fontSize: typography.size.small,
   },
   trendBadge: {
     width: 96,
@@ -137,13 +137,13 @@ const styles = StyleSheet.create({
   trendValue: {
     color: colors.green,
     fontFamily: typography.family,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
   },
   trendLabel: {
     color: colors.textMuted,
     fontFamily: typography.family,
-    fontSize: 11,
+    fontSize: typography.size.eyebrow,
   },
   section: {
     gap: spacing.lg,
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontFamily: typography.family,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
   },
 });
