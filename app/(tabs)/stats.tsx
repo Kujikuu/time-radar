@@ -2,7 +2,7 @@ import { IconTrendingUp } from '@tabler/icons-react-native';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, Screen, SegmentedControl } from '@/src/components';
+import { AppIcon, AppText, Screen, SegmentedControl, SoftCard } from '@/src/components';
 import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
 import { useStats } from '@/src/features/focus/hooks';
@@ -69,6 +69,17 @@ export default function StatsScreen() {
         </AppText>
         <DistributionDonut data={summary.distribution} />
       </View>
+
+      <SoftCard style={styles.proCard}>
+        <AppText style={[styles.proEyebrow, styles.contentText, contentText]}>
+          {t('pro.eyebrow')}
+        </AppText>
+        <AppText style={[styles.proTitle, styles.contentText, contentText]}>{t('pro.title')}</AppText>
+        <AppText style={[styles.proBody, styles.contentText, contentText]}>{t('pro.body')}</AppText>
+        <View style={[styles.proBadge, contentRow]}>
+          <AppText style={styles.proBadgeText}>{t('pro.action')}</AppText>
+        </View>
+      </SoftCard>
     </Screen>
   );
 }
@@ -146,6 +157,42 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.text,
     fontSize: typography.size.body,
+    fontWeight: typography.weight.bold,
+  },
+  proCard: {
+    gap: spacing.sm,
+    padding: spacing.lg,
+    backgroundColor: colors.backgroundWarm,
+  },
+  proEyebrow: {
+    color: colors.accentDark,
+    fontSize: typography.size.eyebrow,
+    fontWeight: typography.weight.extraBold,
+    textTransform: 'uppercase',
+  },
+  proTitle: {
+    color: colors.text,
+    fontSize: typography.size.cardTitle,
+    fontWeight: typography.weight.bold,
+  },
+  proBody: {
+    color: colors.textMuted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.paragraph,
+  },
+  proBadge: {
+    minHeight: 38,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: radius.pill,
+    justifyContent: 'center',
+    marginTop: spacing.xs,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surfacePeach,
+  },
+  proBadgeText: {
+    color: colors.accentDark,
+    fontSize: typography.size.caption,
     fontWeight: typography.weight.bold,
   },
 });

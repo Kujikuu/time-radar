@@ -75,3 +75,44 @@ test('task form guides and blocks blank task names before submit', () => {
   assert.match(taskFormSource, /if \(!title\.trim\(\)\)/);
   assert.match(taskFormSource, /onPress=\{handleSubmit\}/);
 });
+
+test('student positioning and pro copy sell progress without blocking the timer', () => {
+  const homeSource = source('app/(tabs)/index.tsx');
+  const statsSource = source('app/(tabs)/stats.tsx');
+
+  assert.equal(i18n.translate('en', 'home.studentPromise'), 'Study focus, without the noise.');
+  assert.equal(i18n.translate('ar', 'home.studentPromise'), 'تركيز دراسي بلا تشتيت.');
+  assert.equal(i18n.translate('en', 'radar.title'), 'Today’s radar signal');
+  assert.equal(i18n.translate('ar', 'radar.status.strong'), 'إشارة قوية');
+  assert.equal(
+    i18n.translate('en', 'pro.body'),
+    'Keep the timer free. Upgrade when deeper history, custom study presets, and shareable weekly progress become useful.'
+  );
+  assert.match(homeSource, /buildRadarSignal\(summary\.focusMinutes\)/);
+  assert.match(homeSource, /t\('home\.studentPromise'\)/);
+  assert.match(homeSource, /t\(`radar\.status\.\$\{radarSignal\.status\}`\)/);
+  assert.match(statsSource, /t\('pro\.title'\)/);
+  assert.match(statsSource, /t\('pro\.body'\)/);
+});
+
+test('home can create and start a quick study sprint when no task exists', () => {
+  const homeSource = source('app/(tabs)/index.tsx');
+
+  assert.equal(i18n.translate('en', 'quickStart.title'), 'Quick Study Sprint');
+  assert.equal(i18n.translate('ar', 'quickStart.title'), 'جلسة دراسة سريعة');
+  assert.match(homeSource, /useCreateTask\(\)/);
+  assert.match(homeSource, /quickStudyTaskInput\(settings, t\('quickStart\.title'\)\)/);
+  assert.match(homeSource, /await start\(taskId\)/);
+});
+
+test('store launch metadata is Arabic-first and student-focused', () => {
+  const listingSource = source('docs/store-listing.md');
+
+  assert.match(listingSource, /# TimeRadar Store Listing/);
+  assert.match(listingSource, /## Arabic/);
+  assert.match(listingSource, /تركيز دراسي بلا تشتيت/);
+  assert.match(listingSource, /## English/);
+  assert.match(listingSource, /Study focus, without the noise/);
+  assert.match(listingSource, /Screenshot Set/);
+  assert.match(listingSource, /Saudi students/);
+});

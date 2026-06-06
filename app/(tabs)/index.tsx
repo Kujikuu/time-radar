@@ -1,10 +1,13 @@
+import { IconTrendingUp } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
+import { useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText, BrandLogo, MetricCard, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { AppIcon, AppText, BrandLogo, MetricCard, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import {
   useFocusTimer,
+  useCreateTask,
   useNotificationPermissionStatus,
   useProgressMetrics,
   useSettings,
@@ -12,19 +15,24 @@ import {
   useTasks,
 } from '@/src/features/focus/hooks';
 import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/notification-prompt-rules';
+import { buildRadarSignal } from '@/src/features/focus/stats-rules';
+import { quickStudyTaskInput } from '@/src/features/focus/task-rules';
 import { TimerRing } from '@/src/features/focus/TimerRing';
 import { rowDirectionForTextDirection, textAlignForTextDirection, timerPhaseLabel } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
-import { colors, spacing, typography } from '@/src/theme';
+import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function HomeScreen() {
-  const { tasks } = useTasks();
+  const { tasks, reload: reloadTasks } = useTasks();
   const { direction, formatDate, locale, nativeDirection, t } = useTranslation();
   const { summary } = useStats('Day', locale);
+  const radarSignal = buildRadarSignal(summary.focusMinutes);
   const progressMetrics = useProgressMetrics(summary, locale);
-  const { snapshot, toggle, reset, completePhase } = useFocusTimer();
+  const createTask = useCreateTask();
+  const { snapshot, start, toggle, reset, completePhase } = useFocusTimer();
   const { settings, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
+  const quickStartRef = useRef(false);
   const nextTask = snapshot.task ?? tasks[0] ?? null;
   const todayDate = formatDate(new Date(), {
     month: 'short',
@@ -64,10 +72,31 @@ export default function HomeScreen() {
     await save({ notificationPermissionPromptCompleted: true });
   };
 
+  const handleTimerPrimaryAction = async () => {
+    if (snapshot.timer || nextTask) {
+      await toggle(nextTask?.id);
+      return;
+    }
+
+    if (quickStartRef.current) {
+      return;
+    }
+
+    quickStartRef.current = true;
+    try {
+      const taskId = await createTask(quickStudyTaskInput(settings, t('quickStart.title')));
+      await start(taskId);
+      await reloadTasks();
+    } finally {
+      quickStartRef.current = false;
+    }
+  };
+
   return (
     <Screen contentStyle={styles.screen}>
       <View style={styles.header}>
         <BrandLogo />
+        <AppText style={styles.studentPromise}>{t('home.studentPromise')}</AppText>
       </View>
 
       <View style={[styles.sectionHeader, rowDirection]}>
@@ -96,14 +125,43 @@ export default function HomeScreen() {
         </SoftCard>
       ) : null}
 
+      <SoftCard style={styles.radarCard}>
+        <View style={[styles.radarHeader, rowDirection]}>
+          <View style={styles.radarTitleGroup}>
+            <AppText style={[styles.radarTitle, sectionTitleText]}>{t('radar.title')}</AppText>
+            <AppText style={[styles.radarHelper, sectionTitleText]}>{t('radar.helper')}</AppText>
+          </View>
+          <View style={styles.radarIcon}>
+            <AppIcon icon={IconTrendingUp} size={24} color={colors.accentDark} />
+          </View>
+        </View>
+        <View style={styles.signalTrack}>
+          <View style={[styles.signalFill, { width: `${radarSignal.percent}%` }]} />
+        </View>
+        <View style={[styles.radarFooter, rowDirection]}>
+          <AppText style={styles.radarStatus}>
+            {t(`radar.status.${radarSignal.status}`)}
+          </AppText>
+          <AppText selectable style={styles.radarPercent}>
+            {t('radar.progress', { values: { percent: radarSignal.percent } })}
+          </AppText>
+        </View>
+      </SoftCard>
+
       <SoftCard style={styles.timerCard}>
         <TimerRing
           label={phaseLabel}
-          time={snapshot.timer ? snapshot.display : nextTask ? `${nextTask.focusMinutes}:00` : '0:00'}
+          time={
+            snapshot.timer
+              ? snapshot.display
+              : nextTask
+                ? `${nextTask.focusMinutes}:00`
+                : `${settings.defaultFocusMinutes}:00`
+          }
           progress={snapshot.progress}
           primaryActionLabel={primaryActionLabel}
           primaryActionState={primaryActionState}
-          onPrimaryAction={() => toggle(nextTask?.id)}
+          onPrimaryAction={handleTimerPrimaryAction}
           onReset={snapshot.timer ? reset : undefined}
           onComplete={snapshot.timer ? () => completePhase(false) : undefined}
         />
@@ -156,9 +214,16 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
-    minHeight: 48,
+    minHeight: 64,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
+  },
+  studentPromise: {
+    color: colors.textMuted,
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.semibold,
+    textAlign: 'center',
   },
   sectionHeader: {
     alignItems: 'center',
@@ -182,6 +247,70 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
     paddingVertical: spacing.xxl,
+  },
+  radarCard: {
+    gap: spacing.md,
+    padding: spacing.lg,
+    backgroundColor: colors.backgroundWarm,
+  },
+  radarHeader: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  radarTitleGroup: {
+    flex: 1,
+    minWidth: 0,
+    gap: 4,
+  },
+  radarTitle: {
+    color: colors.text,
+    fontSize: typography.size.bodyLarge,
+    fontWeight: typography.weight.bold,
+  },
+  radarHelper: {
+    color: colors.textMuted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.caption,
+  },
+  radarIcon: {
+    width: 48,
+    height: 48,
+    flexShrink: 0,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accentSoft,
+  },
+  signalTrack: {
+    height: 10,
+    overflow: 'hidden',
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceMuted,
+  },
+  signalFill: {
+    height: '100%',
+    borderRadius: radius.pill,
+    backgroundColor: colors.accent,
+  },
+  radarFooter: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  radarStatus: {
+    flex: 1,
+    minWidth: 0,
+    color: colors.text,
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.bold,
+  },
+  radarPercent: {
+    flexShrink: 0,
+    color: colors.textMuted,
+    fontSize: typography.size.caption,
+    fontVariant: ['tabular-nums'],
+    fontWeight: typography.weight.semibold,
   },
   smallTitle: {
     flexShrink: 1,

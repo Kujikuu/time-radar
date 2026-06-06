@@ -21,6 +21,16 @@ type StatsSummaryInput = {
 };
 
 const focusCategories: FocusCategory[] = ['Work', 'Study', 'Personal'];
+const radarSignalTargetMinutes = 75;
+const radarSignalStepMinutes = 25;
+
+export type RadarSignalStatus = 'idle' | 'warming' | 'steady' | 'strong';
+
+export type RadarSignal = {
+  level: number;
+  percent: number;
+  status: RadarSignalStatus;
+};
 
 export function buildStatsSummary({
   range,
@@ -71,6 +81,26 @@ export function emptyStats(
     hourlyFocus: buildBars(range, [], locale),
     distribution: buildDistribution([], categoryColors),
   };
+}
+
+export function buildRadarSignal(focusMinutes: number): RadarSignal {
+  const safeMinutes = Math.max(0, focusMinutes);
+  const level = Math.min(3, Math.floor(safeMinutes / radarSignalStepMinutes));
+  const percent = Math.min(100, Math.round((safeMinutes / radarSignalTargetMinutes) * 100));
+
+  if (level >= 3) {
+    return { level, percent, status: 'strong' };
+  }
+
+  if (level === 2) {
+    return { level, percent, status: 'steady' };
+  }
+
+  if (level === 1) {
+    return { level, percent, status: 'warming' };
+  }
+
+  return { level, percent, status: 'idle' };
 }
 
 export function rangeWindow(range: StatsRange, now = new Date()) {

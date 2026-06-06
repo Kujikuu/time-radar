@@ -130,3 +130,31 @@ test('emptyStats can produce Arabic range and chart labels without changing stor
   assert.equal(yearSummary.hourlyFocus[0].label, 'ينا');
   assert.equal(yearSummary.hourlyFocus[10].label, 'نوف');
 });
+
+test('buildRadarSignal turns daily focus into a clear retention status', () => {
+  assert.deepEqual(statsRules.buildRadarSignal(0), {
+    level: 0,
+    percent: 0,
+    status: 'idle',
+  });
+  assert.deepEqual(statsRules.buildRadarSignal(25), {
+    level: 1,
+    percent: 33,
+    status: 'warming',
+  });
+  assert.deepEqual(statsRules.buildRadarSignal(50), {
+    level: 2,
+    percent: 67,
+    status: 'steady',
+  });
+  assert.deepEqual(statsRules.buildRadarSignal(75), {
+    level: 3,
+    percent: 100,
+    status: 'strong',
+  });
+  assert.deepEqual(statsRules.buildRadarSignal(160), {
+    level: 3,
+    percent: 100,
+    status: 'strong',
+  });
+});

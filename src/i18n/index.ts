@@ -82,6 +82,9 @@ const translations = {
       focusTime: 'Focused time',
       focusScore: 'Focus score',
     },
+    quickStart: {
+      title: 'Quick Study Sprint',
+    },
     onboarding: {
       slides: {
         focusBody: 'Know what needs your attention.\nStart with a clean timer.\nBuild a steadier work rhythm.',
@@ -104,6 +107,7 @@ const translations = {
     home: {
       title: 'Home',
       today: 'Today',
+      studentPromise: 'Study focus, without the noise.',
       progress: "Today's focus",
       upNext: 'Next focus task',
       openStats: 'View detailed stats',
@@ -112,6 +116,23 @@ const translations = {
       noTasksAction: 'Create focus task',
       notificationTitle: 'Timer alerts can keep you moving',
       notificationBody: 'Get a quiet local alert when a focus block or break ends.',
+    },
+    radar: {
+      title: 'Today’s radar signal',
+      helper: 'Three focused study blocks make the signal strong.',
+      progress: '%{percent}% charged',
+      status: {
+        idle: 'No signal yet',
+        warming: 'Signal warming',
+        steady: 'Steady signal',
+        strong: 'Strong signal',
+      },
+    },
+    pro: {
+      title: 'TimeRadar Pro',
+      eyebrow: 'Coming for serious study streaks',
+      body: 'Keep the timer free. Upgrade when deeper history, custom study presets, and shareable weekly progress become useful.',
+      action: 'Pro stays out of your first session',
     },
     tasks: {
       title: 'Focus tasks',
@@ -272,6 +293,9 @@ const translations = {
       focusTime: 'وقت التركيز',
       focusScore: 'مؤشر التركيز',
     },
+    quickStart: {
+      title: 'جلسة دراسة سريعة',
+    },
     onboarding: {
       slides: {
         focusBody: 'اعرف ما يحتاج انتباهك.\nابدأ بمؤقت واضح.\nوابنِ إيقاع عمل أكثر ثباتًا.',
@@ -294,6 +318,7 @@ const translations = {
     home: {
       title: 'الرئيسية',
       today: 'اليوم',
+      studentPromise: 'تركيز دراسي بلا تشتيت.',
       progress: 'تركيز اليوم',
       upNext: 'مهمة التركيز التالية',
       openStats: 'عرض الإحصائيات المفصلة',
@@ -302,6 +327,23 @@ const translations = {
       noTasksAction: 'إنشاء مهمة تركيز',
       notificationTitle: 'تنبيهات المؤقت تساعدك على المتابعة',
       notificationBody: 'استلم تنبيهًا محليًا هادئًا عند انتهاء جلسة التركيز أو الاستراحة.',
+    },
+    radar: {
+      title: 'إشارة رادار اليوم',
+      helper: 'ثلاث جلسات دراسة مركزة تجعل الإشارة قوية.',
+      progress: 'مشحونة %{percent}%',
+      status: {
+        idle: 'لا توجد إشارة بعد',
+        warming: 'الإشارة تبدأ',
+        steady: 'إشارة ثابتة',
+        strong: 'إشارة قوية',
+      },
+    },
+    pro: {
+      title: 'تايم رادار برو',
+      eyebrow: 'قريبًا لسلاسل الدراسة الجادة',
+      body: 'يبقى المؤقت مجانيًا. الترقية تكون عندما تحتاج سجلًا أعمق، وقوالب دراسة مخصصة، وبطاقة تقدم أسبوعية قابلة للمشاركة.',
+      action: 'برو لا يعطّل جلستك الأولى',
     },
     tasks: {
       title: 'مهام التركيز',

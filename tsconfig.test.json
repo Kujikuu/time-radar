@@ -14,6 +14,7 @@
     "src/features/focus/notification-rules.ts",
     "src/features/focus/notification-prompt-rules.ts",
     "src/features/focus/stats-rules.ts",
+    "src/features/focus/task-rules.ts",
     "src/i18n/**/*.ts",
     "src/navigation/**/*.ts",
     "src/types/**/*.d.ts"
