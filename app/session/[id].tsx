@@ -1,11 +1,11 @@
-import { IconChevronLeft } from '@tabler/icons-react-native';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromTask, useFocusTimer, useTaskDetail } from '@/src/features/focus/hooks';
-import { focusCategoryLabel } from '@/src/i18n';
+import { focusCategoryLabel, rowDirectionForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
@@ -13,13 +13,15 @@ export default function SessionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { task, save } = useTaskDetail(id);
   const { start } = useFocusTimer();
-  const { locale, t } = useTranslation();
+  const { direction, locale, nativeDirection, t } = useTranslation();
+  const BackIcon = direction === 'rtl' ? IconChevronRight : IconChevronLeft;
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   if (!task) {
     return (
       <Screen contentStyle={styles.screen}>
-        <View style={styles.header}>
-          <IconButton icon={IconChevronLeft} label={t('common.goBack')} onPress={() => router.back()} />
+        <View style={[styles.header, contentRow]}>
+          <IconButton icon={BackIcon} label={t('common.goBack')} onPress={() => router.back()} />
         </View>
         <SoftCard style={styles.emptyCard}>
           <AppText style={styles.optionTitle}>{t('session.taskNotFound')}</AppText>
@@ -36,13 +38,13 @@ export default function SessionDetailScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <View style={styles.header}>
-        <IconButton icon={IconChevronLeft} label={t('common.goBack')} onPress={() => router.back()} />
+      <View style={[styles.header, contentRow]}>
+        <IconButton icon={BackIcon} label={t('common.goBack')} onPress={() => router.back()} />
       </View>
 
       <View style={styles.hero}>
         <AppText style={styles.title}>{task.title}</AppText>
-        <View style={styles.categoryPill}>
+        <View style={[styles.categoryPill, contentRow]}>
           <View style={styles.categoryDot} />
           <AppText style={styles.categoryText}>{focusCategoryLabel(locale, task.category)}</AppText>
         </View>
@@ -69,7 +71,6 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 48,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -83,10 +84,10 @@ const styles = StyleSheet.create({
     fontFamily: typography.family,
     fontSize: 22,
     fontWeight: '500',
+    textAlign: 'center',
   },
   categoryPill: {
     minHeight: 34,
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
     paddingHorizontal: 13,

@@ -7,15 +7,21 @@ import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
 import { useStats } from '@/src/features/focus/hooks';
 import { StatsRange } from '@/src/features/focus/types';
-import { statsRangeLabel, statsRangeOptions, textAlignForTextDirection } from '@/src/i18n';
+import {
+  rowDirectionForTextDirection,
+  statsRangeLabel,
+  statsRangeOptions,
+  textAlignForTextDirection,
+} from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function StatsScreen() {
   const [range, setRange] = useState<StatsRange>('Day');
-  const { direction, formatDate, formatDuration, locale, t } = useTranslation();
+  const { direction, formatDate, formatDuration, locale, nativeDirection, t } = useTranslation();
   const { summary } = useStats(range, locale);
   const contentText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const summaryLabel =
     range === 'Day'
       ? `${t('home.today')}, ${formatDate(new Date(), { month: 'short', day: 'numeric' })}`
@@ -35,7 +41,7 @@ export default function StatsScreen() {
 
       <View style={styles.todayBlock}>
         <AppText style={[styles.dateLabel, styles.contentText, contentText]}>{summaryLabel}</AppText>
-        <View style={styles.metricRow}>
+        <View style={[styles.metricRow, contentRow]}>
           <View style={styles.focusCopy}>
             <AppText style={[styles.focusValue, styles.contentText, contentText]}>
               {formatDuration(summary.focusMinutes)}
@@ -74,18 +80,19 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 48,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   title: {
+    flex: 1,
+    minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: typography.title,
     fontWeight: 'bold',
   },
   contentText: {
-    width: '100%',
+    minWidth: 0,
   },
   todayBlock: {
     gap: spacing.md,
@@ -98,12 +105,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   metricRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   focusCopy: {
+    flex: 1,
     minWidth: 120,
   },
   focusValue: {
@@ -119,6 +126,7 @@ const styles = StyleSheet.create({
   },
   trendBadge: {
     width: 96,
+    flexShrink: 0,
     minHeight: 68,
     borderRadius: radius.lg,
     alignItems: 'center',

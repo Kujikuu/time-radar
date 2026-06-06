@@ -2,7 +2,12 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, Switch, TextInput, View } from 'react-native';
 
 import { AppText, PrimaryButton, SegmentedControl, SoftCard } from '@/src/components';
-import { focusCategoryOptions, fontFamilyForLocale, textAlignForTextDirection } from '@/src/i18n';
+import {
+  focusCategoryOptions,
+  fontFamilyForLocale,
+  rowDirectionForTextDirection,
+  textAlignForTextDirection,
+} from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
@@ -15,8 +20,9 @@ type TaskFormProps = {
 };
 
 export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps) {
-  const { direction, locale, t } = useTranslation();
+  const { direction, locale, nativeDirection, t } = useTranslation();
   const toggleText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const [title, setTitle] = useState(initialValue.title);
   const [category, setCategory] = useState<FocusCategory>(initialValue.category);
   const [focusMinutes, setFocusMinutes] = useState(String(initialValue.focusMinutes));
@@ -87,7 +93,7 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
               titleError ? styles.inputError : null,
               {
                 fontFamily: fontFamilyForLocale(locale),
-                textAlign: 'left',
+                textAlign: textAlignForTextDirection(direction),
                 writingDirection: direction,
               },
             ]}
@@ -129,7 +135,7 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
       </SoftCard>
 
       <SoftCard style={styles.card}>
-        <View style={styles.switchRow}>
+        <View style={[styles.switchRow, contentRow]}>
           <View style={styles.switchCopy}>
             <AppText style={[styles.label, styles.toggleText, toggleText]}>
               {t('taskForm.autoStartBreaks')}
@@ -162,10 +168,11 @@ function NumberField({
   value: string;
   onChangeText: (value: string) => void;
 }) {
-  const { direction, locale } = useTranslation();
+  const { direction, locale, nativeDirection } = useTranslation();
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
-    <View style={styles.numberRow}>
+    <View style={[styles.numberRow, contentRow]}>
       <AppText style={styles.label}>{label}</AppText>
       <TextInput
         accessibilityLabel={label}
@@ -202,12 +209,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   label: {
+    flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 13,
     fontWeight: '700',
   },
   helper: {
+    flexShrink: 1,
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 12,
@@ -236,13 +245,13 @@ const styles = StyleSheet.create({
   },
   numberRow: {
     minHeight: 48,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   numberInput: {
     width: 82,
+    flexShrink: 0,
     minHeight: 42,
     borderRadius: radius.md,
     borderColor: colors.border,
@@ -256,16 +265,16 @@ const styles = StyleSheet.create({
   },
   switchRow: {
     minHeight: 58,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   switchCopy: {
     flex: 1,
+    minWidth: 0,
     gap: 3,
   },
   toggleText: {
-    width: '100%',
+    minWidth: 0,
   },
 });

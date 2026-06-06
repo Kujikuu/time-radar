@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { rowDirectionForTextDirection } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, typography } from '@/src/theme';
 
 import { AppText } from './AppText';
@@ -17,8 +19,11 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
 }: SegmentedControlProps<T>) {
+  const { direction, nativeDirection } = useTranslation();
+  const controlDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, controlDirection]}>
       {options.map((option) => {
         const optionValue = typeof option === 'string' ? option : option.value;
         const label = typeof option === 'string' ? option : option.label;
@@ -43,7 +48,6 @@ export function SegmentedControl<T extends string>({
 const styles = StyleSheet.create({
   wrapper: {
     minHeight: 44,
-    flexDirection: 'row',
     alignItems: 'center',
     padding: 4,
     borderRadius: radius.md,
@@ -64,10 +68,12 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
   },
   label: {
+    flexShrink: 1,
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 13,
     fontWeight: '500',
+    textAlign: 'center',
   },
   activeLabel: {
     color: colors.accentDark,

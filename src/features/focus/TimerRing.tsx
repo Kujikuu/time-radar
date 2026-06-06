@@ -4,10 +4,11 @@ import {
   IconPlayerPlay,
   IconRefresh,
 } from '@tabler/icons-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Defs, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
 import { AppIcon, AppText } from '@/src/components';
+import { rowDirectionForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, typography } from '@/src/theme';
 
@@ -32,8 +33,9 @@ export function TimerRing({
   onReset,
   onComplete,
 }: TimerRingProps) {
-  const { t } = useTranslation();
-  const size = 300;
+  const { direction, nativeDirection, t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const size = Math.min(300, Math.max(248, width - 64));
   const strokeWidth = 14;
   const markerRadius = 8.5;
   const markerStrokeWidth = 4.5;
@@ -51,9 +53,10 @@ export function TimerRing({
   const hasActiveTimer = Boolean(onReset || onComplete);
   const displayAction = primaryActionLabel;
   const PrimaryIcon = primaryActionState === 'pause' ? IconPlayerPause : IconPlayerPlay;
+  const actionDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { width: size, height: size }]}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <Defs>
           <SvgLinearGradient id="timerAccent" x1="1" y1="0" x2="0" y2="1">
@@ -102,7 +105,7 @@ export function TimerRing({
           opacity={0.82}
         />
       </Svg>
-      <View style={styles.center}>
+      <View style={[styles.center, { width: size - 58 }]}>
         <AppText style={[styles.label, isPaused && styles.pausedLabel]}>{label}</AppText>
         <AppText style={styles.time}>{time}</AppText>
         <Pressable
@@ -111,6 +114,7 @@ export function TimerRing({
           onPress={onPrimaryAction}
           style={({ pressed }) => [
             styles.startButton,
+            actionDirection,
             isPaused && styles.resumeButton,
             pressed && styles.pressed,
           ]}>
@@ -125,7 +129,7 @@ export function TimerRing({
           />
         </Pressable>
         {hasActiveTimer ? (
-          <View style={styles.secondaryActions}>
+          <View style={[styles.secondaryActions, actionDirection]}>
             {onReset ? (
               <Pressable
                 accessibilityLabel={t('timer.actions.reset')}
@@ -155,8 +159,6 @@ export function TimerRing({
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: 280,
-    height: 280,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
@@ -166,11 +168,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
+    maxWidth: '100%',
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 8,
+    textAlign: 'center',
   },
   pausedLabel: {
     color: colors.accentDark,
@@ -185,13 +189,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   startButton: {
+    maxWidth: '100%',
     minWidth: 124,
     minHeight: 42,
-    flexDirection: 'row',
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
+    paddingHorizontal: 16,
     backgroundColor: colors.accent,
     borderColor: colors.accentDark,
     borderWidth: StyleSheet.hairlineWidth,
@@ -204,17 +209,19 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   startLabel: {
+    flexShrink: 1,
     color: colors.white,
     fontFamily: typography.family,
     fontSize: 14,
     fontWeight: 'bold',
+    lineHeight: 19,
+    textAlign: 'center',
   },
   resumeLabel: {
     color: colors.accentDark,
   },
   secondaryActions: {
     minHeight: 30,
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 20,
     paddingTop: 12,

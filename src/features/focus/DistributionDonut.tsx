@@ -3,7 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { AppText } from '@/src/components';
-import { focusCategoryLabel, textAlignForTextDirection } from '@/src/i18n';
+import {
+  focusCategoryLabel,
+  rowDirectionForTextDirection,
+  textAlignForTextDirection,
+} from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, typography } from '@/src/theme';
 
@@ -14,8 +18,9 @@ type DistributionDonutProps = {
 };
 
 export const DistributionDonut = memo(function DistributionDonut({ data }: DistributionDonutProps) {
-  const { direction, locale, t } = useTranslation();
+  const { direction, locale, nativeDirection, t } = useTranslation();
   const legendText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const size = 128;
   const strokeWidth = 32;
   const radius = (size - strokeWidth) / 2;
@@ -61,7 +66,7 @@ export const DistributionDonut = memo(function DistributionDonut({ data }: Distr
       accessible
       accessibilityLabel={t('stats.distributionSummary', { values: { summary } })}
       accessibilityRole="image"
-      style={styles.wrapper}>
+      style={[styles.wrapper, contentRow]}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <Circle
           cx={size / 2}
@@ -89,7 +94,7 @@ export const DistributionDonut = memo(function DistributionDonut({ data }: Distr
       </Svg>
       <View style={styles.legend}>
         {data.map((item) => (
-          <View key={item.label} style={styles.legendRow}>
+          <View key={item.label} style={[styles.legendRow, contentRow]}>
             <View style={[styles.dot, { backgroundColor: item.color }]} />
             <AppText style={[styles.legendLabel, legendText]}>
               {focusCategoryLabel(locale, item.label)}
@@ -121,7 +126,6 @@ function formatMinutes(minutes: number, locale = 'en') {
 
 const styles = StyleSheet.create({
   wrapper: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 20,
   },
@@ -130,17 +134,18 @@ const styles = StyleSheet.create({
     gap: 17,
   },
   legendRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
   dot: {
     width: 13,
     height: 13,
+    flexShrink: 0,
     borderRadius: 999,
   },
   legendLabel: {
     flex: 1,
+    minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 14,

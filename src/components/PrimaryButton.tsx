@@ -1,6 +1,8 @@
 import { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 
+import { rowDirectionForTextDirection } from '@/src/i18n';
+import { useLocale } from '@/src/i18n/LocaleProvider';
 import { colors, radius, typography } from '@/src/theme';
 
 import { AppText } from './AppText';
@@ -19,8 +21,10 @@ export function PrimaryButton({
   onPress,
   style,
 }: PrimaryButtonProps) {
+  const { direction, nativeDirection } = useLocale();
   const resolvedAccessibilityLabel =
     accessibilityLabel ?? (typeof children === 'string' ? children : undefined);
+  const buttonDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
     <Pressable
@@ -31,6 +35,7 @@ export function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        buttonDirection,
         disabled && styles.disabled,
         pressed && !disabled && styles.pressed,
         style,
@@ -42,10 +47,12 @@ export function PrimaryButton({
 
 const styles = StyleSheet.create({
   button: {
+    minWidth: 0,
     minHeight: 54,
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 18,
     backgroundColor: colors.accent,
   },
   pressed: {
@@ -56,9 +63,12 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   label: {
+    flexShrink: 1,
     color: colors.white,
     fontFamily: typography.family,
     fontSize: 16,
     fontWeight: '700',
+    lineHeight: 21,
+    textAlign: 'center',
   },
 });

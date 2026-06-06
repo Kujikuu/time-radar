@@ -33,24 +33,31 @@ export function MetricCard({ icon, value, label, tone = 'accent' }: MetricCardPr
 const styles = StyleSheet.create({
   card: {
     flex: 1,
+    minWidth: 0,
     minHeight: 120,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+    paddingHorizontal: 6,
     backgroundColor: colors.surface,
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
   },
   value: {
+    flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 20,
     fontWeight: '700',
+    textAlign: 'center',
   },
   label: {
+    flexShrink: 1,
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 12,
+    lineHeight: 16,
+    textAlign: 'center',
   },
 });

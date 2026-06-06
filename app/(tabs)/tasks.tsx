@@ -5,14 +5,15 @@ import { StyleSheet, View } from 'react-native';
 import { AppIcon, AppText, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import { useTasks } from '@/src/features/focus/hooks';
-import { textAlignForTextDirection } from '@/src/i18n';
+import { rowDirectionForTextDirection, textAlignForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function TasksScreen() {
   const { tasks } = useTasks();
-  const { direction, t } = useTranslation();
+  const { direction, nativeDirection, t } = useTranslation();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const queueBodyKey =
     tasks.length === 0
       ? 'tasks.queueBody.empty'
@@ -22,7 +23,7 @@ export default function TasksScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <View style={styles.header}>
+      <View style={[styles.header, contentRow]}>
         <AppText style={[styles.title, styles.contentText, contentText]}>{t('tasks.title')}</AppText>
         <IconButton
           icon={IconPlus}
@@ -33,7 +34,7 @@ export default function TasksScreen() {
         />
       </View>
 
-      <SoftCard style={styles.summaryCard}>
+      <SoftCard style={[styles.summaryCard, contentRow]}>
         <View style={styles.summaryIcon}>
           <AppIcon icon={IconClipboardCheck} size={25} color={colors.accentDark} />
         </View>
@@ -77,20 +78,23 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 48,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.md,
   },
   title: {
+    flex: 1,
+    minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: typography.title,
     fontWeight: 'bold',
   },
   contentText: {
-    width: '100%',
+    minWidth: 0,
   },
   addButton: {
+    flexShrink: 0,
     backgroundColor: colors.surfaceMuted,
   },
   pressed: {
@@ -98,7 +102,6 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.96 }],
   },
   summaryCard: {
-    flexDirection: 'row',
     gap: spacing.md,
     padding: spacing.lg,
   },
@@ -112,6 +115,7 @@ const styles = StyleSheet.create({
   },
   summaryCopy: {
     flex: 1,
+    minWidth: 0,
     gap: 5,
   },
   summaryTitle: {

@@ -14,6 +14,7 @@ import { AppIcon, AppText, BrandLogo, PrimaryButton, Screen, SoftCard } from '@/
 import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
 import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/notification-prompt-rules';
 import { RadarMark } from '@/src/features/focus/RadarMark';
+import { rowDirectionForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
@@ -45,7 +46,8 @@ export default function OnboardingScreen() {
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const { settings, loading, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
-  const { t } = useTranslation();
+  const { direction, nativeDirection, t } = useTranslation();
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const completed = loading ? null : settings.onboardingCompleted;
   const shouldOfferNotifications = shouldShowNotificationPermissionPrompt({
     settings,
@@ -185,7 +187,7 @@ export default function OnboardingScreen() {
               style={({ pressed }) => [styles.skipButton, pressed && styles.pressed]}>
               <AppText style={styles.skip}>{t('onboarding.skip')}</AppText>
             </Pressable>
-            <View style={styles.dots}>
+            <View style={[styles.dots, contentRow]}>
               {onboardingSlides.map((slide, index) => (
                 <Pressable
                   accessibilityLabel={t('onboarding.pageA11y', { values: { page: index + 1 } })}
@@ -204,7 +206,8 @@ export default function OnboardingScreen() {
 }
 
 function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['visual'] }) {
-  const { t } = useTranslation();
+  const { direction, nativeDirection, t } = useTranslation();
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   if (type === 'radar') {
     return <RadarMark />;
@@ -227,7 +230,7 @@ function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['v
               t('taskForm.shortBreak'),
               t('taskForm.longBreak'),
             ].map((label, index) => (
-              <View key={label} style={styles.sessionRow}>
+              <View key={label} style={[styles.sessionRow, contentRow]}>
                 <AppText style={styles.sessionLabel}>{label}</AppText>
                 <AppText style={styles.sessionValue}>
                   {index === 0 ? `25 ${t('units.min')}` : index === 1 ? `5 ${t('units.min')}` : `15 ${t('units.min')}`}
@@ -243,9 +246,9 @@ function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['v
   return (
     <View style={styles.visualShell}>
       <SoftCard style={styles.statsCard}>
-        <View style={styles.statHeader}>
+        <View style={[styles.statHeader, contentRow]}>
           <AppText style={styles.visualTitle}>{t('onboarding.visual.today')}</AppText>
-          <View style={styles.trendBadge}>
+          <View style={[styles.trendBadge, contentRow]}>
             <AppIcon icon={IconTrendingUp} size={18} color={colors.green} />
             <AppText style={styles.trendText}>+23%</AppText>
           </View>
@@ -256,7 +259,7 @@ function OnboardingVisual({ type }: { type: (typeof onboardingSlides)[number]['v
             <View key={`${height}-${index}`} style={[styles.bar, { height }]} />
           ))}
         </View>
-        <View style={styles.scoreRow}>
+        <View style={[styles.scoreRow, contentRow]}>
           <AppText style={styles.sessionLabel}>{t('metrics.focusScore')}</AppText>
           <AppText style={styles.sessionValue}>85%</AppText>
         </View>
@@ -354,7 +357,6 @@ const styles = StyleSheet.create({
     opacity: 0.76,
   },
   dots: {
-    flexDirection: 'row',
     justifyContent: 'center',
     gap: spacing.sm,
     paddingTop: spacing.sm,
@@ -414,19 +416,20 @@ const styles = StyleSheet.create({
   },
   sessionRow: {
     minHeight: 34,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
   sessionLabel: {
+    flexShrink: 1,
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 12,
     fontWeight: '600',
   },
   sessionValue: {
+    flexShrink: 0,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 13,
@@ -437,12 +440,10 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   statHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   trendBadge: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: spacing.sm,
@@ -478,7 +479,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentSoft,
   },
   scoreRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },

@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppIcon, AppText, SoftCard } from '@/src/components';
-import { textAlignForTextDirection } from '@/src/i18n';
+import { rowDirectionForTextDirection, textAlignForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, typography } from '@/src/theme';
 
@@ -14,8 +14,9 @@ type FocusTaskCardProps = {
 };
 
 export function FocusTaskCard({ task }: FocusTaskCardProps) {
-  const { direction, formatDuration, t } = useTranslation();
+  const { direction, formatDuration, nativeDirection, t } = useTranslation();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
     <Pressable
@@ -25,7 +26,7 @@ export function FocusTaskCard({ task }: FocusTaskCardProps) {
       accessibilityRole="button"
       onPress={() => router.push(`/session/${task.id}`)}
       style={({ pressed }) => pressed && styles.pressed}>
-      <SoftCard style={styles.card}>
+      <SoftCard style={[styles.card, contentRow]}>
         <View style={styles.iconWrap}>
           <AppIcon icon={IconFileText} size={26} color={colors.accentDark} />
         </View>
@@ -49,13 +50,13 @@ const styles = StyleSheet.create({
   },
   card: {
     minHeight: 80,
-    flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
     gap: 14,
   },
   iconWrap: {
     width: 48,
+    flexShrink: 0,
     height: 48,
     borderRadius: radius.md,
     alignItems: 'center',
@@ -64,12 +65,14 @@ const styles = StyleSheet.create({
   },
   copy: {
     flex: 1,
+    minWidth: 0,
     gap: 4,
   },
   contentText: {
-    width: '100%',
+    minWidth: 0,
   },
   title: {
+    flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 15,
@@ -82,6 +85,7 @@ const styles = StyleSheet.create({
   },
   playButton: {
     width: 42,
+    flexShrink: 0,
     height: 42,
     borderRadius: radius.pill,
     alignItems: 'center',

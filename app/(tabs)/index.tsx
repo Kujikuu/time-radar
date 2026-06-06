@@ -13,13 +13,13 @@ import {
 } from '@/src/features/focus/hooks';
 import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/notification-prompt-rules';
 import { TimerRing } from '@/src/features/focus/TimerRing';
-import { timerPhaseLabel } from '@/src/i18n';
+import { rowDirectionForTextDirection, textAlignForTextDirection, timerPhaseLabel } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function HomeScreen() {
   const { tasks } = useTasks();
-  const { formatDate, locale, t } = useTranslation();
+  const { direction, formatDate, locale, nativeDirection, t } = useTranslation();
   const { summary } = useStats('Day', locale);
   const progressMetrics = useProgressMetrics(summary, locale);
   const { snapshot, toggle, reset, completePhase } = useFocusTimer();
@@ -48,6 +48,8 @@ export default function HomeScreen() {
     permissionStatus: notificationPermission.status,
     placement: 'home',
   });
+  const rowDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+  const sectionTitleText = { textAlign: textAlignForTextDirection(direction) };
 
   const allowNotifications = async () => {
     const status = await notificationPermission.request();
@@ -68,8 +70,8 @@ export default function HomeScreen() {
         <BrandLogo />
       </View>
 
-      <View style={styles.sectionHeader}>
-        <AppText style={styles.sectionTitle}>{t('home.today')}</AppText>
+      <View style={[styles.sectionHeader, rowDirection]}>
+        <AppText style={[styles.sectionTitle, sectionTitleText]}>{t('home.today')}</AppText>
         <AppText style={styles.date}>{todayDate}</AppText>
       </View>
 
@@ -107,8 +109,8 @@ export default function HomeScreen() {
         />
       </SoftCard>
 
-      <View style={styles.sectionHeader}>
-        <AppText style={styles.smallTitle}>{t('home.progress')}</AppText>
+      <View style={[styles.sectionHeader, rowDirection]}>
+        <AppText style={[styles.smallTitle, sectionTitleText]}>{t('home.progress')}</AppText>
         <Pressable
           accessibilityLabel={t('home.openStats')}
           accessibilityRole="button"
@@ -117,7 +119,7 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      <View style={styles.metricsGrid}>
+      <View style={[styles.metricsGrid, rowDirection]}>
         {progressMetrics.map((metric) => (
           <MetricCard
             key={metric.id}
@@ -155,22 +157,23 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 48,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   sectionHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.md,
   },
   sectionTitle: {
+    flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: typography.heading,
     fontWeight: 'bold',
   },
   date: {
+    flexShrink: 0,
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 13,
@@ -183,19 +186,21 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xxl,
   },
   smallTitle: {
+    flexShrink: 1,
+    minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 16,
     fontWeight: '700',
   },
   linkText: {
+    flexShrink: 0,
     color: colors.textSoft,
     fontFamily: typography.family,
     fontSize: 12,
     fontWeight: '600',
   },
   metricsGrid: {
-    flexDirection: 'row',
     gap: spacing.sm,
   },
   notificationPrompt: {

@@ -17,14 +17,18 @@ import {
 } from '@/src/components';
 import { triggerFocusHaptic } from '@/src/features/focus/haptics';
 import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
-import { languageTogglePreferenceForLocale, textAlignForTextDirection } from '@/src/i18n';
+import {
+  languageTogglePreferenceForLocale,
+  rowDirectionForTextDirection,
+  textAlignForTextDirection,
+} from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function SettingsScreen() {
   const { settings, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
-  const { direction, locale, setLanguagePreference, t } = useTranslation();
+  const { direction, locale, nativeDirection, setLanguagePreference, t } = useTranslation();
   const notificationsAvailable = notificationPermission.status === 'granted';
   const notificationsBlocked = notificationPermission.status === 'denied';
   const notificationsUnsupported = notificationPermission.status === 'unsupported';
@@ -32,6 +36,7 @@ export default function SettingsScreen() {
   const languageToggleLabel =
     locale === 'ar' ? t('settings.switchToEnglish') : t('settings.switchToArabic');
   const tileText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   const enableNotifications = async () => {
     const status =
@@ -68,8 +73,8 @@ export default function SettingsScreen() {
 
   return (
     <Screen contentStyle={styles.screen}>
-      <View style={styles.header}>
-        <AppText style={styles.title}>{t('settings.title')}</AppText>
+      <View style={[styles.header, contentRow]}>
+        <AppText style={[styles.title, tileText]}>{t('settings.title')}</AppText>
         <IconButton
           icon={IconLanguage}
           label={languageToggleLabel}
@@ -162,7 +167,7 @@ export default function SettingsScreen() {
       <SettingsSection
         title={t('settings.notifications')}
         badge={t(`settings.permissionStatus.${notificationPermission.status}`)}>
-        <View style={styles.permissionPanel}>
+        <View style={[styles.permissionPanel, contentRow]}>
           <View style={styles.permissionCopy}>
             <AppText style={[styles.permissionTitle, styles.tileText, tileText]}>
               {notificationsAvailable
@@ -277,12 +282,13 @@ function SettingsSection({
   badge?: string;
   children: ReactNode;
 }) {
-  const { direction } = useTranslation();
+  const { direction, nativeDirection } = useTranslation();
   const tileText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
     <SoftCard style={styles.card}>
-      <View style={styles.sectionHeader}>
+      <View style={[styles.sectionHeader, contentRow]}>
         <View style={styles.sectionTitleWrap}>
           <AppText style={[styles.sectionTitle, styles.tileText, tileText]}>{title}</AppText>
         </View>
@@ -316,11 +322,12 @@ function StepperRow({
 }) {
   const canDecrease = !disabled && value > min;
   const canIncrease = !disabled && value < max;
-  const { direction, t } = useTranslation();
+  const { direction, nativeDirection, t } = useTranslation();
   const tileText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
-    <View style={[styles.controlRow, disabled && styles.disabled]}>
+    <View style={[styles.controlRow, contentRow, disabled && styles.disabled]}>
       <View style={styles.controlCopy}>
         <AppText style={[styles.rowTitle, styles.tileText, tileText]}>{label}</AppText>
         <AppText style={[styles.helper, styles.tileText, tileText]}>{helper}</AppText>
@@ -387,11 +394,12 @@ function SwitchRow({
   disabled?: boolean;
   onValueChange: (value: boolean) => void;
 }) {
-  const { direction } = useTranslation();
+  const { direction, nativeDirection } = useTranslation();
   const tileText = { textAlign: textAlignForTextDirection(direction) };
+  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
-    <View style={[styles.controlRow, disabled && styles.disabled]}>
+    <View style={[styles.controlRow, contentRow, disabled && styles.disabled]}>
       <View style={styles.controlCopy}>
         <AppText style={[styles.rowTitle, styles.tileText, tileText]}>{label}</AppText>
         <AppText style={[styles.helper, styles.tileText, tileText]}>{helper}</AppText>
@@ -420,17 +428,20 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 48,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: spacing.md,
   },
   title: {
+    flex: 1,
+    minWidth: 0,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: typography.title,
     fontWeight: 'bold',
   },
   languageButton: {
+    flexShrink: 0,
     backgroundColor: colors.surfaceMuted,
   },
   card: {
@@ -439,27 +450,28 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     minHeight: 32,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   sectionTitleWrap: {
     flex: 1,
-    flexDirection: 'row',
+    minWidth: 0,
     alignItems: 'center',
     gap: spacing.sm,
   },
   sectionTitle: {
+    flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: 'bold',
   },
   tileText: {
-    width: '100%',
+    minWidth: 0,
   },
   badge: {
+    flexShrink: 0,
     overflow: 'hidden',
     borderRadius: radius.pill,
     borderColor: colors.border,
@@ -477,23 +489,24 @@ const styles = StyleSheet.create({
   },
   controlRow: {
     minHeight: 68,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   controlCopy: {
     flex: 1,
+    minWidth: 0,
     gap: 3,
-    paddingRight: spacing.sm,
   },
   rowTitle: {
+    flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 14,
     fontWeight: '700',
   },
   helper: {
+    flexShrink: 1,
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 12,
@@ -501,6 +514,7 @@ const styles = StyleSheet.create({
   },
   stepper: {
     minWidth: 136,
+    flexShrink: 0,
     height: 44,
     flexDirection: 'row',
     alignItems: 'center',
@@ -539,7 +553,6 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
   permissionPanel: {
-    flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: spacing.md,
@@ -547,6 +560,7 @@ const styles = StyleSheet.create({
   },
   permissionCopy: {
     flex: 1,
+    minWidth: 0,
     gap: 3,
   },
   permissionTitle: {

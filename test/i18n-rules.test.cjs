@@ -40,6 +40,13 @@ test('text alignment follows the active reading direction', () => {
   assert.equal(i18n.textAlignForTextDirection('rtl'), 'right');
 });
 
+test('row direction follows the active reading direction', () => {
+  assert.equal(i18n.rowDirectionForTextDirection('ltr'), 'row');
+  assert.equal(i18n.rowDirectionForTextDirection('rtl'), 'row-reverse');
+  assert.equal(i18n.rowDirectionForTextDirection('rtl', 'rtl'), 'row');
+  assert.equal(i18n.rowDirectionForTextDirection('ltr', 'rtl'), 'row-reverse');
+});
+
 test('translated enum options keep stable stored values', () => {
   assert.deepEqual(i18n.focusCategoryOptions('ar'), [
     { value: 'Work', label: 'عمل' },

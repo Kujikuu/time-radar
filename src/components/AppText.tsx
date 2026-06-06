@@ -1,12 +1,12 @@
 import { Platform, StyleSheet, Text as NativeText, type TextProps } from 'react-native';
 
-import { fontFamilyForLocale } from '@/src/i18n';
+import { fontFamilyForLocale, textAlignForTextDirection } from '@/src/i18n';
 import { useLocale } from '@/src/i18n/LocaleProvider';
 
 export function AppText({ style, ...props }: TextProps) {
   const { direction, locale } = useLocale();
   const flattenedStyle = StyleSheet.flatten(style);
-  const textAlign = flattenedStyle?.textAlign ?? 'left';
+  const textAlign = flattenedStyle?.textAlign ?? textAlignForTextDirection(direction);
   const webDirectionProps =
     Platform.OS === 'web' ? ({ dir: direction, lang: locale } as Record<string, string>) : {};
 

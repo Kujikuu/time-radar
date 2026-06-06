@@ -1,8 +1,10 @@
 import { useLocales } from 'expo-localization';
 import { createContext, type PropsWithChildren, useContext, useMemo, useState } from 'react';
+import { I18nManager, Platform } from 'react-native';
 
 import type { AppLanguagePreference } from '@/src/features/focus/types';
 import {
+  type AppTextDirection,
   type AppLocale,
   defaultLocale,
   formatAppDate,
@@ -15,6 +17,7 @@ import {
 type LocaleContextValue = {
   locale: AppLocale;
   direction: ReturnType<typeof textDirectionForLocale>;
+  nativeDirection: AppTextDirection;
   languagePreference: AppLanguagePreference;
   setLanguagePreference: (preference: AppLanguagePreference) => void;
   t: ReturnType<typeof translateForLocale>;
@@ -25,6 +28,12 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue>({
   locale: defaultLocale,
   direction: textDirectionForLocale(defaultLocale),
+  nativeDirection:
+    Platform.OS === 'web'
+      ? textDirectionForLocale(defaultLocale)
+      : I18nManager.isRTL
+        ? 'rtl'
+        : 'ltr',
   languagePreference: 'system',
   setLanguagePreference: () => undefined,
   t: translateForLocale(defaultLocale),
@@ -38,18 +47,21 @@ export function LocaleProvider({ children }: PropsWithChildren) {
     useState<AppLanguagePreference>('system');
   const locale = resolveAppLocale(locales, languagePreference);
   const direction = textDirectionForLocale(locale);
+  const nativeDirection: AppTextDirection =
+    Platform.OS === 'web' ? direction : I18nManager.isRTL ? 'rtl' : 'ltr';
 
   const value = useMemo<LocaleContextValue>(
     () => ({
       locale,
       direction,
+      nativeDirection,
       languagePreference,
       setLanguagePreference,
       t: translateForLocale(locale),
       formatDate: formatDateForLocale(locale),
       formatDuration: formatDurationForLocale(locale),
     }),
-    [direction, languagePreference, locale]
+    [direction, languagePreference, locale, nativeDirection]
   );
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;

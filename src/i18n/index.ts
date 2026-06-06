@@ -452,6 +452,13 @@ export function textAlignForTextDirection(direction: AppTextDirection): 'left' |
   return direction === 'rtl' ? 'right' : 'left';
 }
 
+export function rowDirectionForTextDirection(
+  direction: AppTextDirection,
+  nativeDirection: AppTextDirection = 'ltr'
+): 'row' | 'row-reverse' {
+  return direction === nativeDirection ? 'row' : 'row-reverse';
+}
+
 export function translate(locale: AppLocale, key: string, options: TranslateOptions = {}) {
   i18n.locale = locale;
 
