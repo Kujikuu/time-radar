@@ -284,7 +284,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.screenTitle,
     fontWeight: typography.weight.bold,
   },
@@ -297,7 +296,6 @@ const styles = StyleSheet.create({
   },
   helper: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.helper,
   },
@@ -314,7 +312,6 @@ const styles = StyleSheet.create({
   },
   permissionTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.bold,
   },

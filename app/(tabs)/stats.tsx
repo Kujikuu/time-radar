@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.screenTitle,
     fontWeight: typography.weight.bold,
   },
@@ -100,7 +99,6 @@ const styles = StyleSheet.create({
   },
   dateLabel: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     fontWeight: typography.weight.semibold,
   },
@@ -115,13 +113,11 @@ const styles = StyleSheet.create({
   },
   focusValue: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.stat,
     fontWeight: typography.weight.regular,
   },
   focusLabel: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
   },
   trendBadge: {
@@ -136,13 +132,11 @@ const styles = StyleSheet.create({
   },
   trendValue: {
     color: colors.green,
-    fontFamily: typography.family,
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
   },
   trendLabel: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.eyebrow,
   },
   section: {
@@ -151,7 +145,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
   },

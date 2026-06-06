@@ -101,7 +101,6 @@ const styles = StyleSheet.create({
   },
   visualTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.cardTitle,
     fontWeight: typography.weight.bold,
   },
@@ -115,7 +114,6 @@ const styles = StyleSheet.create({
   },
   timerPillText: {
     color: colors.white,
-    fontFamily: typography.family,
     fontSize: typography.size.cardTitle,
     fontWeight: typography.weight.extraBold,
   },
@@ -134,14 +132,12 @@ const styles = StyleSheet.create({
   sessionLabel: {
     flexShrink: 1,
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.semibold,
   },
   sessionValue: {
     flexShrink: 0,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     fontWeight: typography.weight.extraBold,
   },
@@ -163,13 +159,11 @@ const styles = StyleSheet.create({
   },
   trendText: {
     color: colors.green,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.extraBold,
   },
   bigMetric: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.metric,
     fontWeight: typography.weight.regular,
   },

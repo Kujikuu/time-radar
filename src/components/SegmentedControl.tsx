@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
   label: {
     flexShrink: 1,
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     fontWeight: typography.weight.medium,
     textAlign: 'center',

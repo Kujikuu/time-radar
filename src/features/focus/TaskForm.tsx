@@ -177,7 +177,6 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     fontWeight: typography.weight.bold,
   },
@@ -187,7 +186,6 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.bodyLarge,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.backgroundWarm,
@@ -197,7 +195,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: colors.accentDark,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.semibold,
     lineHeight: typography.lineHeight.caption,

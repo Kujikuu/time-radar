@@ -74,13 +74,11 @@ const styles = StyleSheet.create({
   title: {
     flexShrink: 1,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
   },
   meta: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
   },
   playButton: {

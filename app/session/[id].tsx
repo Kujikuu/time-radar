@@ -81,7 +81,6 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.heading,
     fontWeight: typography.weight.medium,
     textAlign: 'center',
@@ -102,7 +101,6 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     color: colors.accentDark,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     fontWeight: typography.weight.bold,
   },
@@ -112,13 +110,11 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.bold,
   },
   optionSubtitle: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     marginTop: 3,
   },

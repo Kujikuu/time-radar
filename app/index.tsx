@@ -231,14 +231,12 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.hero,
     fontWeight: typography.weight.regular,
     letterSpacing: 0,
   },
   subtitle: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.subheading,
     lineHeight: typography.lineHeight.hero,
     textAlign: 'center',
@@ -256,7 +254,6 @@ const styles = StyleSheet.create({
   },
   notificationTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.subheading,
     fontWeight: typography.weight.bold,
     lineHeight: typography.lineHeight.title,
@@ -264,7 +261,6 @@ const styles = StyleSheet.create({
   },
   notificationBody: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     lineHeight: typography.lineHeight.paragraph,
     textAlign: 'center',
@@ -276,7 +272,6 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: colors.accentDark,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.bold,
   },
@@ -287,7 +282,6 @@ const styles = StyleSheet.create({
   },
   skip: {
     color: colors.accentDark,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.bold,
     textAlign: 'center',

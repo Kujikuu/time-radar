@@ -12,6 +12,7 @@ test('theme exposes role-based typography constants', () => {
   assert.match(themeSource, /size:\s*\{/);
   assert.match(themeSource, /lineHeight:\s*\{/);
   assert.match(themeSource, /weight:\s*\{/);
+  assert.doesNotMatch(themeSource, /\n  (title|heading|subheading|body|caption):\s*\d+,/);
 });
 
 test('app typography uses theme constants instead of raw style numbers', () => {
@@ -31,6 +32,25 @@ test('app typography uses theme constants instead of raw style numbers', () => {
       ...fileSource.matchAll(/fontWeight:\s*['"][0-9a-zA-Z]+['"]/g),
       ...fileSource.matchAll(/fontSize=\{?["']?\d+/g),
     ];
+
+    return matches.map((match) => `${file}: ${match[0]}`);
+  });
+
+  assert.deepEqual(offenders, []);
+});
+
+test('AppText owns regular text font family so locale fonts stay centralized', () => {
+  const files = [
+    ...fs.readdirSync(path.join(root, 'app'), { recursive: true }),
+    ...fs.readdirSync(path.join(root, 'src'), { recursive: true }),
+  ]
+    .filter((file) => typeof file === 'string' && /\.(tsx|ts)$/.test(file))
+    .map((file) => (file.startsWith('src/') ? file : file.startsWith('app/') ? file : fs.existsSync(path.join(root, 'app', file)) ? `app/${file}` : `src/${file}`))
+    .filter((file) => !file.includes('theme/index.ts'));
+
+  const offenders = files.flatMap((file) => {
+    const fileSource = source(file);
+    const matches = [...fileSource.matchAll(/fontFamily:\s*typography\.family/g)];
 
     return matches.map((match) => `${file}: ${match[0]}`);
   });

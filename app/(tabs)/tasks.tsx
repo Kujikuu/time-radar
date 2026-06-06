@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.screenTitle,
     fontWeight: typography.weight.bold,
   },
@@ -120,13 +119,11 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.bodyLarge,
     fontWeight: typography.weight.bold,
   },
   summaryText: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     lineHeight: typography.lineHeight.body,
   },
@@ -139,13 +136,11 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.bodyLarge,
     fontWeight: typography.weight.bold,
   },
   emptyText: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     lineHeight: typography.lineHeight.body,
   },

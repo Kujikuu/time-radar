@@ -82,9 +82,4 @@ export const typography = {
     bold: '700',
     extraBold: '800',
   },
-  title: 26,
-  heading: 22,
-  subheading: 17,
-  body: 15,
-  caption: 12,
 } as const;

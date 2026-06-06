@@ -170,7 +170,6 @@ const styles = StyleSheet.create({
   label: {
     maxWidth: '100%',
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.medium,
     marginBottom: 8,
@@ -181,7 +180,6 @@ const styles = StyleSheet.create({
   },
   time: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.timer,
     fontWeight: typography.weight.bold,
     fontVariant: ['tabular-nums'],
@@ -211,7 +209,6 @@ const styles = StyleSheet.create({
   startLabel: {
     flexShrink: 1,
     color: colors.white,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.bold,
     lineHeight: typography.lineHeight.body,

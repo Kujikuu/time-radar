@@ -147,12 +147,10 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
   },
   legendValue: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.medium,
   },

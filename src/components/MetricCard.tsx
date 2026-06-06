@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
   value: {
     flexShrink: 1,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.title,
     fontWeight: typography.weight.bold,
     textAlign: 'center',
@@ -55,7 +54,6 @@ const styles = StyleSheet.create({
   label: {
     flexShrink: 1,
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.tight,
     textAlign: 'center',

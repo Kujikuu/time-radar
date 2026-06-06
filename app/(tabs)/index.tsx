@@ -168,14 +168,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     flexShrink: 1,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.heading,
     fontWeight: typography.weight.bold,
   },
   date: {
     flexShrink: 0,
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     fontWeight: typography.weight.medium,
   },
@@ -189,14 +187,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     minWidth: 0,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.bodyLarge,
     fontWeight: typography.weight.bold,
   },
   linkText: {
     flexShrink: 0,
     color: colors.textSoft,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.semibold,
   },
@@ -223,7 +219,6 @@ const styles = StyleSheet.create({
   },
   dismissButtonText: {
     color: colors.accentDark,
-    fontFamily: typography.family,
     fontSize: typography.size.small,
     fontWeight: typography.weight.bold,
   },
@@ -237,13 +232,11 @@ const styles = StyleSheet.create({
   },
   tipTitle: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.bold,
   },
   tipText: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.caption,
   },

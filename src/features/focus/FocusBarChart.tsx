@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     width: 42,
     marginLeft: -21,
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.micro,
     textAlign: 'center',
   },

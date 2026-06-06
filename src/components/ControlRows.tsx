@@ -150,14 +150,12 @@ const styles = StyleSheet.create({
   rowTitle: {
     flexShrink: 1,
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.control,
     fontWeight: typography.weight.bold,
   },
   helper: {
     flexShrink: 1,
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.helper,
   },
@@ -192,14 +190,12 @@ const styles = StyleSheet.create({
   },
   stepperNumber: {
     color: colors.text,
-    fontFamily: typography.family,
     fontSize: typography.size.body,
     fontWeight: typography.weight.extraBold,
     fontVariant: ['tabular-nums'],
   },
   stepperSuffix: {
     color: colors.textMuted,
-    fontFamily: typography.family,
     fontSize: typography.size.micro,
     fontWeight: typography.weight.bold,
     marginTop: -2,

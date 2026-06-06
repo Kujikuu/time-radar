@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
   label: {
     flexShrink: 1,
     color: colors.white,
-    fontFamily: typography.family,
     fontSize: typography.size.bodyLarge,
     fontWeight: typography.weight.bold,
     lineHeight: typography.lineHeight.button,
