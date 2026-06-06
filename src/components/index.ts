@@ -2,6 +2,7 @@ export { AppIcon } from './AppIcon';
 export { AppText } from './AppText';
 export type { TablerIcon } from './AppIcon';
 export { BrandLogo } from './BrandLogo';
+export { StepperRow, SwitchRow } from './ControlRows';
 export { IconButton } from './IconButton';
 export { MetricCard } from './MetricCard';
 export { PrimaryButton } from './PrimaryButton';

@@ -1,11 +1,17 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, Switch, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
-import { AppText, PrimaryButton, SegmentedControl, SoftCard } from '@/src/components';
+import {
+  AppText,
+  PrimaryButton,
+  SegmentedControl,
+  SoftCard,
+  StepperRow,
+  SwitchRow,
+} from '@/src/components';
 import {
   focusCategoryOptions,
   fontFamilyForLocale,
-  rowDirectionForTextDirection,
   textAlignForTextDirection,
 } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
@@ -20,15 +26,13 @@ type TaskFormProps = {
 };
 
 export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps) {
-  const { direction, locale, nativeDirection, t } = useTranslation();
-  const toggleText = { textAlign: textAlignForTextDirection(direction) };
-  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+  const { direction, locale, t } = useTranslation();
   const [title, setTitle] = useState(initialValue.title);
   const [category, setCategory] = useState<FocusCategory>(initialValue.category);
-  const [focusMinutes, setFocusMinutes] = useState(String(initialValue.focusMinutes));
-  const [shortBreakMinutes, setShortBreakMinutes] = useState(String(initialValue.shortBreakMinutes));
-  const [longBreakMinutes, setLongBreakMinutes] = useState(String(initialValue.longBreakMinutes));
-  const [sessions, setSessions] = useState(String(initialValue.sessions));
+  const [focusMinutes, setFocusMinutes] = useState(initialValue.focusMinutes);
+  const [shortBreakMinutes, setShortBreakMinutes] = useState(initialValue.shortBreakMinutes);
+  const [longBreakMinutes, setLongBreakMinutes] = useState(initialValue.longBreakMinutes);
+  const [sessions, setSessions] = useState(initialValue.sessions);
   const [autoStartBreaks, setAutoStartBreaks] = useState(initialValue.autoStartBreaks);
   const [titleError, setTitleError] = useState<string | null>(null);
 
@@ -36,10 +40,10 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
     () => ({
       title,
       category,
-      focusMinutes: readMinutes(focusMinutes, initialValue.focusMinutes),
-      shortBreakMinutes: readMinutes(shortBreakMinutes, initialValue.shortBreakMinutes),
-      longBreakMinutes: readMinutes(longBreakMinutes, initialValue.longBreakMinutes),
-      sessions: readMinutes(sessions, initialValue.sessions),
+      focusMinutes,
+      shortBreakMinutes,
+      longBreakMinutes,
+      sessions,
       sound: initialValue.sound,
       backgroundSound: initialValue.backgroundSound,
       autoStartBreaks,
@@ -49,10 +53,6 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
       category,
       focusMinutes,
       initialValue.backgroundSound,
-      initialValue.focusMinutes,
-      initialValue.longBreakMinutes,
-      initialValue.sessions,
-      initialValue.shortBreakMinutes,
       initialValue.sound,
       longBreakMinutes,
       sessions,
@@ -112,89 +112,56 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
       </SoftCard>
 
       <SoftCard style={styles.card}>
-        <NumberField
+        <StepperRow
           label={t('taskForm.focusDuration')}
           value={focusMinutes}
-          onChangeText={setFocusMinutes}
+          suffix={t('units.min')}
+          min={5}
+          max={180}
+          step={5}
+          onChange={setFocusMinutes}
         />
-        <NumberField
+        <StepperRow
           label={t('taskForm.shortBreak')}
           value={shortBreakMinutes}
-          onChangeText={setShortBreakMinutes}
+          suffix={t('units.min')}
+          min={1}
+          max={60}
+          step={1}
+          onChange={setShortBreakMinutes}
         />
-        <NumberField
+        <StepperRow
           label={t('taskForm.longBreak')}
           value={longBreakMinutes}
-          onChangeText={setLongBreakMinutes}
+          suffix={t('units.min')}
+          min={5}
+          max={120}
+          step={5}
+          onChange={setLongBreakMinutes}
         />
-        <NumberField
+        <StepperRow
           label={t('taskForm.sessionsBeforeLongBreak')}
           value={sessions}
-          onChangeText={setSessions}
+          suffix={t('units.sessions')}
+          min={1}
+          max={12}
+          step={1}
+          onChange={setSessions}
         />
       </SoftCard>
 
       <SoftCard style={styles.card}>
-        <View style={[styles.switchRow, contentRow]}>
-          <View style={styles.switchCopy}>
-            <AppText style={[styles.label, styles.toggleText, toggleText]}>
-              {t('taskForm.autoStartBreaks')}
-            </AppText>
-            <AppText style={[styles.helper, styles.toggleText, toggleText]}>
-              {t('taskForm.autoStartBreaksHelper')}
-            </AppText>
-          </View>
-          <Switch
-            accessibilityLabel={t('taskForm.autoStartBreaks')}
-            value={autoStartBreaks}
-            onValueChange={setAutoStartBreaks}
-            trackColor={{ false: colors.borderStrong, true: colors.accentSoft }}
-            thumbColor={colors.accent}
-          />
-        </View>
+        <SwitchRow
+          label={t('taskForm.autoStartBreaks')}
+          helper={t('taskForm.autoStartBreaksHelper')}
+          value={autoStartBreaks}
+          onValueChange={setAutoStartBreaks}
+        />
       </SoftCard>
 
       <PrimaryButton onPress={handleSubmit}>{submitLabel}</PrimaryButton>
     </View>
   );
-}
-
-function NumberField({
-  label,
-  value,
-  onChangeText,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (value: string) => void;
-}) {
-  const { direction, locale, nativeDirection } = useTranslation();
-  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
-
-  return (
-    <View style={[styles.numberRow, contentRow]}>
-      <AppText style={styles.label}>{label}</AppText>
-      <TextInput
-        accessibilityLabel={label}
-        value={value}
-        onChangeText={(nextValue) => onChangeText(nextValue.replace(/[^0-9]/g, ''))}
-        keyboardType="number-pad"
-        style={[
-          styles.numberInput,
-          {
-            fontFamily: fontFamilyForLocale(locale),
-            textAlign: 'center',
-            writingDirection: direction,
-          },
-        ]}
-      />
-    </View>
-  );
-}
-
-function readMinutes(value: string, fallback: number) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 const styles = StyleSheet.create({
@@ -209,18 +176,10 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   label: {
-    flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
     fontSize: 13,
     fontWeight: '700',
-  },
-  helper: {
-    flexShrink: 1,
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 12,
-    lineHeight: 18,
   },
   input: {
     minHeight: 48,
@@ -242,39 +201,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     lineHeight: 17,
-  },
-  numberRow: {
-    minHeight: 48,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  numberInput: {
-    width: 82,
-    flexShrink: 0,
-    minHeight: 42,
-    borderRadius: radius.md,
-    borderColor: colors.border,
-    borderWidth: StyleSheet.hairlineWidth,
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 16,
-    fontVariant: ['tabular-nums'],
-    textAlign: 'center',
-    backgroundColor: colors.backgroundWarm,
-  },
-  switchRow: {
-    minHeight: 58,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  switchCopy: {
-    flex: 1,
-    minWidth: 0,
-    gap: 3,
-  },
-  toggleText: {
-    minWidth: 0,
   },
 });

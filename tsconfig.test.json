@@ -15,6 +15,7 @@
     "src/features/focus/notification-prompt-rules.ts",
     "src/features/focus/stats-rules.ts",
     "src/i18n/**/*.ts",
-    "src/navigation/**/*.ts"
+    "src/navigation/**/*.ts",
+    "src/types/**/*.d.ts"
   ]
 }

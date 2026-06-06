@@ -40,9 +40,10 @@ test('FocusTaskCard exposes a descriptive task action label', () => {
 
 test('TaskForm exposes form input labels', () => {
   const taskFormSource = source('src/features/focus/TaskForm.tsx');
+  const sharedControlsSource = source('src/components/ControlRows.tsx');
 
   assert.match(taskFormSource, /accessibilityLabel=\{t\('taskForm\.taskNameA11y'\)\}/);
-  assert.match(taskFormSource, /accessibilityLabel=\{label\}/);
+  assert.match(sharedControlsSource, /accessibilityLabel=\{label\}/);
 });
 
 test('Settings exposes language as a header icon toggle', () => {
@@ -56,11 +57,12 @@ test('Settings exposes language as a header icon toggle', () => {
 
 test('Settings aligns tile copy and control rows to the active reading direction', () => {
   const settingsSource = source('app/(tabs)/settings.tsx');
+  const sharedControlsSource = source('src/components/ControlRows.tsx');
 
   assert.match(settingsSource, /textAlignForTextDirection\(direction\)/);
-  assert.match(settingsSource, /rowDirectionForTextDirection\(direction,\s*nativeDirection\)/);
+  assert.match(sharedControlsSource, /rowDirectionForTextDirection\(direction,\s*nativeDirection\)/);
   assert.match(settingsSource, /styles\.tileText/);
-  assert.match(settingsSource, /styles\.controlRow/);
+  assert.match(sharedControlsSource, /styles\.controlRow/);
 });
 
 test('Settings section headers keep titles anchored to the row start', () => {
@@ -114,8 +116,24 @@ test('Create task back button uses the directional chevron for RTL', () => {
 
 test('Auto start breaks toggle copy aligns to the active reading direction', () => {
   const taskFormSource = source('src/features/focus/TaskForm.tsx');
+  const sharedControlsSource = source('src/components/ControlRows.tsx');
 
-  assert.match(taskFormSource, /textAlignForTextDirection\(direction\)/);
-  assert.match(taskFormSource, /rowDirectionForTextDirection\(direction,\s*nativeDirection\)/);
-  assert.match(taskFormSource, /styles\.toggleText/);
+  assert.match(taskFormSource, /<SwitchRow/);
+  assert.match(sharedControlsSource, /textAlignForTextDirection\(direction\)/);
+  assert.match(sharedControlsSource, /rowDirectionForTextDirection\(direction,\s*nativeDirection\)/);
+  assert.match(sharedControlsSource, /styles\.tileText/);
+});
+
+test('StepperRow and SwitchRow are reusable shared controls used by settings and task forms', () => {
+  const sharedControlsSource = source('src/components/ControlRows.tsx');
+  const settingsSource = source('app/(tabs)/settings.tsx');
+  const taskFormSource = source('src/features/focus/TaskForm.tsx');
+
+  assert.match(sharedControlsSource, /export function StepperRow/);
+  assert.match(sharedControlsSource, /export function SwitchRow/);
+  assert.match(settingsSource, /import \{[\s\S]*StepperRow[\s\S]*SwitchRow[\s\S]*\} from '@\/src\/components'/);
+  assert.match(taskFormSource, /import \{[\s\S]*StepperRow[\s\S]*SwitchRow[\s\S]*\} from '@\/src\/components'/);
+  assert.doesNotMatch(settingsSource, /function StepperRow/);
+  assert.doesNotMatch(settingsSource, /function SwitchRow/);
+  assert.doesNotMatch(taskFormSource, /<TextInput[\s\S]*keyboardType="number-pad"/);
 });

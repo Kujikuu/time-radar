@@ -1,19 +1,15 @@
-import {
-  IconLanguage,
-  IconMinus,
-  IconPlus,
-} from '@tabler/icons-react-native';
+import { IconLanguage } from '@tabler/icons-react-native';
 import { type ReactNode } from 'react';
-import { Linking, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
 import {
-  AppIcon,
   AppText,
   IconButton,
   PrimaryButton,
   Screen,
   SoftCard,
-  type TablerIcon,
+  StepperRow,
+  SwitchRow,
 } from '@/src/components';
 import { triggerFocusHaptic } from '@/src/features/focus/haptics';
 import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
@@ -299,124 +295,6 @@ function SettingsSection({
   );
 }
 
-function StepperRow({
-  label,
-  helper,
-  value,
-  suffix,
-  min,
-  max,
-  step,
-  disabled = false,
-  onChange,
-}: {
-  label: string;
-  helper: string;
-  value: number;
-  suffix: string;
-  min: number;
-  max: number;
-  step: number;
-  disabled?: boolean;
-  onChange: (value: number) => void;
-}) {
-  const canDecrease = !disabled && value > min;
-  const canIncrease = !disabled && value < max;
-  const { direction, nativeDirection, t } = useTranslation();
-  const tileText = { textAlign: textAlignForTextDirection(direction) };
-  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
-
-  return (
-    <View style={[styles.controlRow, contentRow, disabled && styles.disabled]}>
-      <View style={styles.controlCopy}>
-        <AppText style={[styles.rowTitle, styles.tileText, tileText]}>{label}</AppText>
-        <AppText style={[styles.helper, styles.tileText, tileText]}>{helper}</AppText>
-      </View>
-      <View style={styles.stepper}>
-        <StepperButton
-          label={t('settings.decrease', { values: { label } })}
-          icon={IconMinus}
-          disabled={!canDecrease}
-          onPress={() => onChange(Math.max(min, value - step))}
-        />
-        <View style={styles.stepperValue}>
-          <AppText style={styles.stepperNumber}>{value}</AppText>
-          <AppText style={styles.stepperSuffix}>{suffix}</AppText>
-        </View>
-        <StepperButton
-          label={t('settings.increase', { values: { label } })}
-          icon={IconPlus}
-          disabled={!canIncrease}
-          onPress={() => onChange(Math.min(max, value + step))}
-        />
-      </View>
-    </View>
-  );
-}
-
-function StepperButton({
-  label,
-  icon,
-  disabled,
-  onPress,
-}: {
-  label: string;
-  icon: TablerIcon;
-  disabled: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityLabel={label}
-      accessibilityRole="button"
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.stepperButton,
-        disabled && styles.stepperButtonDisabled,
-        pressed && !disabled && styles.pressed,
-      ]}>
-      <AppIcon icon={icon} size={18} color={disabled ? colors.textSoft : colors.accentDark} />
-    </Pressable>
-  );
-}
-
-function SwitchRow({
-  label,
-  helper,
-  value,
-  disabled = false,
-  onValueChange,
-}: {
-  label: string;
-  helper: string;
-  value: boolean;
-  disabled?: boolean;
-  onValueChange: (value: boolean) => void;
-}) {
-  const { direction, nativeDirection } = useTranslation();
-  const tileText = { textAlign: textAlignForTextDirection(direction) };
-  const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
-
-  return (
-    <View style={[styles.controlRow, contentRow, disabled && styles.disabled]}>
-      <View style={styles.controlCopy}>
-        <AppText style={[styles.rowTitle, styles.tileText, tileText]}>{label}</AppText>
-        <AppText style={[styles.helper, styles.tileText, tileText]}>{helper}</AppText>
-      </View>
-      <Switch
-        accessibilityLabel={label}
-        accessibilityState={{ disabled, checked: value }}
-        disabled={disabled}
-        value={value}
-        onValueChange={onValueChange}
-        trackColor={{ false: colors.borderStrong, true: colors.accentSoft }}
-        thumbColor={value ? colors.accent : colors.surface}
-      />
-    </View>
-  );
-}
-
 function Divider() {
   return <View style={styles.divider} />;
 }
@@ -488,70 +366,11 @@ const styles = StyleSheet.create({
   sectionBody: {
     gap: 0,
   },
-  controlRow: {
-    minHeight: 68,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  controlCopy: {
-    flex: 1,
-    minWidth: 0,
-    gap: 3,
-  },
-  rowTitle: {
-    flexShrink: 1,
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 14,
-    fontWeight: '700',
-  },
   helper: {
-    flexShrink: 1,
     color: colors.textMuted,
     fontFamily: typography.family,
     fontSize: 12,
     lineHeight: 18,
-  },
-  stepper: {
-    minWidth: 136,
-    flexShrink: 0,
-    height: 44,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: radius.pill,
-    borderColor: colors.border,
-    borderWidth: StyleSheet.hairlineWidth,
-    backgroundColor: colors.backgroundWarm,
-  },
-  stepperButton: {
-    width: 40,
-    height: 42,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepperButtonDisabled: {
-    opacity: 0.42,
-  },
-  stepperValue: {
-    minWidth: 54,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepperNumber: {
-    color: colors.text,
-    fontFamily: typography.family,
-    fontSize: 15,
-    fontWeight: '800',
-    fontVariant: ['tabular-nums'],
-  },
-  stepperSuffix: {
-    color: colors.textMuted,
-    fontFamily: typography.family,
-    fontSize: 10,
-    fontWeight: '700',
-    marginTop: -2,
   },
   permissionPanel: {
     flexWrap: 'wrap',
@@ -583,11 +402,5 @@ const styles = StyleSheet.create({
   divider: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: colors.border,
-  },
-  disabled: {
-    opacity: 0.52,
-  },
-  pressed: {
-    opacity: 0.76,
   },
 });
