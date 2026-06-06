@@ -450,17 +450,18 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     minHeight: 32,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   sectionTitleWrap: {
     flex: 1,
     minWidth: 0,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: spacing.sm,
   },
   sectionTitle: {
+    alignSelf: 'stretch',
     flexShrink: 1,
     color: colors.text,
     fontFamily: typography.family,
