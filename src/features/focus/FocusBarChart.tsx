@@ -2,6 +2,7 @@ import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
 
+import { AppText } from '@/src/components';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, typography } from '@/src/theme';
 
@@ -32,7 +33,8 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
     return data.map((point, index) => {
       const barX =
         data.length > 1 ? 38 + gap * index : chartWidth / 2 - chartBarWidth / 2;
-      const labelX = data.length > 1 ? 28 + gap * index : chartWidth / 2 - 10;
+      const labelCenterX =
+        data.length > 1 ? 38 + gap * index + chartBarWidth / 2 : chartWidth / 2;
       const barHeight = Math.max(
         4,
         (point.minutes / chartMaxMinutes) * chartAreaHeight,
@@ -43,7 +45,7 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
         key: `${point.label}-${index}`,
         labelKey: `${point.label}-label-${index}`,
         label: point.label,
-        labelX,
+        labelCenterX,
         barX,
         y,
         barHeight,
@@ -104,26 +106,44 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
             opacity={bar.opacity}
           />
         ))}
+      </Svg>
+      <View pointerEvents="none" style={styles.axisLabels}>
         {bars.map((bar, index) =>
           index % 2 === 0 ? (
-            <SvgText
+            <AppText
               key={bar.labelKey}
-              x={bar.labelX}
-              y={chartHeight - 7}
-              fill={colors.textMuted}
-              fontSize={typography.size.micro}
-              fontFamily={typography.family}>
+              style={[
+                styles.axisLabel,
+                { left: `${(bar.labelCenterX / chartWidth) * 100}%` },
+              ]}>
               {bar.label}
-            </SvgText>
+            </AppText>
           ) : null,
         )}
-      </Svg>
+      </View>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
   wrapper: {
+    position: 'relative',
     marginTop: 8,
+  },
+  axisLabels: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    left: 0,
+    height: 22,
+  },
+  axisLabel: {
+    position: 'absolute',
+    width: 42,
+    marginLeft: -21,
+    color: colors.textMuted,
+    fontFamily: typography.family,
+    fontSize: typography.size.micro,
+    textAlign: 'center',
   },
 });

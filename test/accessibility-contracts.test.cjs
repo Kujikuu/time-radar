@@ -98,6 +98,14 @@ test('Stats content aligns and metric rows follow the active reading direction',
   assert.match(distributionSource, /rowDirectionForTextDirection\(direction,\s*nativeDirection\)/);
 });
 
+test('FocusBarChart renders x-axis labels with native text for Arabic shaping', () => {
+  const focusBarChartSource = source('src/features/focus/FocusBarChart.tsx');
+
+  assert.match(focusBarChartSource, /import \{ AppText \} from '@\/src\/components'/);
+  assert.match(focusBarChartSource, /styles\.axisLabels/);
+  assert.doesNotMatch(focusBarChartSource, /<SvgText[\s\S]*\{bar\.label\}[\s\S]*<\/SvgText>/);
+});
+
 test('Task cards align copy and rows to the active reading direction', () => {
   const tasksSource = source('app/(tabs)/tasks.tsx');
   const focusTaskCardSource = source('src/features/focus/FocusTaskCard.tsx');

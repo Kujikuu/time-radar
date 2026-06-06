@@ -128,4 +128,5 @@ test('emptyStats can produce Arabic range and chart labels without changing stor
     ['اثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت', 'أحد']
   );
   assert.equal(yearSummary.hourlyFocus[0].label, 'ينا');
+  assert.equal(yearSummary.hourlyFocus[10].label, 'نوف');
 });
