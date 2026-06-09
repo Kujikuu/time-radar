@@ -87,7 +87,7 @@ const translations = {
       focusScore: 'Focus score',
     },
     quickStart: {
-      title: 'Quick Study Sprint',
+      title: 'Quick Focus Block',
     },
     onboarding: {
       slides: {
@@ -111,7 +111,7 @@ const translations = {
     home: {
       title: 'Home',
       today: 'Today',
-      studentPromise: 'Study focus, without the noise.',
+      promise: 'Professional focus, without the noise.',
       progress: "Today's focus",
       upNext: 'Next focus task',
       openStats: 'View detailed stats',
@@ -123,7 +123,7 @@ const translations = {
     },
     radar: {
       title: 'Today’s radar signal',
-      helper: 'Three focused study blocks make the signal strong.',
+      helper: 'Three focused work blocks make the signal strong.',
       progress: '%{percent}% charged',
       status: {
         idle: 'No signal yet',
@@ -132,11 +132,25 @@ const translations = {
         strong: 'Strong signal',
       },
     },
-    pro: {
-      title: 'TimeRadar Pro',
-      eyebrow: 'Coming for serious study streaks',
-      body: 'Keep the timer free. Upgrade when deeper history, custom study presets, and shareable weekly progress become useful.',
-      action: 'Pro stays out of your first session',
+    support: {
+      title: 'Support TimeRadar',
+      freeForever: 'Free forever',
+      eyebrow: 'Optional Supporter Pack',
+      body: 'TimeRadar stays free forever. The optional $1.99 Supporter Pack supports the developer and unlocks a warmer visual theme.',
+      purchaseAction: 'Support the developer',
+      restore: 'Restore purchase',
+      badge: 'Supporter',
+      theme: 'Supporter visual theme',
+      themeHelper: 'Use a warmer accent treatment as a thank-you for supporting TimeRadar.',
+      purchasedTitle: 'Supporter Pack active',
+      purchasedBody: 'Thank you for supporting TimeRadar. All core focus features stay free for everyone.',
+      unavailable: 'Supporter purchase is available in the mobile app.',
+      purchaseUnavailable: 'The store is not available right now. Please try again later.',
+      purchasePending: 'Complete the purchase in the store sheet.',
+      purchaseComplete: 'Supporter Pack activated. Thank you.',
+      purchaseRestored: 'Supporter Pack restored.',
+      purchaseRestorePending: 'Restore is checking your store account. The pack will activate automatically if found.',
+      purchaseNotFound: 'No Supporter Pack purchase was found for this account.',
     },
     tasks: {
       title: 'Focus tasks',
@@ -302,7 +316,7 @@ const translations = {
       focusScore: 'مؤشر التركيز',
     },
     quickStart: {
-      title: 'جلسة دراسة سريعة',
+      title: 'جلسة تركيز سريعة',
     },
     onboarding: {
       slides: {
@@ -326,7 +340,7 @@ const translations = {
     home: {
       title: 'الرئيسية',
       today: 'اليوم',
-      studentPromise: 'تركيز دراسي بلا تشتيت.',
+      promise: 'تركيز مهني بلا تشتيت.',
       progress: 'تركيز اليوم',
       upNext: 'مهمة التركيز التالية',
       openStats: 'عرض الإحصائيات المفصلة',
@@ -338,7 +352,7 @@ const translations = {
     },
     radar: {
       title: 'إشارة رادار اليوم',
-      helper: 'ثلاث جلسات دراسة مركزة تجعل الإشارة قوية.',
+      helper: 'ثلاث جلسات عمل مركزة تجعل الإشارة قوية.',
       progress: 'مشحونة %{percent}%',
       status: {
         idle: 'لا توجد إشارة بعد',
@@ -347,11 +361,25 @@ const translations = {
         strong: 'إشارة قوية',
       },
     },
-    pro: {
-      title: 'تايم رادار برو',
-      eyebrow: 'قريبًا لسلاسل الدراسة الجادة',
-      body: 'يبقى المؤقت مجانيًا. الترقية تكون عندما تحتاج سجلًا أعمق، وقوالب دراسة مخصصة، وبطاقة تقدم أسبوعية قابلة للمشاركة.',
-      action: 'برو لا يعطّل جلستك الأولى',
+    support: {
+      title: 'دعم تايم رادار',
+      freeForever: 'مجاني دائمًا',
+      eyebrow: 'حزمة الداعم الاختيارية',
+      body: 'يبقى تايم رادار مجانيًا دائمًا. حزمة الداعم الاختيارية بقيمة 1.99 دولار تدعم المطوّر وتفتح مظهرًا بصريًا أدفأ.',
+      purchaseAction: 'دعم المطوّر',
+      restore: 'استعادة الشراء',
+      badge: 'داعم',
+      theme: 'مظهر الداعم',
+      themeHelper: 'استخدم معالجة لونية أدفأ كرسالة شكر على دعم تايم رادار.',
+      purchasedTitle: 'حزمة الداعم مفعّلة',
+      purchasedBody: 'شكرًا لدعم تايم رادار. تبقى كل مزايا التركيز الأساسية مجانية للجميع.',
+      unavailable: 'شراء حزمة الداعم متاح في تطبيق الجوال.',
+      purchaseUnavailable: 'المتجر غير متاح الآن. حاول مرة أخرى لاحقًا.',
+      purchasePending: 'أكمل الشراء من نافذة المتجر.',
+      purchaseComplete: 'تم تفعيل حزمة الداعم. شكرًا لك.',
+      purchaseRestored: 'تمت استعادة حزمة الداعم.',
+      purchaseRestorePending: 'تتحقق الاستعادة من حسابك في المتجر. ستتفعّل الحزمة تلقائيًا إذا كانت موجودة.',
+      purchaseNotFound: 'لم يتم العثور على شراء حزمة الداعم لهذا الحساب.',
     },
     tasks: {
       title: 'مهام التركيز',

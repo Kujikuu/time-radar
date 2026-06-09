@@ -1,9 +1,9 @@
 import type { AppSettings, TaskInput } from './types';
 
-export function quickStudyTaskInput(settings: AppSettings, title: string): TaskInput {
+export function quickFocusTaskInput(settings: AppSettings, title: string): TaskInput {
   return {
     title,
-    category: 'Study',
+    category: 'Work',
     focusMinutes: settings.defaultFocusMinutes,
     shortBreakMinutes: settings.defaultShortBreakMinutes,
     longBreakMinutes: settings.defaultLongBreakMinutes,

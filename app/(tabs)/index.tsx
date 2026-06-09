@@ -17,7 +17,7 @@ import {
 } from '@/src/features/focus/hooks';
 import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/notification-prompt-rules';
 import { buildRadarSignal } from '@/src/features/focus/stats-rules';
-import { quickStudyTaskInput } from '@/src/features/focus/task-rules';
+import { quickFocusTaskInput } from '@/src/features/focus/task-rules';
 import { TimerRing } from '@/src/features/focus/TimerRing';
 import { rowDirectionForTextDirection, textAlignForTextDirection, timerPhaseLabel } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
@@ -91,7 +91,7 @@ export default function HomeScreen() {
 
     quickStartRef.current = true;
     try {
-      const taskId = await createTask(quickStudyTaskInput(settings, t('quickStart.title')));
+      const taskId = await createTask(quickFocusTaskInput(settings, t('quickStart.title')));
       await start(taskId);
       await reloadTasks();
     } finally {
@@ -130,7 +130,10 @@ export default function HomeScreen() {
         <Screen contentStyle={styles.screen}>
           <View style={styles.header}>
             <BrandLogo />
-            <AppText style={styles.studentPromise}>{t('home.studentPromise')}</AppText>
+            <AppText style={styles.promise}>{t('home.promise')}</AppText>
+            {settings.supporterPurchased && settings.supporterThemeEnabled ? (
+              <AppText style={styles.supporterBadge}>{t('support.badge')}</AppText>
+            ) : null}
           </View>
 
           <View style={[styles.sectionHeader, rowDirection]}>
@@ -159,7 +162,12 @@ export default function HomeScreen() {
             </SoftCard>
           ) : null}
 
-          <SoftCard style={styles.radarCard}>
+          <SoftCard
+            style={
+              settings.supporterPurchased && settings.supporterThemeEnabled
+                ? [styles.radarCard, styles.supporterRadarCard]
+                : styles.radarCard
+            }>
             <View style={[styles.radarHeader, rowDirection]}>
               <View style={styles.radarTitleGroup}>
                 <AppText style={[styles.radarTitle, sectionTitleText]}>{t('radar.title')}</AppText>
@@ -255,11 +263,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  studentPromise: {
+  promise: {
     color: colors.textMuted,
     fontSize: typography.size.small,
     fontWeight: typography.weight.semibold,
     textAlign: 'center',
+  },
+  supporterBadge: {
+    overflow: 'hidden',
+    borderRadius: radius.pill,
+    color: colors.accentDark,
+    fontSize: typography.size.eyebrow,
+    fontWeight: typography.weight.extraBold,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    textAlign: 'center',
+    backgroundColor: colors.surfacePeach,
   },
   sectionHeader: {
     alignItems: 'center',
@@ -288,6 +307,11 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
     backgroundColor: colors.backgroundWarm,
+  },
+  supporterRadarCard: {
+    borderColor: colors.accentSoft,
+    borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: colors.supporterSurface,
   },
   radarHeader: {
     alignItems: 'center',

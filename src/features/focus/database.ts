@@ -2,7 +2,7 @@ import { type SQLiteDatabase } from 'expo-sqlite';
 
 export const DATABASE_NAME = 'time-radar.db';
 
-const DATABASE_VERSION = 5;
+const DATABASE_VERSION = 6;
 
 const defaultSettings = {
   onboarding_completed: 'false',
@@ -22,6 +22,8 @@ const defaultSettings = {
   timer_warning_enabled: 'false',
   timer_warning_seconds: '60',
   haptics_enabled: 'true',
+  supporter_purchased: 'false',
+  supporter_theme_enabled: 'false',
 };
 
 const seedTasks = [
@@ -165,6 +167,13 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     if (currentVersion < 5) {
       await seedSettings(db, {
         app_language: defaultSettings.app_language,
+      });
+    }
+
+    if (currentVersion < 6) {
+      await seedSettings(db, {
+        supporter_purchased: defaultSettings.supporter_purchased,
+        supporter_theme_enabled: defaultSettings.supporter_theme_enabled,
       });
     }
 

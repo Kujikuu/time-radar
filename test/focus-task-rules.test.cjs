@@ -13,10 +13,10 @@ const settings = {
   autoStartBreaks: true,
 };
 
-test('quickStudyTaskInput creates a study sprint from current timer defaults', () => {
-  assert.deepEqual(taskRules.quickStudyTaskInput(settings, 'Quick Study Sprint'), {
-    title: 'Quick Study Sprint',
-    category: 'Study',
+test('quickFocusTaskInput creates a work focus block from current timer defaults', () => {
+  assert.deepEqual(taskRules.quickFocusTaskInput(settings, 'Quick Focus Block'), {
+    title: 'Quick Focus Block',
+    category: 'Work',
     focusMinutes: 25,
     shortBreakMinutes: 5,
     longBreakMinutes: 15,
