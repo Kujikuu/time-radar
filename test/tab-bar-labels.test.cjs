@@ -27,3 +27,15 @@ test('bottom tab bar keeps the approved rounded connected shape', () => {
   assert.match(tabsLayoutSource, /borderTopRightRadius:\s*radius\.lg/);
   assert.match(tabsLayoutSource, /overflow:\s*'hidden'/);
 });
+
+test('home restores the shared tab bar style after fullscreen timer closes', () => {
+  const homeSource = fs.readFileSync(path.join(__dirname, '../app/(tabs)/index.tsx'), 'utf8');
+
+  assert.match(tabsLayoutSource, /export const bottomTabBarStyle/);
+  assert.match(homeSource, /import \{ bottomTabBarStyle \} from '\.\/_layout'/);
+  assert.match(
+    homeSource,
+    /tabBarStyle:\s*isImmersiveTimerVisible \? styles\.hiddenTabBar : bottomTabBarStyle/
+  );
+  assert.doesNotMatch(homeSource, /tabBarStyle:\s*isImmersiveTimerVisible \? styles\.hiddenTabBar : undefined/);
+});

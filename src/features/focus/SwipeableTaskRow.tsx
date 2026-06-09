@@ -80,8 +80,8 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
       overshootRight={false}
       enableTrackpadTwoFingerGesture
       containerStyle={styles.swipeContainer}
-      renderLeftActions={direction === 'rtl' ? renderRemoveAction : undefined}
-      renderRightActions={direction === 'rtl' ? undefined : renderRemoveAction}>
+      renderLeftActions={nativeDirection === 'rtl' ? renderRemoveAction : undefined}
+      renderRightActions={nativeDirection === 'rtl' ? undefined : renderRemoveAction}>
       <FocusTaskCard
         task={task}
         accessibilityActions={[{ name: 'remove', label: t('tasks.removeTask') }]}

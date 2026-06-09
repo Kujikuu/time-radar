@@ -23,6 +23,8 @@ import { rowDirectionForTextDirection, textAlignForTextDirection, timerPhaseLabe
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
+import { bottomTabBarStyle } from './_layout';
+
 export default function HomeScreen() {
   const { tasks, reload: reloadTasks } = useTasks();
   const { direction, formatDate, locale, nativeDirection, t } = useTranslation();
@@ -111,7 +113,7 @@ export default function HomeScreen() {
     <>
       <Tabs.Screen
         options={{
-          tabBarStyle: isImmersiveTimerVisible ? styles.hiddenTabBar : undefined,
+          tabBarStyle: isImmersiveTimerVisible ? styles.hiddenTabBar : bottomTabBarStyle,
         }}
       />
       {isImmersiveTimerVisible ? (

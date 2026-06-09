@@ -1,6 +1,6 @@
 import { IconClipboardCheck, IconPlus } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppIcon, AppText, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
@@ -11,11 +11,14 @@ import { rowDirectionForTextDirection, textAlignForTextDirection } from '@/src/i
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
+const TASK_REMOVAL_UNDO_TIMEOUT_MS = 4000;
+
 export default function TasksScreen() {
   const { tasks, reload } = useTasks();
   const { isTaskActive, remove, restore } = useTaskRemoval();
   const { direction, nativeDirection, t } = useTranslation();
   const [removedTask, setRemovedTask] = useState<FocusTask | null>(null);
+  const undoDismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const queueBodyKey =
@@ -25,13 +28,29 @@ export default function TasksScreen() {
         ? 'tasks.queueBody.one'
         : 'tasks.queueBody.many';
 
+  const clearUndoDismissTimer = useCallback(() => {
+    if (!undoDismissTimerRef.current) {
+      return;
+    }
+
+    clearTimeout(undoDismissTimerRef.current);
+    undoDismissTimerRef.current = null;
+  }, []);
+
+  useEffect(() => clearUndoDismissTimer, [clearUndoDismissTimer]);
+
   const confirmRemoveTask = useCallback(
     async (task: FocusTask) => {
       await remove(task.id);
+      clearUndoDismissTimer();
       setRemovedTask(task);
+      undoDismissTimerRef.current = setTimeout(() => {
+        setRemovedTask(null);
+        undoDismissTimerRef.current = null;
+      }, TASK_REMOVAL_UNDO_TIMEOUT_MS);
       await reload();
     },
-    [reload, remove]
+    [clearUndoDismissTimer, reload, remove]
   );
 
   const handleRemoveTask = useCallback(
@@ -67,10 +86,11 @@ export default function TasksScreen() {
       return;
     }
 
+    clearUndoDismissTimer();
     await restore(removedTask.id);
     setRemovedTask(null);
     await reload();
-  }, [reload, removedTask, restore]);
+  }, [clearUndoDismissTimer, reload, removedTask, restore]);
 
   return (
     <View style={styles.root}>

@@ -378,12 +378,13 @@ const styles = StyleSheet.create({
   },
   permissionPanel: {
     flexWrap: 'wrap',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: spacing.md,
     paddingVertical: spacing.sm,
   },
   permissionCopy: {
     flex: 1,
+    flexBasis: '100%',
     minWidth: 0,
     gap: 3,
   },
@@ -393,24 +394,30 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
   },
   permissionButton: {
+    alignSelf: 'flex-start',
     minHeight: 42,
     minWidth: 86,
+    maxWidth: '50%',
     paddingHorizontal: spacing.md,
   },
   systemSettingsButton: {
+    alignSelf: 'flex-start',
     minHeight: 42,
-    minWidth: 180,
+    minWidth: 0,
+    maxWidth: '50%',
     paddingHorizontal: spacing.md,
   },
   supportPanel: {
     flexWrap: 'wrap',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: spacing.md,
     paddingVertical: spacing.sm,
   },
   supportButton: {
+    alignSelf: 'flex-start',
     minHeight: 42,
     minWidth: 142,
+    maxWidth: '50%',
     paddingHorizontal: spacing.md,
   },
   supportStatus: {

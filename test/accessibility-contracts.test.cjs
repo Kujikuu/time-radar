@@ -78,15 +78,24 @@ test('SwipeableTaskRow exposes a native swipe remove action and accessible fallb
   assert.match(swipeableTaskRowSource, /ReanimatedSwipeable/);
   assert.match(
     swipeableTaskRowSource,
-    /renderLeftActions=\{direction === 'rtl' \? renderRemoveAction : undefined\}/
+    /renderLeftActions=\{nativeDirection === 'rtl' \? renderRemoveAction : undefined\}/
   );
   assert.match(
     swipeableTaskRowSource,
-    /renderRightActions=\{direction === 'rtl' \? undefined : renderRemoveAction\}/
+    /renderRightActions=\{nativeDirection === 'rtl' \? undefined : renderRemoveAction\}/
   );
   assert.match(swipeableTaskRowSource, /accessibilityActions=\{\[\{ name: 'remove'/);
   assert.match(swipeableTaskRowSource, /onAccessibilityAction=\{handleAccessibilityAction\}/);
   assert.match(swipeableTaskRowSource, /t\('tasks\.removeTask'/);
+});
+
+test('Task removal undo toast expires and cleans up its timer', () => {
+  const tasksSource = source('app/(tabs)/tasks.tsx');
+
+  assert.match(tasksSource, /TASK_REMOVAL_UNDO_TIMEOUT_MS = 4000/);
+  assert.match(tasksSource, /useRef<ReturnType<typeof setTimeout> \| null>\(null\)/);
+  assert.match(tasksSource, /setTimeout\(\(\) => \{\s*setRemovedTask\(null\);/s);
+  assert.match(tasksSource, /clearTimeout\(undoDismissTimerRef\.current\)/);
 });
 
 test('TaskForm exposes form input labels', () => {

@@ -57,3 +57,17 @@ test('settings and stats expose the supporter purchase and theme surfaces', () =
   assert.match(statsSource, /support\.freeForever/);
   assert.doesNotMatch(`${settingsSource}\n${statsSource}`, /TimeRadar Pro|pro\./);
 });
+
+test('settings notification and supporter actions stay compact on narrow screens', () => {
+  const settingsSource = source('app/(tabs)/settings.tsx');
+
+  for (const styleName of ['permissionButton', 'systemSettingsButton', 'supportButton']) {
+    const styleBody = settingsSource.match(new RegExp(`${styleName}:\\s*\\{([\\s\\S]*?)\\n  \\},`))?.[1] ?? '';
+
+    assert.match(styleBody, /alignSelf:\s*'flex-start'/, `${styleName} should not stretch across the row`);
+    assert.match(styleBody, /maxWidth:\s*'50%'/, `${styleName} should cap row width`);
+  }
+
+  assert.match(settingsSource, /supportPanel:\s*\{[\s\S]*alignItems:\s*'flex-start'/);
+  assert.match(settingsSource, /permissionPanel:\s*\{[\s\S]*alignItems:\s*'flex-start'/);
+});

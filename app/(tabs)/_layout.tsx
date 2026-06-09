@@ -20,6 +20,23 @@ import {
 } from '@/src/navigation/tab-rules';
 import { colors, radius } from '@/src/theme';
 
+export const bottomTabBarStyle = {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  bottom: 0,
+  height: 78,
+  paddingTop: 10,
+  paddingBottom: 10,
+  paddingHorizontal: 12,
+  borderTopLeftRadius: radius.lg,
+  borderTopRightRadius: radius.lg,
+  borderTopWidth: StyleSheet.hairlineWidth,
+  borderTopColor: colors.border,
+  backgroundColor: colors.backgroundWarm,
+  overflow: 'hidden',
+} as const;
+
 export default function TabLayout() {
   const { direction, t } = useTranslation();
   const tabConfig = {
@@ -63,22 +80,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarShowLabel: false,
-        tabBarStyle: {
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 78,
-          paddingTop: 10,
-          paddingBottom: 10,
-          paddingHorizontal: 12,
-          borderTopLeftRadius: radius.lg,
-          borderTopRightRadius: radius.lg,
-          borderTopWidth: StyleSheet.hairlineWidth,
-          borderTopColor: colors.border,
-          backgroundColor: colors.backgroundWarm,
-          overflow: 'hidden',
-        },
+        tabBarStyle: bottomTabBarStyle,
         tabBarItemStyle: {
           borderRadius: radius.md,
           justifyContent: 'center',
