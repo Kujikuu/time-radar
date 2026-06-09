@@ -34,7 +34,7 @@ Key benefits:
 
 App name: TimeRadar
 
-Subtitle: Professional focus, without the noise.
+Subtitle: Professional focus timer
 
 Short description:
 Start a focus block in seconds, strengthen today’s radar signal, and review calm progress stats.

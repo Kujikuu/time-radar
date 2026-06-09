@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ar" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="TimeRadar support page with Arabic and English help, privacy, notifications, and Supporter Pack information."
+    />
+    <title>TimeRadar Support</title>
+    <link rel="icon" href="icon.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              paper: '#F8F4EF',
+              paperWarm: '#FCF8F4',
+              ink: '#1F1A17',
+              muted: '#766D67',
+              line: '#EFE5DC',
+              coral: '#F47E61',
+              coralDark: '#DD5C3F',
+              coralSoft: '#FFD9CC',
+              sage: '#7CA57F',
+              sky: '#91B8D1',
+            },
+            boxShadow: {
+              calm: '0 24px 70px rgba(31, 26, 23, 0.08)',
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      body {
+        background: #f8f4ef;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-paper font-sans text-ink antialiased">
+    <header id="top" class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-5">
+      <a href="index.html" class="flex items-center gap-3" aria-label="TimeRadar support home">
+        <img
+          src="icon.png"
+          alt=""
+          class="size-11 rounded-2xl object-cover shadow-sm"
+        />
+        <span class="text-xl font-black tracking-tight">TimeRadar</span>
+      </a>
+      <nav class="flex w-full flex-wrap items-center gap-2 text-sm font-semibold text-muted sm:w-auto sm:justify-end">
+        <button
+          type="button"
+          data-language-toggle="ar"
+          class="rounded-full px-4 py-2 transition hover:bg-white/70 hover:text-ink"
+        >
+          العربية
+        </button>
+        <button
+          type="button"
+          data-language-toggle="en"
+          class="rounded-full px-4 py-2 transition hover:bg-white/70 hover:text-ink"
+        >
+          English
+        </button>
+        <a class="rounded-full bg-ink px-4 py-2 text-white hover:bg-coralDark" href="privacy.html">
+          <span data-lang="ar">الخصوصية</span>
+          <span data-lang="en">Privacy</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="mx-auto w-full max-w-6xl px-5 pb-16">
+      <section class="grid gap-5 py-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch lg:py-14">
+        <div class="relative overflow-hidden rounded-[2rem] border border-line bg-white/78 p-7 shadow-calm backdrop-blur md:p-10">
+          <div data-lang="ar" dir="rtl">
+          <p class="mb-5 text-sm font-extrabold text-coralDark">دعم TimeRadar</p>
+          <h1 class="max-w-2xl text-4xl font-black leading-tight tracking-tight md:text-6xl">
+            تركيز مهني بلا تشتيت، ودعم واضح عند الحاجة.
+          </h1>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
+            هذه الصفحة مخصّصة لمساعدتك في استخدام TimeRadar، فهم التنبيهات المحلية، استعادة حزمة
+            الداعم، والوصول إلى سياسة الخصوصية.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a
+              href="#contact"
+              class="rounded-full bg-coral px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-coral/20 transition hover:bg-coralDark"
+            >
+              تواصل مع الدعم
+            </a>
+            <a
+              href="privacy.html"
+              class="rounded-full border border-line bg-white px-6 py-3 text-sm font-extrabold text-ink transition hover:border-coralSoft hover:text-coralDark"
+            >
+              سياسة الخصوصية
+            </a>
+          </div>
+          </div>
+          <div data-lang="en" dir="ltr">
+            <p class="mb-5 text-sm font-extrabold text-coralDark">TimeRadar Support</p>
+            <h1 class="max-w-2xl text-4xl font-black leading-tight tracking-tight md:text-6xl">
+              Professional focus, clear support when you need it.
+            </h1>
+            <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
+              This page helps you use TimeRadar, understand local timer alerts, restore the
+              Supporter Pack, and reach the privacy policy.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a
+                href="#contact"
+                class="rounded-full bg-coral px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-coral/20 transition hover:bg-coralDark"
+              >
+                Contact support
+              </a>
+              <a
+                href="privacy.html"
+                class="rounded-full border border-line bg-white px-6 py-3 text-sm font-extrabold text-ink transition hover:border-coralSoft hover:text-coralDark"
+              >
+                Privacy Policy
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <aside class="rounded-[2rem] border border-line bg-paperWarm p-5">
+          <div class="flex h-full flex-col justify-between rounded-[1.5rem] bg-white p-6 shadow-calm">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.24em] text-coralDark">
+                <span data-lang="ar">إشارة التركيز</span>
+                <span data-lang="en">Focus signal</span>
+              </p>
+              <div class="mt-8 grid aspect-square place-items-center rounded-full border-[18px] border-coralSoft/45">
+                <div class="text-center">
+                  <p class="text-sm font-bold text-muted">
+                    <span data-lang="ar">الجلسة التالية</span>
+                    <span data-lang="en">Next block</span>
+                  </p>
+                  <p class="mt-1 text-5xl font-black tracking-tight">25:00</p>
+                  <p class="mt-4 rounded-full bg-coral px-5 py-2 text-sm font-extrabold text-white">
+                    <span data-lang="ar">ابدأ التركيز</span>
+                    <span data-lang="en">Start focus</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-7 grid grid-cols-3 gap-3 text-center">
+              <div class="rounded-2xl bg-paper p-4">
+                <p class="text-2xl font-black">0%</p>
+                <p class="mt-1 text-xs font-bold text-muted">
+                  <span data-lang="ar">الرادار</span>
+                  <span data-lang="en">Radar</span>
+                </p>
+              </div>
+              <div class="rounded-2xl bg-paper p-4">
+                <p class="text-2xl font-black">0m</p>
+                <p class="mt-1 text-xs font-bold text-muted">
+                  <span data-lang="ar">تركيز</span>
+                  <span data-lang="en">Focus</span>
+                </p>
+              </div>
+              <div class="rounded-2xl bg-paper p-4">
+                <p class="text-2xl font-black">3</p>
+                <p class="mt-1 text-xs font-bold text-muted">
+                  <span data-lang="ar">مهام</span>
+                  <span data-lang="en">Tasks</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="support-ar" data-lang="ar" dir="rtl" class="grid gap-5 lg:grid-cols-3">
+        <article class="rounded-[1.75rem] border border-line bg-white/82 p-6 shadow-calm lg:col-span-2">
+          <p class="text-sm font-extrabold text-coralDark">مساعدة سريعة</p>
+          <h2 class="mt-2 text-3xl font-black">كيف يعمل TimeRadar؟</h2>
+          <p class="mt-4 leading-8 text-muted">
+            TimeRadar مؤقت تركيز يحفظ بياناتك على جهازك: أنشئ مهمة، ابدأ جلسة تركيز، وتابع إشارة الرادار
+            اليومية. بيانات المهام والجلسات والإعدادات تبقى محفوظة على جهازك.
+          </p>
+          <div class="mt-6 grid gap-3 md:grid-cols-3">
+            <div class="rounded-3xl bg-paper p-5">
+              <p class="font-black">ابدأ بسرعة</p>
+              <p class="mt-2 text-sm leading-6 text-muted">استخدم زر بدء التركيز من الشاشة الرئيسية.</p>
+            </div>
+            <div class="rounded-3xl bg-paper p-5">
+              <p class="font-black">نظّم المهام</p>
+              <p class="mt-2 text-sm leading-6 text-muted">أضف مهام للعمل أو الدراسة أو الاستخدام الشخصي.</p>
+            </div>
+            <div class="rounded-3xl bg-paper p-5">
+              <p class="font-black">راجع تقدمك</p>
+              <p class="mt-2 text-sm leading-6 text-muted">تابع وقت التركيز وتوزيعه من تبويب الإحصائيات.</p>
+            </div>
+          </div>
+        </article>
+
+        <aside class="rounded-[1.75rem] border border-line bg-ink p-6 text-white shadow-calm">
+          <p class="text-sm font-extrabold text-coralSoft">حزمة الداعم</p>
+          <h2 class="mt-2 text-2xl font-black">اختيارية بالكامل</h2>
+          <p class="mt-4 leading-7 text-white/72">
+            تبقى مزايا التركيز الأساسية مجانية. حزمة الداعم بقيمة 1.99 دولار تدعم التطوير وتفتح
+            مظهرًا بصريًا أدفأ.
+          </p>
+        </aside>
+      </section>
+
+      <section data-lang="ar" class="mt-5 grid gap-5 lg:grid-cols-2">
+        <article dir="rtl" class="rounded-[1.75rem] border border-line bg-white/82 p-6 shadow-calm">
+          <h2 class="text-2xl font-black">أسئلة شائعة</h2>
+          <div class="mt-5 space-y-4">
+            <div>
+              <h3 class="font-black">هل يحتاج التطبيق إلى حساب؟</h3>
+              <p class="mt-1 leading-7 text-muted">لا. لا يوجد تسجيل دخول أو حساب مستخدم.</p>
+            </div>
+            <div>
+              <h3 class="font-black">أين تحفظ بياناتي؟</h3>
+              <p class="mt-1 leading-7 text-muted">على جهازك فقط. لا يرسل التطبيق مهامك أو إحصائياتك إلى خادم خارجي.</p>
+            </div>
+            <div>
+              <h3 class="font-black">كيف أستعيد حزمة الداعم؟</h3>
+              <p class="mt-1 leading-7 text-muted">افتح الإعدادات أو الإحصائيات واضغط على استعادة الشراء.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="support-en" data-lang="en" dir="ltr" class="grid gap-5 lg:grid-cols-3">
+        <article class="rounded-[1.75rem] border border-line bg-white/82 p-6 shadow-calm lg:col-span-2">
+          <p class="text-sm font-extrabold text-coralDark">Quick help</p>
+          <h2 class="mt-2 text-3xl font-black">How does TimeRadar work?</h2>
+          <p class="mt-4 leading-8 text-muted">
+            TimeRadar is a local-first focus timer: create a task, start a focus block, and watch
+            your daily radar signal. Tasks, sessions, and settings stay on your device.
+          </p>
+          <div class="mt-6 grid gap-3 md:grid-cols-3">
+            <div class="rounded-3xl bg-paper p-5">
+              <p class="font-black">Start quickly</p>
+              <p class="mt-2 text-sm leading-6 text-muted">Use the Start Focus button from the home screen.</p>
+            </div>
+            <div class="rounded-3xl bg-paper p-5">
+              <p class="font-black">Organize tasks</p>
+              <p class="mt-2 text-sm leading-6 text-muted">Add work, study, or personal focus tasks.</p>
+            </div>
+            <div class="rounded-3xl bg-paper p-5">
+              <p class="font-black">Review progress</p>
+              <p class="mt-2 text-sm leading-6 text-muted">Use Stats to review focus time and distribution.</p>
+            </div>
+          </div>
+        </article>
+
+        <aside class="rounded-[1.75rem] border border-line bg-ink p-6 text-white shadow-calm">
+          <p class="text-sm font-extrabold text-coralSoft">Supporter Pack</p>
+          <h2 class="mt-2 text-2xl font-black">Completely optional</h2>
+          <p class="mt-4 leading-7 text-white/72">
+            Core focus features stay free. The $1.99 Supporter Pack supports development and
+            unlocks a warmer visual theme.
+          </p>
+        </aside>
+      </section>
+
+      <section data-lang="en" class="mt-5 grid gap-5 lg:grid-cols-2">
+        <article dir="ltr" class="rounded-[1.75rem] border border-line bg-white/82 p-6 shadow-calm">
+          <h2 class="text-2xl font-black">Frequently asked questions</h2>
+          <div class="mt-5 space-y-4">
+            <div>
+              <h3 class="font-black">Does the app need an account?</h3>
+              <p class="mt-1 leading-7 text-muted">No. TimeRadar has no login or user account.</p>
+            </div>
+            <div>
+              <h3 class="font-black">Where is my data stored?</h3>
+              <p class="mt-1 leading-7 text-muted">On your device only. The app does not send your tasks or stats to an external server.</p>
+            </div>
+            <div>
+              <h3 class="font-black">How do I restore the Supporter Pack?</h3>
+              <p class="mt-1 leading-7 text-muted">Open Stats or Settings and choose Restore Purchase.</p>
+            </div>
+          </div>
+        </article>
+
+        <article dir="ltr" class="rounded-[1.75rem] border border-line bg-white/82 p-6 shadow-calm">
+          <p class="text-sm font-extrabold text-coralDark">English support</p>
+          <h2 class="mt-2 text-2xl font-black">Need help with TimeRadar?</h2>
+          <p class="mt-4 leading-7 text-muted">
+            TimeRadar is a local-first focus timer. Start a focus block, manage your focus tasks,
+            review calm progress stats, and configure local timer alerts from Settings.
+          </p>
+          <div class="mt-5 space-y-4">
+            <div>
+              <h3 class="font-black">No account required</h3>
+              <p class="mt-1 leading-7 text-muted">The app works without sign-in, email, or profile setup.</p>
+            </div>
+            <div>
+              <h3 class="font-black">Supporter Pack</h3>
+              <p class="mt-1 leading-7 text-muted">
+                The optional one-time purchase supports development and unlocks a warmer visual theme.
+              </p>
+            </div>
+            <div>
+              <h3 class="font-black">Restore purchase</h3>
+              <p class="mt-1 leading-7 text-muted">Use Restore Purchase in Stats or Settings.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section
+        id="contact"
+        class="mt-5 rounded-[1.75rem] border border-line bg-paperWarm p-6 shadow-calm md:flex md:items-center md:justify-between md:gap-8"
+      >
+        <div data-lang="ar" dir="rtl">
+          <p class="text-sm font-extrabold text-coralDark">التواصل</p>
+          <h2 class="mt-2 text-2xl font-black">للدعم أو أسئلة الخصوصية</h2>
+          <p class="mt-2 leading-7 text-muted">استخدم البريد التالي عند نشر الصفحة:</p>
+        </div>
+        <div data-lang="en" dir="ltr">
+          <p class="text-sm font-extrabold text-coralDark">Contact</p>
+          <h2 class="mt-2 text-2xl font-black">For support or privacy questions</h2>
+          <p class="mt-2 leading-7 text-muted">Use this email after the page is published:</p>
+        </div>
+        <a
+          href="mailto:radar@afifistudio.com"
+          class="mt-5 rounded-full bg-white px-5 py-3 text-sm font-black text-ink transition hover:text-coralDark md:mt-0"
+        >
+          radar@afifistudio.com
+        </a>
+      </section>
+    </main>
+
+    <footer class="border-t border-line/80 bg-paper px-5 py-8">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 text-sm text-muted md:flex-row md:items-center md:justify-between">
+        <p>
+          <span data-lang="ar">TimeRadar. مؤقت تركيز يحفظ بياناتك على جهازك.</span>
+          <span data-lang="en">TimeRadar. Local-first focus timer.</span>
+        </p>
+        <div class="flex gap-4">
+          <a class="font-bold hover:text-coralDark" href="index.html">
+            <span data-lang="ar">الدعم</span>
+            <span data-lang="en">Support</span>
+          </a>
+          <a class="font-bold hover:text-coralDark" href="privacy.html">
+            <span data-lang="ar">سياسة الخصوصية</span>
+            <span data-lang="en">Privacy Policy</span>
+          </a>
+          <a class="font-bold hover:text-coralDark" href="#top">
+            <span data-lang="ar">العودة للأعلى</span>
+            <span data-lang="en">Back to top</span>
+          </a>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (() => {
+        const storageKey = 'timeRadarSiteLanguage';
+        const toggles = Array.from(document.querySelectorAll('[data-language-toggle]'));
+        const languageNodes = Array.from(document.querySelectorAll('[data-lang]'));
+
+        function resolveLanguage(value) {
+          return value === 'en' ? 'en' : 'ar';
+        }
+
+        function applyLanguage(language) {
+          const currentLanguage = resolveLanguage(language);
+          document.documentElement.lang = currentLanguage;
+          document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+          localStorage.setItem(storageKey, currentLanguage);
+
+          languageNodes.forEach((node) => {
+            node.hidden = node.dataset.lang !== currentLanguage;
+          });
+
+          toggles.forEach((toggle) => {
+            const isActive = toggle.dataset.languageToggle === currentLanguage;
+            toggle.setAttribute('aria-pressed', String(isActive));
+            toggle.classList.toggle('bg-white', isActive);
+            toggle.classList.toggle('text-ink', isActive);
+            toggle.classList.toggle('shadow-sm', isActive);
+          });
+        }
+
+        toggles.forEach((toggle) => {
+          toggle.addEventListener('click', () => applyLanguage(toggle.dataset.languageToggle));
+        });
+
+        applyLanguage(localStorage.getItem(storageKey) || 'ar');
+      })();
+    </script>
+  </body>
+</html>
