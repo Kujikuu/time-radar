@@ -1,10 +1,12 @@
 import { IconTrash } from '@tabler/icons-react-native';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import ReanimatedSwipeable, {
-  type SwipeableMethods,
-} from 'react-native-gesture-handler/ReanimatedSwipeable';
-import type { SharedValue } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 import { AppIcon, AppText } from '@/src/components';
 import { rowDirectionForTextDirection } from '@/src/i18n';
@@ -14,14 +16,25 @@ import { colors, radius, spacing, typography } from '@/src/theme';
 import { FocusTaskCard } from './FocusTaskCard';
 import { FocusTask } from './types';
 
+const SWIPE_ACTION_WIDTH = 112;
+const SWIPE_OPEN_THRESHOLD = 42;
+const SWIPE_SPRING = {
+  damping: 20,
+  stiffness: 220,
+};
+
 type SwipeableTaskRowProps = {
   task: FocusTask;
   onRemove: (task: FocusTask) => void;
 };
 
 export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
-  const swipeableRef = useRef<SwipeableMethods>(null);
   const { direction, nativeDirection, t } = useTranslation();
+  const translateX = useSharedValue(0);
+  const openOffset = direction === 'rtl' ? -SWIPE_ACTION_WIDTH : SWIPE_ACTION_WIDTH;
+  const actionSideStyle = direction === 'rtl' ? styles.actionOnRight : styles.actionOnLeft;
+  const actionShapeStyle =
+    direction === 'rtl' ? styles.removeActionOnRight : styles.removeActionOnLeft;
   const actionDirection = useMemo(
     () => ({
       flexDirection: rowDirectionForTextDirection(direction, nativeDirection),
@@ -29,10 +42,14 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
     [direction, nativeDirection]
   );
 
+  const closeRow = useCallback(() => {
+    translateX.value = withSpring(0, SWIPE_SPRING);
+  }, [translateX]);
+
   const handleRemove = useCallback(() => {
-    swipeableRef.current?.close();
+    closeRow();
     onRemove(task);
-  }, [onRemove, task]);
+  }, [closeRow, onRemove, task]);
 
   const handleAccessibilityAction = useCallback(
     (event: { nativeEvent: { actionName: string } }) => {
@@ -43,22 +60,42 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
     [handleRemove]
   );
 
-  const renderRemoveAction = useCallback(
-    (
-      _progress: SharedValue<number>,
-      _translation: SharedValue<number>,
-      swipeableMethods: SwipeableMethods
-    ) => (
-      <View style={styles.actionShell}>
+  const panGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetX([-10, 10])
+        .onUpdate((event) => {
+          const nextOffset =
+            openOffset > 0
+              ? Math.min(Math.max(event.translationX, 0), SWIPE_ACTION_WIDTH)
+              : Math.max(Math.min(event.translationX, 0), -SWIPE_ACTION_WIDTH);
+
+          translateX.value = nextOffset;
+        })
+        .onEnd(() => {
+          const shouldOpen = Math.abs(translateX.value) > SWIPE_OPEN_THRESHOLD;
+          translateX.value = withSpring(shouldOpen ? openOffset : 0, SWIPE_SPRING);
+        }),
+    [openOffset, translateX]
+  );
+
+  const cardAnimatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ translateX: translateX.value }],
+    }),
+    [translateX]
+  );
+
+  return (
+    <View style={styles.swipeContainer}>
+      <View style={[styles.actionLayer, actionSideStyle]}>
         <Pressable
           accessibilityLabel={t('tasks.removeTask')}
           accessibilityRole="button"
-          onPress={() => {
-            swipeableMethods.close();
-            onRemove(task);
-          }}
+          onPress={handleRemove}
           style={({ pressed }) => [
             styles.removeAction,
+            actionShapeStyle,
             actionDirection,
             pressed && styles.removeActionPressed,
           ]}>
@@ -66,28 +103,17 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
           <AppText style={styles.removeActionText}>{t('tasks.removeTask')}</AppText>
         </Pressable>
       </View>
-    ),
-    [actionDirection, onRemove, t, task]
-  );
 
-  return (
-    <ReanimatedSwipeable
-      ref={swipeableRef}
-      friction={2}
-      rightThreshold={42}
-      leftThreshold={42}
-      overshootLeft={false}
-      overshootRight={false}
-      enableTrackpadTwoFingerGesture
-      containerStyle={styles.swipeContainer}
-      renderLeftActions={nativeDirection === 'rtl' ? renderRemoveAction : undefined}
-      renderRightActions={nativeDirection === 'rtl' ? undefined : renderRemoveAction}>
-      <FocusTaskCard
-        task={task}
-        accessibilityActions={[{ name: 'remove', label: t('tasks.removeTask') }]}
-        onAccessibilityAction={handleAccessibilityAction}
-      />
-    </ReanimatedSwipeable>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={cardAnimatedStyle}>
+          <FocusTaskCard
+            task={task}
+            accessibilityActions={[{ name: 'remove', label: t('tasks.removeTask') }]}
+            onAccessibilityAction={handleAccessibilityAction}
+          />
+        </Animated.View>
+      </GestureDetector>
+    </View>
   );
 }
 
@@ -96,8 +122,18 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
   },
-  actionShell: {
-    width: 112,
+  actionLayer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: SWIPE_ACTION_WIDTH,
+    zIndex: 0,
+  },
+  actionOnLeft: {
+    left: 0,
+  },
+  actionOnRight: {
+    right: 0,
   },
   removeAction: {
     flex: 1,
@@ -107,6 +143,14 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.accentDark,
+  },
+  removeActionOnLeft: {
+    borderTopLeftRadius: radius.lg,
+    borderBottomLeftRadius: radius.lg,
+  },
+  removeActionOnRight: {
+    borderTopRightRadius: radius.lg,
+    borderBottomRightRadius: radius.lg,
   },
   removeActionPressed: {
     opacity: 0.86,

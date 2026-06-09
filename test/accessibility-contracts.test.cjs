@@ -64,7 +64,7 @@ test('FocusTaskCard exposes a descriptive task action label', () => {
   );
 });
 
-test('SwipeableTaskRow exposes a native swipe remove action and accessible fallback', () => {
+test('SwipeableTaskRow exposes a leading-side swipe remove action and accessible fallback', () => {
   const swipeableTaskRowPath = path.join(
     __dirname,
     '..',
@@ -75,15 +75,12 @@ test('SwipeableTaskRow exposes a native swipe remove action and accessible fallb
 
   const swipeableTaskRowSource = fs.readFileSync(swipeableTaskRowPath, 'utf8');
 
-  assert.match(swipeableTaskRowSource, /ReanimatedSwipeable/);
-  assert.match(
-    swipeableTaskRowSource,
-    /renderLeftActions=\{nativeDirection === 'rtl' \? renderRemoveAction : undefined\}/
-  );
-  assert.match(
-    swipeableTaskRowSource,
-    /renderRightActions=\{nativeDirection === 'rtl' \? undefined : renderRemoveAction\}/
-  );
+  assert.match(swipeableTaskRowSource, /GestureDetector/);
+  assert.match(swipeableTaskRowSource, /Gesture\.Pan\(\)/);
+  assert.match(swipeableTaskRowSource, /SWIPE_ACTION_WIDTH = 112/);
+  assert.match(swipeableTaskRowSource, /direction === 'rtl' \? -SWIPE_ACTION_WIDTH : SWIPE_ACTION_WIDTH/);
+  assert.match(swipeableTaskRowSource, /direction === 'rtl' \? styles\.actionOnRight : styles\.actionOnLeft/);
+  assert.match(swipeableTaskRowSource, /translateX\.value = withSpring/);
   assert.match(swipeableTaskRowSource, /accessibilityActions=\{\[\{ name: 'remove'/);
   assert.match(swipeableTaskRowSource, /onAccessibilityAction=\{handleAccessibilityAction\}/);
   assert.match(swipeableTaskRowSource, /t\('tasks\.removeTask'/);
