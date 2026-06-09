@@ -7,13 +7,20 @@ import {
   IconSettingsFilled,
   IconSmartHome,
 } from '@tabler/icons-react-native';
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppIcon } from '@/src/components';
 import { HapticTab } from '@/src/components/HapticTab';
+import { TabletSidebarNavigation } from '@/src/components/TabletSidebarNavigation';
+import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
+import { structuralRowDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
+import {
+  NavigationChromeProvider,
+  useNavigationChromeVisibility,
+} from '@/src/navigation/chrome-visibility';
 import {
   bottomTabRouteOrder,
   type BottomTabRouteName,
@@ -38,7 +45,17 @@ export const bottomTabBarStyle = {
 } as const;
 
 export default function TabLayout() {
+  return (
+    <NavigationChromeProvider>
+      <TabLayoutContent />
+    </NavigationChromeProvider>
+  );
+}
+
+function TabLayoutContent() {
   const { direction, t } = useTranslation();
+  const { isWide } = useLayoutProfile();
+  const { isNavigationChromeHidden } = useNavigationChromeVisibility();
   const tabConfig = {
     index: {
       title: t('home.title'),
@@ -70,42 +87,71 @@ export default function TabLayout() {
   >;
 
   return (
-    <Tabs
-      safeAreaInsets={{
-        bottom: 0,
-      }}
-      screenOptions={{
-        tabBarActiveTintColor: colors.accentDark,
-        tabBarInactiveTintColor: colors.textMuted,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarShowLabel: false,
-        tabBarStyle: bottomTabBarStyle,
-        tabBarItemStyle: {
-          borderRadius: radius.md,
-          justifyContent: 'center',
-        },
-      }}>
-      {bottomTabRouteOrder(direction).map((name) => {
-        const config = tabConfig[name];
+    <View
+      style={[
+        styles.root,
+        isWide && styles.rootWide,
+        isWide && { flexDirection: structuralRowDirection(direction) },
+      ]}>
+      {isWide && !isNavigationChromeHidden ? (
+        <TabletSidebarNavigation tabConfig={tabConfig} />
+      ) : null}
+      <View style={styles.content}>
+        <Tabs
+          safeAreaInsets={{
+            bottom: 0,
+          }}
+          tabBar={(props) => (isWide ? null : <BottomTabBar {...props} />)}
+          screenOptions={{
+            tabBarActiveTintColor: colors.accentDark,
+            tabBarInactiveTintColor: colors.textMuted,
+            headerShown: false,
+            tabBarButton: HapticTab,
+            tabBarShowLabel: false,
+            tabBarStyle: isWide ? styles.hiddenTabBar : bottomTabBarStyle,
+            tabBarItemStyle: {
+              borderRadius: radius.md,
+              justifyContent: 'center',
+            },
+          }}>
+          {bottomTabRouteOrder(direction).map((name) => {
+            const config = tabConfig[name];
 
-        return (
-          <Tabs.Screen
-            key={name}
-            name={name}
-            options={{
-              title: config.title,
-              tabBarIcon: ({ color, focused }) => (
-                <AppIcon
-                  icon={focused ? config.activeIcon : config.icon}
-                  size={24}
-                  color={color}
-                />
-              ),
-            }}
-          />
-        );
-      })}
-    </Tabs>
+            return (
+              <Tabs.Screen
+                key={name}
+                name={name}
+                options={{
+                  title: config.title,
+                  tabBarIcon: ({ color, focused }) => (
+                    <AppIcon
+                      icon={focused ? config.activeIcon : config.icon}
+                      size={24}
+                      color={color}
+                    />
+                  ),
+                }}
+              />
+            );
+          })}
+        </Tabs>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  rootWide: {
+    backgroundColor: colors.background,
+  },
+  content: {
+    flex: 1,
+    minWidth: 0,
+  },
+  hiddenTabBar: {
+    display: 'none',
+  },
+});

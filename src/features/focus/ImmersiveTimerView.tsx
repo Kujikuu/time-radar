@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, spacing } from '@/src/theme';
 
-import { lockLandscapeOrientation, lockPortraitOrientation } from './orientation';
+import { lockDefaultOrientation, lockLandscapeOrientation } from './orientation';
 import { TimerRing } from './TimerRing';
 
 type ImmersiveTimerViewProps = {
@@ -42,7 +42,7 @@ export function ImmersiveTimerView({
     void lockLandscapeOrientation();
 
     return () => {
-      void lockPortraitOrientation();
+      void lockDefaultOrientation();
     };
   }, []);
 

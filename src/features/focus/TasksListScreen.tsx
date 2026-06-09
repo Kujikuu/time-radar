@@ -7,16 +7,24 @@ import { AppIcon, AppText, IconButton, PrimaryButton, Screen, SoftCard } from '@
 import { useTaskRemoval, useTasks } from '@/src/features/focus/hooks';
 import { SwipeableTaskRow } from '@/src/features/focus/SwipeableTaskRow';
 import { FocusTask } from '@/src/features/focus/types';
+import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
+import { useTabScreenInsets } from '@/src/navigation/tablet-sidebar-metrics';
 import { rowDirectionForTextDirection, textAlignForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 const TASK_REMOVAL_UNDO_TIMEOUT_MS = 4000;
 
-export default function TasksScreen() {
+type TasksListScreenProps = {
+  embedded?: boolean;
+};
+
+export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
   const { tasks, reload } = useTasks();
   const { isTaskActive, remove, restore } = useTaskRemoval();
   const { direction, nativeDirection, t } = useTranslation();
+  const { isWide } = useLayoutProfile();
+  const tabInsets = useTabScreenInsets();
   const [removedTask, setRemovedTask] = useState<FocusTask | null>(null);
   const undoDismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentText = { textAlign: textAlignForTextDirection(direction) };
@@ -27,6 +35,7 @@ export default function TasksScreen() {
       : tasks.length === 1
         ? 'tasks.queueBody.one'
         : 'tasks.queueBody.many';
+  const bottomInset = embedded || isWide ? spacing.xxl : tabInsets.paddingBottom;
 
   const clearUndoDismissTimer = useCallback(() => {
     if (!undoDismissTimerRef.current) {
@@ -94,7 +103,12 @@ export default function TasksScreen() {
 
   return (
     <View style={styles.root}>
-      <Screen contentStyle={[styles.screen, removedTask && styles.screenWithUndo]}>
+      <Screen
+        scroll
+        contentStyle={[
+          styles.screen,
+          { paddingBottom: removedTask ? bottomInset + 60 : bottomInset },
+        ]}>
         <View style={[styles.header, contentRow]}>
           <AppText style={[styles.title, styles.contentText, contentText]}>{t('tasks.title')}</AppText>
           <IconButton
@@ -142,7 +156,7 @@ export default function TasksScreen() {
       </Screen>
 
       {removedTask ? (
-        <View style={[styles.undoBar, contentRow]}>
+        <View style={[styles.undoBar, embedded && styles.undoBarEmbedded, contentRow]}>
           <AppText style={[styles.undoText, styles.contentText, contentText]}>
             {t('tasks.removedToast')}
           </AppText>
@@ -166,10 +180,6 @@ const styles = StyleSheet.create({
   },
   screen: {
     gap: spacing.lg,
-    paddingBottom: 100,
-  },
-  screenWithUndo: {
-    paddingBottom: 160,
   },
   header: {
     minHeight: 48,
@@ -190,10 +200,6 @@ const styles = StyleSheet.create({
   addButton: {
     flexShrink: 0,
     backgroundColor: colors.surfaceMuted,
-  },
-  pressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.96 }],
   },
   summaryCard: {
     gap: spacing.md,
@@ -270,6 +276,11 @@ const styles = StyleSheet.create({
         boxShadow: '0 10px 22px rgba(31, 26, 23, 0.14)',
       },
     }),
+  },
+  undoBarEmbedded: {
+    right: spacing.lg,
+    left: spacing.lg,
+    bottom: spacing.lg,
   },
   undoText: {
     flex: 1,

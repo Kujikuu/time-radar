@@ -1,6 +1,6 @@
 import { IconTrendingUp } from '@tabler/icons-react-native';
 import { router, Tabs } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppIcon, AppText, BrandLogo, MetricCard, PrimaryButton, Screen, SoftCard } from '@/src/components';
@@ -19,8 +19,15 @@ import { shouldShowNotificationPermissionPrompt } from '@/src/features/focus/not
 import { buildRadarSignal } from '@/src/features/focus/stats-rules';
 import { quickFocusTaskInput } from '@/src/features/focus/task-rules';
 import { TimerRing } from '@/src/features/focus/TimerRing';
-import { rowDirectionForTextDirection, textAlignForTextDirection, timerPhaseLabel } from '@/src/i18n';
+import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
+import {
+  rowDirectionForTextDirection,
+  textAlignForTextDirection,
+  timerPhaseLabel,
+} from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
+import { useSetNavigationChromeHidden } from '@/src/navigation/chrome-visibility';
+import { useTabScreenInsets } from '@/src/navigation/tablet-sidebar-metrics';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 import { bottomTabBarStyle } from './_layout';
@@ -66,7 +73,19 @@ export default function HomeScreen() {
     placement: 'home',
   });
   const rowDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+  const splitRowDirection = {
+    flexDirection: rowDirectionForTextDirection(direction, nativeDirection),
+  };
   const sectionTitleText = { textAlign: textAlignForTextDirection(direction) };
+  const { isWide } = useLayoutProfile();
+  const tabInsets = useTabScreenInsets();
+  const setNavigationChromeHidden = useSetNavigationChromeHidden();
+
+  useEffect(() => {
+    setNavigationChromeHidden(isImmersiveTimerVisible);
+
+    return () => setNavigationChromeHidden(false);
+  }, [isImmersiveTimerVisible, setNavigationChromeHidden]);
 
   const allowNotifications = async () => {
     const status = await notificationPermission.request();
@@ -109,11 +128,120 @@ export default function HomeScreen() {
     setImmersiveTimerVisible(false);
   }, []);
 
+  const renderRadarCard = () => (
+    <SoftCard
+      style={
+        settings.supporterPurchased && settings.supporterThemeEnabled
+          ? [styles.radarCard, styles.supporterRadarCard]
+          : styles.radarCard
+      }>
+      <View style={[styles.radarHeader, rowDirection]}>
+        <View style={styles.radarTitleGroup}>
+          <AppText style={[styles.radarTitle, sectionTitleText]}>{t('radar.title')}</AppText>
+          <AppText style={[styles.radarHelper, sectionTitleText]}>{t('radar.helper')}</AppText>
+        </View>
+        <View style={styles.radarIcon}>
+          <AppIcon icon={IconTrendingUp} size={24} color={colors.accentDark} />
+        </View>
+      </View>
+      <View style={styles.signalTrack}>
+        <View style={[styles.signalFill, { width: `${radarSignal.percent}%` }]} />
+      </View>
+      <View style={[styles.radarFooter, rowDirection]}>
+        <AppText style={styles.radarStatus}>{t(`radar.status.${radarSignal.status}`)}</AppText>
+        <AppText selectable style={styles.radarPercent}>
+          {t('radar.progress', { values: { percent: radarSignal.percent } })}
+        </AppText>
+      </View>
+    </SoftCard>
+  );
+
+  const renderTimerCard = () => (
+    <SoftCard style={styles.timerCard}>
+      <TimerRing
+        label={phaseLabel}
+        time={timerDisplay}
+        progress={snapshot.progress}
+        primaryActionLabel={primaryActionLabel}
+        primaryActionState={primaryActionState}
+        onPrimaryAction={handleTimerPrimaryAction}
+        onReset={snapshot.timer ? reset : undefined}
+        onComplete={snapshot.timer ? () => completePhase(false) : undefined}
+        onSurfacePress={openImmersiveTimer}
+        surfaceAccessibilityLabel={t('timer.actions.openFullscreen')}
+        surfaceAccessibilityHint={t('timer.actions.openFullscreenHint')}
+      />
+    </SoftCard>
+  );
+
+  const renderProgressSection = () => (
+    <>
+      <View style={[styles.sectionHeader, rowDirection]}>
+        <AppText style={[styles.smallTitle, sectionTitleText]}>{t('home.progress')}</AppText>
+        <Pressable
+          accessibilityLabel={t('home.openStats')}
+          accessibilityRole="button"
+          onPress={() => router.push('/(tabs)/stats' as never)}>
+          <AppText style={styles.linkText}>{t('common.seeAll')}</AppText>
+        </Pressable>
+      </View>
+
+      <View style={[styles.metricsGrid, rowDirection]}>
+        {progressMetrics.map((metric) => (
+          <MetricCard
+            key={metric.id}
+            icon={metric.icon}
+            value={metric.value}
+            label={metric.label}
+            tone={metric.tone}
+          />
+        ))}
+      </View>
+    </>
+  );
+
+  const renderUpNextSection = () => (
+    <>
+      <AppText style={styles.smallTitle}>{t('home.upNext')}</AppText>
+      {nextTask ? (
+        <FocusTaskCard task={nextTask} />
+      ) : (
+        <SoftCard style={styles.emptyCard}>
+          <AppText style={styles.tipTitle}>{t('home.noTasksTitle')}</AppText>
+          <AppText style={styles.tipText}>{t('home.noTasksBody')}</AppText>
+          <PrimaryButton
+            style={styles.emptyAction}
+            onPress={() => router.push('/task/new' as never)}>
+            {t('home.noTasksAction')}
+          </PrimaryButton>
+        </SoftCard>
+      )}
+    </>
+  );
+
+  const renderTimerColumn = () => (
+    <View style={styles.splitColumn}>
+      {renderRadarCard()}
+      {renderTimerCard()}
+    </View>
+  );
+
+  const renderProgressColumn = () => (
+    <View style={styles.splitColumn}>
+      {renderProgressSection()}
+      {renderUpNextSection()}
+    </View>
+  );
+
   return (
     <>
       <Tabs.Screen
         options={{
-          tabBarStyle: isImmersiveTimerVisible ? styles.hiddenTabBar : bottomTabBarStyle,
+          ...(isImmersiveTimerVisible
+            ? { tabBarStyle: styles.hiddenTabBar }
+            : !isWide
+              ? { tabBarStyle: bottomTabBarStyle }
+              : {}),
         }}
       />
       {isImmersiveTimerVisible ? (
@@ -129,7 +257,7 @@ export default function HomeScreen() {
           onExit={closeImmersiveTimer}
         />
       ) : (
-        <Screen contentStyle={styles.screen}>
+        <Screen contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}>
           <View style={styles.header}>
             <BrandLogo />
             <AppText style={styles.promise}>{t('home.promise')}</AppText>
@@ -164,85 +292,18 @@ export default function HomeScreen() {
             </SoftCard>
           ) : null}
 
-          <SoftCard
-            style={
-              settings.supporterPurchased && settings.supporterThemeEnabled
-                ? [styles.radarCard, styles.supporterRadarCard]
-                : styles.radarCard
-            }>
-            <View style={[styles.radarHeader, rowDirection]}>
-              <View style={styles.radarTitleGroup}>
-                <AppText style={[styles.radarTitle, sectionTitleText]}>{t('radar.title')}</AppText>
-                <AppText style={[styles.radarHelper, sectionTitleText]}>{t('radar.helper')}</AppText>
-              </View>
-              <View style={styles.radarIcon}>
-                <AppIcon icon={IconTrendingUp} size={24} color={colors.accentDark} />
-              </View>
+          {isWide ? (
+            <View style={[styles.splitRow, splitRowDirection]}>
+              {renderTimerColumn()}
+              {renderProgressColumn()}
             </View>
-            <View style={styles.signalTrack}>
-              <View style={[styles.signalFill, { width: `${radarSignal.percent}%` }]} />
-            </View>
-            <View style={[styles.radarFooter, rowDirection]}>
-              <AppText style={styles.radarStatus}>
-                {t(`radar.status.${radarSignal.status}`)}
-              </AppText>
-              <AppText selectable style={styles.radarPercent}>
-                {t('radar.progress', { values: { percent: radarSignal.percent } })}
-              </AppText>
-            </View>
-          </SoftCard>
-
-          <SoftCard style={styles.timerCard}>
-            <TimerRing
-              label={phaseLabel}
-              time={timerDisplay}
-              progress={snapshot.progress}
-              primaryActionLabel={primaryActionLabel}
-              primaryActionState={primaryActionState}
-              onPrimaryAction={handleTimerPrimaryAction}
-              onReset={snapshot.timer ? reset : undefined}
-              onComplete={snapshot.timer ? () => completePhase(false) : undefined}
-              onSurfacePress={openImmersiveTimer}
-              surfaceAccessibilityLabel={t('timer.actions.openFullscreen')}
-              surfaceAccessibilityHint={t('timer.actions.openFullscreenHint')}
-            />
-          </SoftCard>
-
-          <View style={[styles.sectionHeader, rowDirection]}>
-            <AppText style={[styles.smallTitle, sectionTitleText]}>{t('home.progress')}</AppText>
-            <Pressable
-              accessibilityLabel={t('home.openStats')}
-              accessibilityRole="button"
-              onPress={() => router.push('/(tabs)/stats' as never)}>
-              <AppText style={styles.linkText}>{t('common.seeAll')}</AppText>
-            </Pressable>
-          </View>
-
-          <View style={[styles.metricsGrid, rowDirection]}>
-            {progressMetrics.map((metric) => (
-              <MetricCard
-                key={metric.id}
-                icon={metric.icon}
-                value={metric.value}
-                label={metric.label}
-                tone={metric.tone}
-              />
-            ))}
-          </View>
-
-          <AppText style={styles.smallTitle}>{t('home.upNext')}</AppText>
-          {nextTask ? (
-            <FocusTaskCard task={nextTask} />
           ) : (
-            <SoftCard style={styles.emptyCard}>
-              <AppText style={styles.tipTitle}>{t('home.noTasksTitle')}</AppText>
-              <AppText style={styles.tipText}>{t('home.noTasksBody')}</AppText>
-              <PrimaryButton
-                style={styles.emptyAction}
-                onPress={() => router.push('/task/new' as never)}>
-                {t('home.noTasksAction')}
-              </PrimaryButton>
-            </SoftCard>
+            <>
+              {renderRadarCard()}
+              {renderTimerCard()}
+              {renderProgressSection()}
+              {renderUpNextSection()}
+            </>
           )}
 
         </Screen>
@@ -257,7 +318,16 @@ const styles = StyleSheet.create({
   },
   screen: {
     gap: spacing.lg,
-    paddingBottom: 100,
+  },
+  splitRow: {
+    flexDirection: 'row',
+    gap: spacing.xl,
+    alignItems: 'flex-start',
+  },
+  splitColumn: {
+    flex: 1,
+    minWidth: 0,
+    gap: spacing.lg,
   },
   header: {
     minHeight: 64,

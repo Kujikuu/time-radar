@@ -51,7 +51,7 @@ test('task queue copy handles empty, one, and many states without fallback label
 
 test('home and tasks empty states include a clear create-task action', () => {
   const homeSource = source('app/(tabs)/index.tsx');
-  const tasksSource = source('app/(tabs)/tasks.tsx');
+  const tasksSource = source('src/features/focus/TasksListScreen.tsx');
 
   assert.equal(i18n.translate('en', 'home.noTasksAction'), 'Create focus task');
   assert.equal(i18n.translate('ar', 'home.noTasksAction'), 'إنشاء مهمة تركيز');
@@ -63,7 +63,7 @@ test('home and tasks empty states include a clear create-task action', () => {
 });
 
 test('task removal copy supports swipe removal, undo, and active timer confirmation', () => {
-  const tasksSource = source('app/(tabs)/tasks.tsx');
+  const tasksSource = source('src/features/focus/TasksListScreen.tsx');
 
   assert.equal(i18n.translate('en', 'tasks.removeTask'), 'Remove task');
   assert.equal(i18n.translate('en', 'tasks.removeUndo'), 'Undo');

@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { AppText } from '@/src/components';
+import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
 import {
   focusCategoryLabel,
   rowDirectionForTextDirection,
@@ -19,9 +20,10 @@ type DistributionDonutProps = {
 
 export const DistributionDonut = memo(function DistributionDonut({ data }: DistributionDonutProps) {
   const { direction, locale, nativeDirection, t } = useTranslation();
+  const { isWide } = useLayoutProfile();
   const legendText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
-  const size = 128;
+  const size = isWide ? 180 : 128;
   const strokeWidth = 32;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;

@@ -12,7 +12,7 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "requireFullScreen": true,
+      "requireFullScreen": false,
       "supportsTablet": true
     },
     "android": {

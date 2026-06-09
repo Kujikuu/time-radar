@@ -8,7 +8,7 @@ import {
 } from '@expo-google-fonts/poppins';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
-import { type Href, router, Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
@@ -18,9 +18,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { DATABASE_NAME, migrateDatabase } from '@/src/features/focus/database';
-import { lockPortraitOrientation } from '@/src/features/focus/orientation';
+import { lockDefaultOrientation } from '@/src/features/focus/orientation';
 import { LanguagePreferenceSync } from '@/src/i18n/LanguagePreferenceSync';
 import { LocaleProvider } from '@/src/i18n/LocaleProvider';
+import { currentLayoutWidth, resolveNotificationHref } from '@/src/navigation/task-detail-route';
 import { colors } from '@/src/theme';
 
 export const unstable_settings = {
@@ -51,7 +52,7 @@ export default function RootLayout() {
   useTimerNotificationObserver();
 
   useEffect(() => {
-    void lockPortraitOrientation();
+    void lockDefaultOrientation();
   }, []);
 
   useEffect(() => {
@@ -108,7 +109,7 @@ function useTimerNotificationObserver() {
       const url = notification.request.content.data?.url;
 
       if (typeof url === 'string') {
-        router.push(url as Href);
+        router.push(resolveNotificationHref(url, currentLayoutWidth()));
       }
     }
 

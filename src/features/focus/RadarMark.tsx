@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Line, Path } from 'react-native-svg';
 
+import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
 import { colors } from '@/src/theme';
 
 export function RadarMark() {
+  const { isWide } = useLayoutProfile();
   const rotation = useRef(new Animated.Value(0)).current;
   const [reduceMotion, setReduceMotion] = useState(false);
   const [sweepAngle, setSweepAngle] = useState(0);
@@ -61,7 +63,7 @@ export function RadarMark() {
   }, [rotation]);
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, isWide && styles.wrapperWide]}>
       <Svg width="100%" height="100%" viewBox="0 0 260 260">
         <G transform={`rotate(${sweepAngle} 130 130)`}>
           <Path
@@ -103,6 +105,9 @@ const styles = StyleSheet.create({
     maxWidth: 270,
     aspectRatio: 1,
     alignSelf: 'center',
+  },
+  wrapperWide: {
+    maxWidth: 360,
   },
   centerDot: {
     position: 'absolute',

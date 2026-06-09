@@ -35,7 +35,17 @@ test('home restores the shared tab bar style after fullscreen timer closes', () 
   assert.match(homeSource, /import \{ bottomTabBarStyle \} from '\.\/_layout'/);
   assert.match(
     homeSource,
-    /tabBarStyle:\s*isImmersiveTimerVisible \? styles\.hiddenTabBar : bottomTabBarStyle/
+    /isImmersiveTimerVisible[\s\S]*tabBarStyle:\s*styles\.hiddenTabBar[\s\S]*bottomTabBarStyle/s
   );
-  assert.doesNotMatch(homeSource, /tabBarStyle:\s*isImmersiveTimerVisible \? styles\.hiddenTabBar : undefined/);
+  assert.match(homeSource, /!isWide/);
+});
+
+test('fullscreen timer hides tablet sidebar navigation as app chrome', () => {
+  const homeSource = fs.readFileSync(path.join(__dirname, '../app/(tabs)/index.tsx'), 'utf8');
+
+  assert.match(tabsLayoutSource, /NavigationChromeProvider/);
+  assert.match(tabsLayoutSource, /useNavigationChromeVisibility\(\)/);
+  assert.match(tabsLayoutSource, /isWide && !isNavigationChromeHidden/);
+  assert.match(homeSource, /useSetNavigationChromeHidden\(\)/);
+  assert.match(homeSource, /setNavigationChromeHidden\(isImmersiveTimerVisible\)/);
 });

@@ -1,10 +1,11 @@
 import { IconFileText, IconPlayerPlay } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { AppIcon, AppText, SoftCard } from '@/src/components';
 import { rowDirectionForTextDirection, textAlignForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
+import { taskDetailHref } from '@/src/navigation/task-detail-route';
 import { colors, radius, typography } from '@/src/theme';
 
 import { FocusTask } from './types';
@@ -21,6 +22,7 @@ export function FocusTaskCard({
   onAccessibilityAction,
 }: FocusTaskCardProps) {
   const { direction, formatDuration, nativeDirection, t } = useTranslation();
+  const { width } = useWindowDimensions();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
@@ -32,7 +34,7 @@ export function FocusTaskCard({
       accessibilityActions={accessibilityActions}
       accessibilityRole="button"
       onAccessibilityAction={onAccessibilityAction}
-      onPress={() => router.push(`/session/${task.id}`)}
+      onPress={() => router.push(taskDetailHref(task.id, width))}
       style={({ pressed }) => pressed && styles.pressed}>
       <SoftCard style={[styles.card, contentRow]}>
         <View style={styles.iconWrap}>

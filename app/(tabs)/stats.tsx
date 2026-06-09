@@ -8,13 +8,16 @@ import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
 import { useSettings, useStats } from '@/src/features/focus/hooks';
 import { StatsRange } from '@/src/features/focus/types';
 import { useSupporterPurchase } from '@/src/features/support/purchase';
+import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
 import {
   rowDirectionForTextDirection,
   statsRangeLabel,
   statsRangeOptions,
+  structuralRowDirection,
   textAlignForTextDirection,
 } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
+import { useTabScreenInsets } from '@/src/navigation/tablet-sidebar-metrics';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function StatsScreen() {
@@ -25,6 +28,8 @@ export default function StatsScreen() {
   const { settings, save } = useSettings();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+  const { isWide } = useLayoutProfile();
+  const tabInsets = useTabScreenInsets();
   const activateSupporter = useCallback(() => {
     void save({ supporterPurchased: true, supporterThemeEnabled: true });
   }, [save]);
@@ -39,7 +44,7 @@ export default function StatsScreen() {
       : statsRangeLabel(locale, range);
 
   return (
-    <Screen contentStyle={styles.screen}>
+    <Screen contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}>
       <View style={styles.header}>
         <AppText style={[styles.title, styles.contentText, contentText]}>{t('stats.title')}</AppText>
       </View>
@@ -72,14 +77,30 @@ export default function StatsScreen() {
         </View>
       </View>
 
-      <FocusBarChart data={summary.hourlyFocus} />
+      {isWide ? (
+        <View style={[styles.chartRow, { flexDirection: structuralRowDirection(direction) }]}>
+          <View style={styles.chartColumn}>
+            <FocusBarChart data={summary.hourlyFocus} />
+          </View>
+          <View style={styles.chartColumn}>
+            <AppText style={[styles.sectionTitle, styles.contentText, contentText]}>
+              {t('stats.distribution')}
+            </AppText>
+            <DistributionDonut data={summary.distribution} />
+          </View>
+        </View>
+      ) : (
+        <>
+          <FocusBarChart data={summary.hourlyFocus} />
 
-      <View style={styles.section}>
-        <AppText style={[styles.sectionTitle, styles.contentText, contentText]}>
-          {t('stats.distribution')}
-        </AppText>
-        <DistributionDonut data={summary.distribution} />
-      </View>
+          <View style={styles.section}>
+            <AppText style={[styles.sectionTitle, styles.contentText, contentText]}>
+              {t('stats.distribution')}
+            </AppText>
+            <DistributionDonut data={summary.distribution} />
+          </View>
+        </>
+      )}
 
       <SoftCard
         style={
@@ -144,7 +165,15 @@ export default function StatsScreen() {
 const styles = StyleSheet.create({
   screen: {
     gap: spacing.lg,
-    paddingBottom: 100,
+  },
+  chartRow: {
+    gap: spacing.xl,
+    alignItems: 'flex-start',
+  },
+  chartColumn: {
+    flex: 1,
+    minWidth: 0,
+    gap: spacing.lg,
   },
   header: {
     minHeight: 48,

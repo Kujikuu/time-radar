@@ -1,24 +1,26 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { AppText, IconButton, Screen } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromSettings, useCreateTask, useSettings } from '@/src/features/focus/hooks';
 import { rowDirectionForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
+import { taskDetailHref } from '@/src/navigation/task-detail-route';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function NewTaskScreen() {
   const createTask = useCreateTask();
   const { settings } = useSettings();
   const { direction, nativeDirection, t } = useTranslation();
+  const { width } = useWindowDimensions();
   const BackIcon = direction === 'rtl' ? IconChevronRight : IconChevronLeft;
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   const handleSubmit = async (input: ReturnType<typeof taskInputFromSettings>) => {
     const taskId = await createTask(input);
-    router.replace(`/session/${taskId}` as never);
+    router.replace(taskDetailHref(taskId, width));
   };
 
   return (

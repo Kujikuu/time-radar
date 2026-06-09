@@ -1,5 +1,5 @@
-import { memo, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { memo, useMemo, useState } from 'react';
+import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
 
 import { AppText } from '@/src/components';
@@ -13,7 +13,7 @@ type FocusBarChartProps = {
 };
 
 const chartTicks = [0, 15, 30, 45, 60];
-const chartWidth = 310;
+const defaultChartWidth = 310;
 const chartHeight = 160;
 const chartTop = 12;
 const chartAreaHeight = 112;
@@ -22,6 +22,7 @@ const chartMaxMinutes = 60;
 
 export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChartProps) {
   const { locale, t } = useTranslation();
+  const [chartWidth, setChartWidth] = useState(defaultChartWidth);
   const total = useMemo(() => data.reduce((sum, point) => sum + point.minutes, 0), [data]);
   const summary = useMemo(
     () => t('stats.chartSummary', { values: { minutes: total } }),
@@ -52,13 +53,22 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
         opacity: point.minutes > 35 ? 0.48 : 0.24,
       };
     });
-  }, [data]);
+  }, [chartWidth, data]);
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const nextWidth = Math.max(defaultChartWidth, Math.round(event.nativeEvent.layout.width));
+
+    if (nextWidth !== chartWidth) {
+      setChartWidth(nextWidth);
+    }
+  };
 
   return (
     <View
       accessible
       accessibilityLabel={summary}
       accessibilityRole="image"
+      onLayout={handleLayout}
       style={styles.wrapper}>
       <Svg width="100%" height={chartHeight} viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
         {chartTicks.map((tick) => {
@@ -129,6 +139,7 @@ const styles = StyleSheet.create({
   wrapper: {
     position: 'relative',
     marginTop: 8,
+    width: '100%',
   },
   axisLabels: {
     position: 'absolute',

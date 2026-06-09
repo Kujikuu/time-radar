@@ -21,6 +21,7 @@ import {
   textAlignForTextDirection,
 } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
+import { useTabScreenInsets } from '@/src/navigation/tablet-sidebar-metrics';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function SettingsScreen() {
@@ -28,6 +29,7 @@ export default function SettingsScreen() {
   const { settings, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
   const { direction, locale, nativeDirection, setLanguagePreference, t } = useTranslation();
+  const tabInsets = useTabScreenInsets();
   const notificationsAvailable = notificationPermission.status === 'granted';
   const notificationsBlocked = notificationPermission.status === 'denied';
   const notificationsUnsupported = notificationPermission.status === 'unsupported';
@@ -79,7 +81,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <Screen contentStyle={styles.screen}>
+    <Screen contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}>
       <View style={[styles.header, contentRow]}>
         <AppText style={[styles.title, tileText]}>{t('settings.title')}</AppText>
         <IconButton
@@ -349,7 +351,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   screen: {
     gap: spacing.lg,
-    paddingBottom: 100,
   },
   header: {
     minHeight: 48,

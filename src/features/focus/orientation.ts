@@ -24,3 +24,11 @@ export function lockPortraitOrientation() {
 export function lockLandscapeOrientation() {
   return lockSupportedOrientation(ScreenOrientation.OrientationLock.LANDSCAPE);
 }
+
+export function lockDefaultOrientation() {
+  if (Platform.OS === 'ios' && Platform.isPad) {
+    return lockSupportedOrientation(ScreenOrientation.OrientationLock.DEFAULT);
+  }
+
+  return lockPortraitOrientation();
+}

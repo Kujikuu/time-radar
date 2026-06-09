@@ -99,7 +99,7 @@ export default function OnboardingScreen() {
   };
 
   if (completed === null || completed) {
-    return <Screen scroll={false} contentStyle={styles.screen} />;
+    return <Screen scroll={false} contentStyle={styles.screen} variant="compact" />;
   }
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -128,7 +128,7 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <Screen scroll={false} contentStyle={styles.screen}>
+    <Screen scroll={false} contentStyle={styles.screen} variant="compact">
       <View
         style={styles.carousel}
         onLayout={(event) => setPageWidth(event.nativeEvent.layout.width)}>

@@ -4,7 +4,17 @@ Prepared for build `1.0.1` (`2`) / EAS build `69f48505-249f-4699-8097-da56ee5adf
 
 ## Screenshot Uploads
 
-Upload the final PNGs from `docs/app-store/screenshots/final`.
+Upload the final Arabic PNGs from `docs/app-store/screenshots/final`.
+
+Language-specific screenshots are also available here:
+
+- Arabic: `docs/app-store/screenshots/final/ar`
+- English: `docs/app-store/screenshots/final/en`
+
+Raw captures are kept here:
+
+- Arabic: `docs/app-store/screenshots/raw/ar`
+- English: `docs/app-store/screenshots/raw/en`
 
 ### iPhone 6.5" / 6.7" Display
 
@@ -12,9 +22,9 @@ Apple-accepted portrait size used here: `1284 x 2778`.
 
 Also accepted by App Store Connect for this slot: `1242 x 2688`, `2688 x 1242`, and `2778 x 1284`.
 
-1. `iphone-01-home.png` - Arabic home, radar signal, timer.
-2. `iphone-02-tasks.png` - Arabic task queue.
-3. `iphone-03-stats.png` - Arabic stats.
+1. `iphone-01-home.png` - Home, radar signal, timer.
+2. `iphone-02-tasks.png` - Task queue.
+3. `iphone-03-stats.png` - Stats.
 4. `iphone-04-support.png` - Supporter Pack purchase surface.
 5. `iphone-05-settings.png` - Settings, notifications, language.
 
@@ -27,6 +37,8 @@ Apple-accepted size: `2048 x 2732`.
 3. `ipad-03-stats.png`
 4. `ipad-04-support.png`
 5. `ipad-05-settings.png`
+
+Use the matching filenames inside `final/ar` and `final/en` when uploading separate Arabic and English localizations in App Store Connect. The top-level `final` folder mirrors the Arabic set for the primary language.
 
 ## App Information
 

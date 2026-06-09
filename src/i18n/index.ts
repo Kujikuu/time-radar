@@ -165,6 +165,8 @@ const translations = {
       emptyTitle: 'Start with one clear task',
       emptyBody: 'Name the work, set the timer, and TimeRadar will keep the rhythm simple.',
       emptyAction: 'Create focus task',
+      selectTaskTitle: 'Select a task',
+      selectTaskBody: 'Choose a focus task from the list to view details and start a session.',
       openTask: 'Open %{title}, %{minutes} minute focus task',
       removeTask: 'Remove task',
       removedToast: 'Task removed',
@@ -402,6 +404,8 @@ const translations = {
       emptyTitle: 'ابدأ بمهمة واضحة واحدة',
       emptyBody: 'سمّ العمل، اضبط المؤقت، واترك تايم رادار يحافظ على الإيقاع ببساطة.',
       emptyAction: 'إنشاء مهمة تركيز',
+      selectTaskTitle: 'اختر مهمة',
+      selectTaskBody: 'اختر مهمة تركيز من القائمة لعرض التفاصيل وبدء جلسة.',
       openTask: 'فتح %{title}، مهمة تركيز لمدة %{minutes} دقيقة',
       removeTask: 'إزالة المهمة',
       removedToast: 'تمت إزالة المهمة',
@@ -551,6 +555,14 @@ export function rowDirectionForTextDirection(
   nativeDirection: AppTextDirection = 'ltr'
 ): 'row' | 'row-reverse' {
   return direction === nativeDirection ? 'row' : 'row-reverse';
+}
+
+export function structuralRowDirection(direction: AppTextDirection): 'row' | 'row-reverse' {
+  return direction === 'rtl' ? 'row-reverse' : 'row';
+}
+
+export function sidebarItemRowDirection(direction: AppTextDirection): 'row' | 'row-reverse' {
+  return direction === 'rtl' ? 'row-reverse' : 'row';
 }
 
 export function translate(locale: AppLocale, key: string, options: TranslateOptions = {}) {

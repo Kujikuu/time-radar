@@ -4,10 +4,11 @@ import {
   IconPlayerPlay,
   IconRefresh,
 } from '@tabler/icons-react-native';
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Defs, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
 import { AppIcon, AppText } from '@/src/components';
+import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
 import { rowDirectionForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, typography } from '@/src/theme';
@@ -45,11 +46,16 @@ export function TimerRing({
 }: TimerRingProps) {
   const { direction, nativeDirection, t } = useTranslation();
   const { height, width } = useWindowDimensions();
+  const { isWide } = useLayoutProfile();
   const isImmersive = presentation === 'immersive';
   const availableSize = isImmersive ? Math.min(width, height) - 56 : width - 64;
+  const viewportWidth = Platform.OS === 'web' && typeof window !== 'undefined' ? window.innerWidth : width;
+  const defaultCap = isWide && viewportWidth >= 1100 ? 420 : 300;
+  const immersiveCap = isWide ? 480 : 380;
+  const defaultMin = isWide ? 280 : 248;
   const size = isImmersive
-    ? Math.min(380, Math.max(286, availableSize))
-    : Math.min(300, Math.max(248, availableSize));
+    ? Math.min(immersiveCap, Math.max(286, availableSize))
+    : Math.min(defaultCap, Math.max(defaultMin, availableSize));
   const strokeWidth = 14;
   const markerRadius = 8.5;
   const markerStrokeWidth = 4.5;
@@ -130,10 +136,12 @@ export function TimerRing({
         />
       ) : null}
       <View pointerEvents="box-none" style={[styles.center, { width: size - 58 }]}>
-        <AppText style={[styles.label, isImmersive && styles.immersiveLabel, isPaused && styles.pausedLabel]}>
+        <AppText pointerEvents="none" style={[styles.label, isImmersive && styles.immersiveLabel, isPaused && styles.pausedLabel]}>
           {label}
         </AppText>
-        <AppText style={[styles.time, isImmersive && styles.immersiveTime]}>{time}</AppText>
+        <AppText pointerEvents="none" style={[styles.time, isImmersive && styles.immersiveTime]}>
+          {time}
+        </AppText>
         <Pressable
           accessibilityLabel={displayAction}
           accessibilityRole="button"

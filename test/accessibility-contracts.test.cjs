@@ -35,7 +35,16 @@ test('TimerRing exposes an optional accessible surface press without forcing sec
   assert.match(timerRingSource, /onSurfacePress\?: \(\) => void/);
   assert.match(timerRingSource, /showSecondaryActions\?: boolean/);
   assert.match(timerRingSource, /accessibilityLabel=\{surfaceAccessibilityLabel\}/);
+  assert.match(timerRingSource, /<AppText pointerEvents="none" style=\{\[styles\.label/);
+  assert.match(timerRingSource, /<AppText pointerEvents="none" style=\{\[styles\.time/);
   assert.match(timerRingSource, /showSecondaryActions && hasActiveTimer/);
+});
+
+test('TimerRing stays within narrow tablet split columns', () => {
+  const timerRingSource = source('src/features/focus/TimerRing.tsx');
+
+  assert.match(timerRingSource, /const viewportWidth = Platform\.OS === 'web' && typeof window !== 'undefined' \? window\.innerWidth : width/);
+  assert.match(timerRingSource, /const defaultCap = isWide && viewportWidth >= 1100 \? 420 : 300/);
 });
 
 test('ImmersiveTimerView keeps the timer awake and exits through double tap', () => {
@@ -87,7 +96,7 @@ test('SwipeableTaskRow exposes a leading-side swipe remove action and accessible
 });
 
 test('Task removal undo toast expires and cleans up its timer', () => {
-  const tasksSource = source('app/(tabs)/tasks.tsx');
+  const tasksSource = source('src/features/focus/TasksListScreen.tsx');
 
   assert.match(tasksSource, /TASK_REMOVAL_UNDO_TIMEOUT_MS = 4000/);
   assert.match(tasksSource, /useRef<ReturnType<typeof setTimeout> \| null>\(null\)/);
@@ -164,7 +173,7 @@ test('FocusBarChart renders x-axis labels with native text for Arabic shaping', 
 });
 
 test('Task cards align copy and rows to the active reading direction', () => {
-  const tasksSource = source('app/(tabs)/tasks.tsx');
+  const tasksSource = source('src/features/focus/TasksListScreen.tsx');
   const focusTaskCardSource = source('src/features/focus/FocusTaskCard.tsx');
 
   assert.match(tasksSource, /textAlignForTextDirection\(direction\)/);
