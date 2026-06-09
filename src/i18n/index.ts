@@ -36,6 +36,7 @@ const translations = {
       allowNotifications: 'Allow timer alerts',
       notNow: 'Not now',
       next: 'Next',
+      cancel: 'Cancel',
       goBack: 'Go back',
       seeAll: 'View stats',
       openSystemSettings: 'Open system settings',
@@ -151,6 +152,13 @@ const translations = {
       emptyBody: 'Name the work, set the timer, and TimeRadar will keep the rhythm simple.',
       emptyAction: 'Create focus task',
       openTask: 'Open %{title}, %{minutes} minute focus task',
+      removeTask: 'Remove task',
+      removedToast: 'Task removed',
+      removeUndo: 'Undo',
+      removeActiveTitle: 'Remove the active task?',
+      removeActiveBody:
+        '%{title} is controlling the current timer. Removing it will reset the timer and keep your past focus history.',
+      removeActiveConfirm: 'Remove and reset',
     },
     stats: {
       title: 'Stats',
@@ -251,6 +259,7 @@ const translations = {
       allowNotifications: 'السماح بتنبيهات المؤقت',
       notNow: 'ليس الآن',
       next: 'التالي',
+      cancel: 'إلغاء',
       goBack: 'رجوع',
       seeAll: 'عرض الإحصائيات',
       openSystemSettings: 'فتح إعدادات النظام',
@@ -366,6 +375,13 @@ const translations = {
       emptyBody: 'سمّ العمل، اضبط المؤقت، واترك تايم رادار يحافظ على الإيقاع ببساطة.',
       emptyAction: 'إنشاء مهمة تركيز',
       openTask: 'فتح %{title}، مهمة تركيز لمدة %{minutes} دقيقة',
+      removeTask: 'إزالة المهمة',
+      removedToast: 'تمت إزالة المهمة',
+      removeUndo: 'تراجع',
+      removeActiveTitle: 'إزالة المهمة النشطة؟',
+      removeActiveBody:
+        'المهمة "%{title}" تتحكم بالمؤقت الحالي. إزالتها ستعيد ضبط المؤقت مع الاحتفاظ بسجل التركيز السابق.',
+      removeActiveConfirm: 'إزالة وإعادة ضبط',
     },
     stats: {
       title: 'الإحصائيات',

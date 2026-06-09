@@ -70,6 +70,10 @@ type SessionRow = {
   status: 'completed' | 'reset';
 };
 
+export type TaskRemovalResult = {
+  activeTimerReset: boolean;
+};
+
 export const defaultSettings: AppSettings = {
   onboardingCompleted: false,
   notificationPermissionPromptCompleted: false,
@@ -175,6 +179,49 @@ export async function updateTask(db: SQLiteDatabase, id: string, input: TaskInpu
       id,
     ]
   );
+}
+
+export async function archiveTask(db: SQLiteDatabase, id: string): Promise<void> {
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `UPDATE tasks
+     SET archived_at = ?,
+         updated_at = ?
+     WHERE id = ? AND archived_at IS NULL`,
+    [now, now, id]
+  );
+}
+
+export async function restoreTask(db: SQLiteDatabase, id: string): Promise<void> {
+  await db.runAsync(
+    `UPDATE tasks
+     SET archived_at = NULL,
+         updated_at = ?
+     WHERE id = ?`,
+    [new Date().toISOString(), id]
+  );
+}
+
+export async function taskHasActiveTimer(db: SQLiteDatabase, id: string): Promise<boolean> {
+  const timer = await getActiveTimer(db);
+
+  return timer?.taskId === id;
+}
+
+export async function removeActiveTask(
+  db: SQLiteDatabase,
+  id: string
+): Promise<TaskRemovalResult> {
+  const activeTimerReset = await taskHasActiveTimer(db, id);
+
+  if (activeTimerReset) {
+    await resetTimer(db);
+  }
+
+  await archiveTask(db, id);
+
+  return { activeTimerReset };
 }
 
 export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {

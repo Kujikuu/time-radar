@@ -62,6 +62,28 @@ test('home and tasks empty states include a clear create-task action', () => {
   assert.match(tasksSource, /tasks\.queueBody\.many/);
 });
 
+test('task removal copy supports swipe removal, undo, and active timer confirmation', () => {
+  const tasksSource = source('app/(tabs)/tasks.tsx');
+
+  assert.equal(i18n.translate('en', 'tasks.removeTask'), 'Remove task');
+  assert.equal(i18n.translate('en', 'tasks.removeUndo'), 'Undo');
+  assert.equal(i18n.translate('en', 'tasks.removedToast'), 'Task removed');
+  assert.equal(
+    i18n.translate('en', 'tasks.removeActiveTitle'),
+    'Remove the active task?'
+  );
+  assert.equal(i18n.translate('ar', 'tasks.removeTask'), 'إزالة المهمة');
+  assert.equal(i18n.translate('ar', 'tasks.removeUndo'), 'تراجع');
+  assert.equal(i18n.translate('ar', 'tasks.removedToast'), 'تمت إزالة المهمة');
+  assert.equal(
+    i18n.translate('ar', 'tasks.removeActiveTitle'),
+    'إزالة المهمة النشطة؟'
+  );
+  assert.match(tasksSource, /t\('tasks\.removedToast'\)/);
+  assert.match(tasksSource, /t\('tasks\.removeUndo'\)/);
+  assert.match(tasksSource, /t\('tasks\.removeActiveTitle'\)/);
+});
+
 test('task form guides and blocks blank task names before submit', () => {
   const taskFormSource = source('src/features/focus/TaskForm.tsx');
 

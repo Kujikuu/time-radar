@@ -37,3 +37,13 @@ test('React 19 context usage uses use and direct Context components', () => {
   assert.match(localeProviderSource, /import \{[\s\S]*\buse\b[\s\S]*\} from 'react'/);
   assert.match(localeProviderSource, /return <LocaleContext value=\{value\}>/);
 });
+
+test('root layout wraps app content in GestureHandlerRootView for native swipe rows', () => {
+  const rootLayoutSource = source('app/_layout.tsx');
+
+  assert.match(
+    rootLayoutSource,
+    /import \{ GestureHandlerRootView \} from 'react-native-gesture-handler'/
+  );
+  assert.match(rootLayoutSource, /<GestureHandlerRootView style=\{styles\.gestureRoot\}>/);
+});

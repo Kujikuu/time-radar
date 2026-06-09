@@ -13,6 +13,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { DATABASE_NAME, migrateDatabase } from '@/src/features/focus/database';
@@ -75,22 +77,30 @@ export default function RootLayout() {
   };
 
   return (
-    <ThemeProvider value={navigationTheme}>
-      <LocaleProvider>
-        <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDatabase}>
-          <LanguagePreferenceSync />
-          <Stack initialRouteName="index">
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="task/new" options={{ headerShown: false }} />
-          </Stack>
-          <StatusBar style="dark" backgroundColor={colors.background} />
-        </SQLiteProvider>
-      </LocaleProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <ThemeProvider value={navigationTheme}>
+        <LocaleProvider>
+          <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDatabase}>
+            <LanguagePreferenceSync />
+            <Stack initialRouteName="index">
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
+              <Stack.Screen name="task/new" options={{ headerShown: false }} />
+            </Stack>
+            <StatusBar style="dark" backgroundColor={colors.background} />
+          </SQLiteProvider>
+        </LocaleProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
+});
 
 function useTimerNotificationObserver() {
   useEffect(() => {

@@ -26,3 +26,23 @@ test('quickStudyTaskInput creates a study sprint from current timer defaults', (
     autoStartBreaks: true,
   });
 });
+
+test('repository exposes archive, restore, and active-task removal APIs', () => {
+  const repositorySource = require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'src/features/focus/repository.ts'),
+    'utf8'
+  );
+  const hooksSource = require('node:fs').readFileSync(
+    require('node:path').join(__dirname, '..', 'src/features/focus/hooks.ts'),
+    'utf8'
+  );
+
+  assert.match(repositorySource, /export async function archiveTask/);
+  assert.match(repositorySource, /archived_at = \?/);
+  assert.match(repositorySource, /export async function restoreTask/);
+  assert.match(repositorySource, /archived_at = NULL/);
+  assert.match(repositorySource, /export async function removeActiveTask/);
+  assert.match(repositorySource, /await resetTimer\(db\)/);
+  assert.match(hooksSource, /export function useTaskRemoval/);
+  assert.match(hooksSource, /cancelTimerNotifications\(\)/);
+});

@@ -64,6 +64,31 @@ test('FocusTaskCard exposes a descriptive task action label', () => {
   );
 });
 
+test('SwipeableTaskRow exposes a native swipe remove action and accessible fallback', () => {
+  const swipeableTaskRowPath = path.join(
+    __dirname,
+    '..',
+    'src/features/focus/SwipeableTaskRow.tsx'
+  );
+
+  assert.ok(fs.existsSync(swipeableTaskRowPath), 'SwipeableTaskRow.tsx should exist');
+
+  const swipeableTaskRowSource = fs.readFileSync(swipeableTaskRowPath, 'utf8');
+
+  assert.match(swipeableTaskRowSource, /ReanimatedSwipeable/);
+  assert.match(
+    swipeableTaskRowSource,
+    /renderLeftActions=\{direction === 'rtl' \? renderRemoveAction : undefined\}/
+  );
+  assert.match(
+    swipeableTaskRowSource,
+    /renderRightActions=\{direction === 'rtl' \? undefined : renderRemoveAction\}/
+  );
+  assert.match(swipeableTaskRowSource, /accessibilityActions=\{\[\{ name: 'remove'/);
+  assert.match(swipeableTaskRowSource, /onAccessibilityAction=\{handleAccessibilityAction\}/);
+  assert.match(swipeableTaskRowSource, /t\('tasks\.removeTask'/);
+});
+
 test('TaskForm exposes form input labels', () => {
   const taskFormSource = source('src/features/focus/TaskForm.tsx');
   const sharedControlsSource = source('src/components/ControlRows.tsx');

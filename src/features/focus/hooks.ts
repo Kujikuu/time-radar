@@ -18,6 +18,7 @@ import {
   TimerNotificationPermissionStatus,
 } from './notifications';
 import {
+  archiveTask,
   completeTimerPhase,
   createTask,
   defaultSettings,
@@ -27,9 +28,12 @@ import {
   getTask,
   getTasks,
   pauseTimer,
+  removeActiveTask,
   resetTimer,
   resumeTimer,
+  restoreTask,
   startTimer,
+  taskHasActiveTimer,
   updateSettings,
   updateTask,
 } from './repository';
@@ -121,6 +125,48 @@ export function useCreateTask() {
     },
     [db]
   );
+}
+
+export function useTaskRemoval() {
+  const db = useSQLiteContext();
+
+  const archive = useCallback(
+    async (taskId: string) => {
+      await archiveTask(db, taskId);
+      triggerFocusHaptic(await getSettings(db), 'selection');
+    },
+    [db]
+  );
+
+  const remove = useCallback(
+    async (taskId: string) => {
+      const result = await removeActiveTask(db, taskId);
+
+      if (result.activeTimerReset) {
+        await cancelTimerNotifications();
+      }
+
+      triggerFocusHaptic(await getSettings(db), result.activeTimerReset ? 'reset' : 'selection');
+
+      return result;
+    },
+    [db]
+  );
+
+  const restore = useCallback(
+    async (taskId: string) => {
+      await restoreTask(db, taskId);
+      triggerFocusHaptic(await getSettings(db), 'selection');
+    },
+    [db]
+  );
+
+  const isTaskActive = useCallback(
+    async (taskId: string) => taskHasActiveTimer(db, taskId),
+    [db]
+  );
+
+  return { archive, remove, restore, isTaskActive };
 }
 
 export function useSettings() {

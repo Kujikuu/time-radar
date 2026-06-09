@@ -11,9 +11,15 @@ import { FocusTask } from './types';
 
 type FocusTaskCardProps = {
   task: FocusTask;
+  accessibilityActions?: { name: string; label?: string }[];
+  onAccessibilityAction?: (event: { nativeEvent: { actionName: string } }) => void;
 };
 
-export function FocusTaskCard({ task }: FocusTaskCardProps) {
+export function FocusTaskCard({
+  task,
+  accessibilityActions,
+  onAccessibilityAction,
+}: FocusTaskCardProps) {
   const { direction, formatDuration, nativeDirection, t } = useTranslation();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
@@ -23,7 +29,9 @@ export function FocusTaskCard({ task }: FocusTaskCardProps) {
       accessibilityLabel={t('tasks.openTask', {
         values: { title: task.title, minutes: task.focusMinutes },
       })}
+      accessibilityActions={accessibilityActions}
       accessibilityRole="button"
+      onAccessibilityAction={onAccessibilityAction}
       onPress={() => router.push(`/session/${task.id}`)}
       style={({ pressed }) => pressed && styles.pressed}>
       <SoftCard style={[styles.card, contentRow]}>

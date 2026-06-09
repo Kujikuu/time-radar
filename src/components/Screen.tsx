@@ -1,6 +1,6 @@
 import { usePathname } from 'expo-router';
 import { PropsWithChildren, useEffect, useRef } from 'react';
-import { Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useLocale } from '@/src/i18n/LocaleProvider';
@@ -8,7 +8,7 @@ import { colors } from '@/src/theme';
 
 type ScreenProps = PropsWithChildren<{
   scroll?: boolean;
-  contentStyle?: ViewStyle;
+  contentStyle?: StyleProp<ViewStyle>;
 }>;
 
 export function Screen({ children, scroll = true, contentStyle }: ScreenProps) {
