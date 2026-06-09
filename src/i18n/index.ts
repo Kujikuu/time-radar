@@ -75,6 +75,10 @@ const translations = {
         resume: 'Resume',
         reset: 'Reset timer',
         complete: 'Finish this phase',
+        openFullscreen: 'Open fullscreen timer',
+        openFullscreenHint: 'Shows only the timer in landscape mode.',
+        exitFullscreen: 'Exit fullscreen timer',
+        exitFullscreenHint: 'Double tap to return to the normal app view.',
       },
     },
     metrics: {
@@ -286,6 +290,10 @@ const translations = {
         resume: 'استئناف',
         reset: 'إعادة ضبط المؤقت',
         complete: 'إنهاء هذه المرحلة',
+        openFullscreen: 'فتح المؤقت بملء الشاشة',
+        openFullscreenHint: 'يعرض المؤقت فقط بالوضع العرضي.',
+        exitFullscreen: 'إغلاق عرض المؤقت الكامل',
+        exitFullscreenHint: 'اضغط مرتين للعودة إلى واجهة التطبيق الطبيعية.',
       },
     },
     metrics: {

@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { DATABASE_NAME, migrateDatabase } from '@/src/features/focus/database';
+import { lockPortraitOrientation } from '@/src/features/focus/orientation';
 import { LanguagePreferenceSync } from '@/src/i18n/LanguagePreferenceSync';
 import { LocaleProvider } from '@/src/i18n/LocaleProvider';
 import { colors } from '@/src/theme';
@@ -46,6 +47,10 @@ export default function RootLayout() {
   });
 
   useTimerNotificationObserver();
+
+  useEffect(() => {
+    void lockPortraitOrientation();
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {

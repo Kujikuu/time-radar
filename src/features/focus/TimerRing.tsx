@@ -16,26 +16,40 @@ type TimerRingProps = {
   label: string;
   time: string;
   progress?: number;
+  presentation?: 'default' | 'immersive';
   primaryActionLabel?: string;
   primaryActionState?: 'start' | 'pause' | 'resume';
   onPrimaryAction?: () => void;
   onReset?: () => void;
   onComplete?: () => void;
+  onSurfacePress?: () => void;
+  surfaceAccessibilityLabel?: string;
+  surfaceAccessibilityHint?: string;
+  showSecondaryActions?: boolean;
 };
 
 export function TimerRing({
   label,
   time,
   progress = 0,
+  presentation = 'default',
   primaryActionLabel = 'Start',
   primaryActionState = 'start',
   onPrimaryAction,
   onReset,
   onComplete,
+  onSurfacePress,
+  surfaceAccessibilityLabel,
+  surfaceAccessibilityHint,
+  showSecondaryActions = true,
 }: TimerRingProps) {
   const { direction, nativeDirection, t } = useTranslation();
-  const { width } = useWindowDimensions();
-  const size = Math.min(300, Math.max(248, width - 64));
+  const { height, width } = useWindowDimensions();
+  const isImmersive = presentation === 'immersive';
+  const availableSize = isImmersive ? Math.min(width, height) - 56 : width - 64;
+  const size = isImmersive
+    ? Math.min(380, Math.max(286, availableSize))
+    : Math.min(300, Math.max(248, availableSize));
   const strokeWidth = 14;
   const markerRadius = 8.5;
   const markerStrokeWidth = 4.5;
@@ -51,12 +65,13 @@ export function TimerRing({
   const trackOpacity = 0.18;
   const isPaused = primaryActionState === 'resume';
   const hasActiveTimer = Boolean(onReset || onComplete);
+  const canShowSecondaryActions = showSecondaryActions && hasActiveTimer;
   const displayAction = primaryActionLabel;
   const PrimaryIcon = primaryActionState === 'pause' ? IconPlayerPause : IconPlayerPlay;
   const actionDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
-    <View style={[styles.wrapper, { width: size, height: size }]}>
+    <View style={[styles.wrapper, isImmersive && styles.immersiveWrapper, { width: size, height: size }]}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <Defs>
           <SvgLinearGradient id="timerAccent" x1="1" y1="0" x2="0" y2="1">
@@ -105,30 +120,42 @@ export function TimerRing({
           opacity={0.82}
         />
       </Svg>
-      <View style={[styles.center, { width: size - 58 }]}>
-        <AppText style={[styles.label, isPaused && styles.pausedLabel]}>{label}</AppText>
-        <AppText style={styles.time}>{time}</AppText>
+      {onSurfacePress ? (
+        <Pressable
+          accessibilityLabel={surfaceAccessibilityLabel}
+          accessibilityHint={surfaceAccessibilityHint}
+          accessibilityRole="button"
+          onPress={onSurfacePress}
+          style={({ pressed }) => [styles.surfacePress, pressed && styles.surfacePressed]}
+        />
+      ) : null}
+      <View pointerEvents="box-none" style={[styles.center, { width: size - 58 }]}>
+        <AppText style={[styles.label, isImmersive && styles.immersiveLabel, isPaused && styles.pausedLabel]}>
+          {label}
+        </AppText>
+        <AppText style={[styles.time, isImmersive && styles.immersiveTime]}>{time}</AppText>
         <Pressable
           accessibilityLabel={displayAction}
           accessibilityRole="button"
           onPress={onPrimaryAction}
           style={({ pressed }) => [
             styles.startButton,
+            isImmersive && styles.immersiveStartButton,
             actionDirection,
             isPaused && styles.resumeButton,
             pressed && styles.pressed,
           ]}>
-          <AppText style={[styles.startLabel, isPaused && styles.resumeLabel]}>
+          <AppText style={[styles.startLabel, isImmersive && styles.immersiveStartLabel, isPaused && styles.resumeLabel]}>
             {displayAction}
           </AppText>
           <AppIcon
             icon={PrimaryIcon}
             color={isPaused ? colors.accentDark : colors.white}
-            size={16}
+            size={isImmersive ? 18 : 16}
             strokeWidth={2.4}
           />
         </Pressable>
-        {hasActiveTimer ? (
+        {canShowSecondaryActions ? (
           <View style={[styles.secondaryActions, actionDirection]}>
             {onReset ? (
               <Pressable
@@ -163,6 +190,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  immersiveWrapper: {
+    maxWidth: '100%',
+  },
+  surfacePress: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 999,
+  },
+  surfacePressed: {
+    opacity: 0.96,
+  },
   center: {
     position: 'absolute',
     alignItems: 'center',
@@ -175,6 +212,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
   },
+  immersiveLabel: {
+    fontSize: typography.size.bodyLarge,
+    marginBottom: 10,
+  },
   pausedLabel: {
     color: colors.accentDark,
   },
@@ -185,6 +226,11 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     lineHeight: typography.lineHeight.timer,
     marginBottom: 16,
+  },
+  immersiveTime: {
+    fontSize: typography.size.timerImmersive,
+    lineHeight: typography.lineHeight.timerImmersive,
+    marginBottom: 18,
   },
   startButton: {
     maxWidth: '100%',
@@ -198,6 +244,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
     borderColor: colors.accentDark,
     borderWidth: StyleSheet.hairlineWidth,
+  },
+  immersiveStartButton: {
+    minWidth: 148,
+    minHeight: 48,
+    paddingHorizontal: 20,
   },
   resumeButton: {
     backgroundColor: colors.surface,
@@ -213,6 +264,9 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
     lineHeight: typography.lineHeight.body,
     textAlign: 'center',
+  },
+  immersiveStartLabel: {
+    fontSize: typography.size.body,
   },
   resumeLabel: {
     color: colors.accentDark,

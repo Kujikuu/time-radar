@@ -29,6 +29,32 @@ test('TimerRing labels timer actions for assistive technology', () => {
   assert.match(timerRingSource, /accessibilityLabel=\{t\('timer\.actions\.complete'\)\}/);
 });
 
+test('TimerRing exposes an optional accessible surface press without forcing secondary actions', () => {
+  const timerRingSource = source('src/features/focus/TimerRing.tsx');
+
+  assert.match(timerRingSource, /onSurfacePress\?: \(\) => void/);
+  assert.match(timerRingSource, /showSecondaryActions\?: boolean/);
+  assert.match(timerRingSource, /accessibilityLabel=\{surfaceAccessibilityLabel\}/);
+  assert.match(timerRingSource, /showSecondaryActions && hasActiveTimer/);
+});
+
+test('ImmersiveTimerView keeps the timer awake and exits through double tap', () => {
+  const immersiveTimerPath = path.join(
+    __dirname,
+    '..',
+    'src/features/focus/ImmersiveTimerView.tsx'
+  );
+
+  assert.ok(fs.existsSync(immersiveTimerPath), 'ImmersiveTimerView.tsx should exist');
+
+  const immersiveTimerSource = fs.readFileSync(immersiveTimerPath, 'utf8');
+
+  assert.match(immersiveTimerSource, /useKeepAwake\('time-radar-immersive-timer'\)/);
+  assert.match(immersiveTimerSource, /<StatusBar hidden/);
+  assert.match(immersiveTimerSource, /DOUBLE_TAP_THRESHOLD_MS = 320/);
+  assert.match(immersiveTimerSource, /showSecondaryActions=\{false\}/);
+});
+
 test('FocusTaskCard exposes a descriptive task action label', () => {
   const focusTaskCardSource = source('src/features/focus/FocusTaskCard.tsx');
 

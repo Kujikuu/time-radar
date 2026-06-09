@@ -63,6 +63,7 @@ export const typography = {
     metric: 32,
     stat: 34,
     timer: 44,
+    timerImmersive: 58,
   },
   lineHeight: {
     tight: 16,
@@ -74,6 +75,7 @@ export const typography = {
     title: 24,
     hero: 26,
     timer: 52,
+    timerImmersive: 66,
   },
   weight: {
     regular: '400',
