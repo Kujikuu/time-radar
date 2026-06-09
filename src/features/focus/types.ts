@@ -54,6 +54,8 @@ export type AppSettings = {
   timerWarningEnabled: boolean;
   timerWarningSeconds: number;
   hapticsEnabled: boolean;
+  supporterPurchased: boolean;
+  supporterThemeEnabled: boolean;
 };
 
 export type ActiveTimer = {

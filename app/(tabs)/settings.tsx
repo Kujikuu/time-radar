@@ -1,5 +1,6 @@
 import { IconLanguage } from '@tabler/icons-react-native';
-import { Linking, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import {
   AppText,
@@ -13,6 +14,7 @@ import {
 } from '@/src/components';
 import { triggerFocusHaptic } from '@/src/features/focus/haptics';
 import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
+import { useSupporterPurchase } from '@/src/features/support/purchase';
 import {
   languageTogglePreferenceForLocale,
   rowDirectionForTextDirection,
@@ -22,6 +24,7 @@ import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function SettingsScreen() {
+  const [supportMessageKey, setSupportMessageKey] = useState<string | undefined>();
   const { settings, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
   const { direction, locale, nativeDirection, setLanguagePreference, t } = useTranslation();
@@ -33,6 +36,14 @@ export default function SettingsScreen() {
     locale === 'ar' ? t('settings.switchToEnglish') : t('settings.switchToArabic');
   const tileText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+  const activateSupporter = useCallback(() => {
+    void save({ supporterPurchased: true, supporterThemeEnabled: true });
+  }, [save]);
+  const supporterPurchase = useSupporterPurchase({
+    locallyPurchased: settings.supporterPurchased,
+    onPurchased: activateSupporter,
+  });
+  const supporterMessageKey = supportMessageKey ?? supporterPurchase.status.messageKey;
 
   const enableNotifications = async () => {
     const status =
@@ -265,6 +276,72 @@ export default function SettingsScreen() {
         />
       </SettingsSection>
 
+      <SettingsSection
+        title={t('support.title')}
+        badge={
+          settings.supporterPurchased ? t('support.badge') : supporterPurchase.status.priceLabel
+        }>
+        <View style={[styles.supportPanel, contentRow]}>
+          <View style={styles.permissionCopy}>
+            <AppText style={[styles.permissionTitle, styles.tileText, tileText]}>
+              {settings.supporterPurchased ? t('support.purchasedTitle') : t('support.freeForever')}
+            </AppText>
+            <AppText style={[styles.helper, styles.tileText, tileText]}>
+              {settings.supporterPurchased ? t('support.purchasedBody') : t('support.body')}
+            </AppText>
+          </View>
+          {!settings.supporterPurchased ? (
+            <PrimaryButton
+              style={styles.supportButton}
+              disabled={supporterPurchase.status.loading}
+              onPress={async () => {
+                const result = await supporterPurchase.buy();
+                setSupportMessageKey(result.messageKey);
+
+                if (result.purchased) {
+                  activateSupporter();
+                }
+              }}>
+              {t('support.purchaseAction')}
+            </PrimaryButton>
+          ) : null}
+        </View>
+        {supporterMessageKey ? (
+          <AppText style={[styles.supportStatus, styles.tileText, tileText]}>
+            {t(supporterMessageKey)}
+          </AppText>
+        ) : null}
+        <Divider />
+        <Pressable
+          accessibilityLabel={t('support.restore')}
+          accessibilityRole="button"
+          onPress={async () => {
+            const result = await supporterPurchase.restore();
+            setSupportMessageKey(result.messageKey);
+
+            if (result.purchased) {
+              activateSupporter();
+            }
+          }}
+          style={({ pressed }) => [styles.restoreButton, pressed && styles.pressed]}>
+          <AppText style={styles.restoreText}>{t('support.restore')}</AppText>
+        </Pressable>
+        {settings.supporterPurchased ? (
+          <>
+            <Divider />
+            <SwitchRow
+              label={t('support.theme')}
+              helper={t('support.themeHelper')}
+              value={settings.supporterThemeEnabled}
+              onValueChange={(supporterThemeEnabled) => {
+                triggerFocusHaptic(settings, 'selection');
+                save({ supporterThemeEnabled });
+              }}
+            />
+          </>
+        ) : null}
+      </SettingsSection>
+
     </Screen>
   );
 }
@@ -324,5 +401,37 @@ const styles = StyleSheet.create({
     minHeight: 42,
     minWidth: 180,
     paddingHorizontal: spacing.md,
+  },
+  supportPanel: {
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  supportButton: {
+    minHeight: 42,
+    minWidth: 142,
+    paddingHorizontal: spacing.md,
+  },
+  supportStatus: {
+    color: colors.textMuted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.helper,
+    paddingBottom: spacing.sm,
+  },
+  restoreButton: {
+    minHeight: 44,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+  },
+  restoreText: {
+    color: colors.accentDark,
+    fontSize: typography.size.caption,
+    fontWeight: typography.weight.bold,
+  },
+  pressed: {
+    opacity: 0.76,
   },
 });

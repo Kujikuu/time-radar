@@ -92,6 +92,8 @@ export const defaultSettings: AppSettings = {
   timerWarningEnabled: false,
   timerWarningSeconds: 60,
   hapticsEnabled: true,
+  supporterPurchased: false,
+  supporterThemeEnabled: false,
 };
 
 export async function getTasks(db: SQLiteDatabase): Promise<FocusTask[]> {
@@ -254,6 +256,8 @@ export async function getSettings(db: SQLiteDatabase): Promise<AppSettings> {
       defaultSettings.timerWarningSeconds
     ),
     hapticsEnabled: settings.get('haptics_enabled') !== 'false',
+    supporterPurchased: settings.get('supporter_purchased') === 'true',
+    supporterThemeEnabled: settings.get('supporter_theme_enabled') === 'true',
   };
 }
 
@@ -332,6 +336,12 @@ export async function updateSettings(
   }
   if (values.hapticsEnabled !== undefined) {
     entries.push(['haptics_enabled', String(values.hapticsEnabled)]);
+  }
+  if (values.supporterPurchased !== undefined) {
+    entries.push(['supporter_purchased', String(values.supporterPurchased)]);
+  }
+  if (values.supporterThemeEnabled !== undefined) {
+    entries.push(['supporter_theme_enabled', String(values.supporterThemeEnabled)]);
   }
 
   for (const [key, value] of entries) {

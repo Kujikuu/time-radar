@@ -1,12 +1,13 @@
 import { IconTrendingUp } from '@tabler/icons-react-native';
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, Screen, SegmentedControl, SoftCard } from '@/src/components';
+import { AppIcon, AppText, PrimaryButton, Screen, SegmentedControl, SoftCard } from '@/src/components';
 import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
-import { useStats } from '@/src/features/focus/hooks';
+import { useSettings, useStats } from '@/src/features/focus/hooks';
 import { StatsRange } from '@/src/features/focus/types';
+import { useSupporterPurchase } from '@/src/features/support/purchase';
 import {
   rowDirectionForTextDirection,
   statsRangeLabel,
@@ -18,10 +19,20 @@ import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function StatsScreen() {
   const [range, setRange] = useState<StatsRange>('Day');
+  const [supportMessageKey, setSupportMessageKey] = useState<string | undefined>();
   const { direction, formatDate, formatDuration, locale, nativeDirection, t } = useTranslation();
   const { summary } = useStats(range, locale);
+  const { settings, save } = useSettings();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+  const activateSupporter = useCallback(() => {
+    void save({ supporterPurchased: true, supporterThemeEnabled: true });
+  }, [save]);
+  const supporterPurchase = useSupporterPurchase({
+    locallyPurchased: settings.supporterPurchased,
+    onPurchased: activateSupporter,
+  });
+  const supporterMessageKey = supportMessageKey ?? supporterPurchase.status.messageKey;
   const summaryLabel =
     range === 'Day'
       ? `${t('home.today')}, ${formatDate(new Date(), { month: 'short', day: 'numeric' })}`
@@ -70,15 +81,61 @@ export default function StatsScreen() {
         <DistributionDonut data={summary.distribution} />
       </View>
 
-      <SoftCard style={styles.proCard}>
-        <AppText style={[styles.proEyebrow, styles.contentText, contentText]}>
-          {t('pro.eyebrow')}
+      <SoftCard
+        style={
+          settings.supporterPurchased && settings.supporterThemeEnabled
+            ? [styles.supportCard, styles.supporterActiveCard]
+            : styles.supportCard
+        }>
+        <AppText style={[styles.supportEyebrow, styles.contentText, contentText]}>
+          {settings.supporterPurchased ? t('support.freeForever') : t('support.eyebrow')}
         </AppText>
-        <AppText style={[styles.proTitle, styles.contentText, contentText]}>{t('pro.title')}</AppText>
-        <AppText style={[styles.proBody, styles.contentText, contentText]}>{t('pro.body')}</AppText>
-        <View style={[styles.proBadge, contentRow]}>
-          <AppText style={styles.proBadgeText}>{t('pro.action')}</AppText>
-        </View>
+        <AppText style={[styles.supportTitle, styles.contentText, contentText]}>
+          {settings.supporterPurchased ? t('support.purchasedTitle') : t('support.title')}
+        </AppText>
+        <AppText style={[styles.supportBody, styles.contentText, contentText]}>
+          {settings.supporterPurchased ? t('support.purchasedBody') : t('support.body')}
+        </AppText>
+        {settings.supporterPurchased ? (
+          <View style={[styles.supportBadge, contentRow]}>
+            <AppText style={styles.supportBadgeText}>{t('support.badge')}</AppText>
+          </View>
+        ) : (
+          <View style={[styles.supportActions, contentRow]}>
+            <PrimaryButton
+              style={styles.supportButton}
+              disabled={supporterPurchase.status.loading}
+              onPress={async () => {
+                const result = await supporterPurchase.buy();
+                setSupportMessageKey(result.messageKey);
+
+                if (result.purchased) {
+                  activateSupporter();
+                }
+              }}>
+              {`${t('support.purchaseAction')} ${supporterPurchase.status.priceLabel}`}
+            </PrimaryButton>
+            <Pressable
+              accessibilityLabel={t('support.restore')}
+              accessibilityRole="button"
+              onPress={async () => {
+                const result = await supporterPurchase.restore();
+                setSupportMessageKey(result.messageKey);
+
+                if (result.purchased) {
+                  activateSupporter();
+                }
+              }}
+              style={({ pressed }) => [styles.restoreButton, pressed && styles.pressed]}>
+              <AppText style={styles.restoreText}>{t('support.restore')}</AppText>
+            </Pressable>
+          </View>
+        )}
+        {supporterMessageKey ? (
+          <AppText style={[styles.supportStatus, styles.contentText, contentText]}>
+            {t(supporterMessageKey)}
+          </AppText>
+        ) : null}
       </SoftCard>
     </Screen>
   );
@@ -159,28 +216,54 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
   },
-  proCard: {
+  supportCard: {
     gap: spacing.sm,
     padding: spacing.lg,
     backgroundColor: colors.backgroundWarm,
   },
-  proEyebrow: {
+  supporterActiveCard: {
+    borderColor: colors.accentSoft,
+    borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: colors.supporterSurface,
+  },
+  supportEyebrow: {
     color: colors.accentDark,
     fontSize: typography.size.eyebrow,
     fontWeight: typography.weight.extraBold,
     textTransform: 'uppercase',
   },
-  proTitle: {
+  supportTitle: {
     color: colors.text,
     fontSize: typography.size.cardTitle,
     fontWeight: typography.weight.bold,
   },
-  proBody: {
+  supportBody: {
     color: colors.textMuted,
     fontSize: typography.size.caption,
     lineHeight: typography.lineHeight.paragraph,
   },
-  proBadge: {
+  supportActions: {
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  supportButton: {
+    minHeight: 44,
+    paddingHorizontal: spacing.md,
+  },
+  restoreButton: {
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+  },
+  restoreText: {
+    color: colors.accentDark,
+    fontSize: typography.size.caption,
+    fontWeight: typography.weight.bold,
+  },
+  supportBadge: {
     minHeight: 38,
     alignItems: 'center',
     alignSelf: 'flex-start',
@@ -190,9 +273,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     backgroundColor: colors.surfacePeach,
   },
-  proBadgeText: {
+  supportBadgeText: {
     color: colors.accentDark,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.bold,
+  },
+  supportStatus: {
+    color: colors.textMuted,
+    fontSize: typography.size.caption,
+    lineHeight: typography.lineHeight.helper,
+  },
+  pressed: {
+    opacity: 0.76,
   },
 });

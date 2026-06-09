@@ -6,6 +6,7 @@ export const colors = {
   surface: '#FFFFFF',
   surfaceMuted: '#F7F1EC',
   surfacePeach: '#FFF0EA',
+  supporterSurface: '#FFF7EC',
   border: '#EFE5DC',
   borderStrong: '#E8D9CF',
   text: '#1F1A17',

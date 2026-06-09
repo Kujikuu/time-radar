@@ -98,43 +98,64 @@ test('task form guides and blocks blank task names before submit', () => {
   assert.match(taskFormSource, /onPress=\{handleSubmit\}/);
 });
 
-test('student positioning and pro copy sell progress without blocking the timer', () => {
+test('professional positioning and support copy keep TimeRadar free forever', () => {
   const homeSource = source('app/(tabs)/index.tsx');
   const statsSource = source('app/(tabs)/stats.tsx');
 
-  assert.equal(i18n.translate('en', 'home.studentPromise'), 'Study focus, without the noise.');
-  assert.equal(i18n.translate('ar', 'home.studentPromise'), 'تركيز دراسي بلا تشتيت.');
+  assert.equal(i18n.translate('en', 'home.promise'), 'Professional focus, without the noise.');
+  assert.equal(i18n.translate('ar', 'home.promise'), 'تركيز مهني بلا تشتيت.');
   assert.equal(i18n.translate('en', 'radar.title'), 'Today’s radar signal');
   assert.equal(i18n.translate('ar', 'radar.status.strong'), 'إشارة قوية');
   assert.equal(
-    i18n.translate('en', 'pro.body'),
-    'Keep the timer free. Upgrade when deeper history, custom study presets, and shareable weekly progress become useful.'
+    i18n.translate('en', 'support.body'),
+    'TimeRadar stays free forever. The optional $1.99 Supporter Pack supports the developer and unlocks a warmer visual theme.'
+  );
+  assert.equal(
+    i18n.translate('ar', 'support.body'),
+    'يبقى تايم رادار مجانيًا دائمًا. حزمة الداعم الاختيارية بقيمة 1.99 دولار تدعم المطوّر وتفتح مظهرًا بصريًا أدفأ.'
   );
   assert.match(homeSource, /buildRadarSignal\(summary\.focusMinutes\)/);
-  assert.match(homeSource, /t\('home\.studentPromise'\)/);
+  assert.match(homeSource, /t\('home\.promise'\)/);
   assert.match(homeSource, /t\(`radar\.status\.\$\{radarSignal\.status\}`\)/);
-  assert.match(statsSource, /t\('pro\.title'\)/);
-  assert.match(statsSource, /t\('pro\.body'\)/);
+  assert.match(statsSource, /t\('support\.title'\)/);
+  assert.match(statsSource, /t\('support\.body'\)/);
+  assert.doesNotMatch(`${homeSource}\n${statsSource}`, /studentPromise|TimeRadar Pro|pro\./);
 });
 
-test('home can create and start a quick study sprint when no task exists', () => {
+test('home can create and start a quick professional focus block when no task exists', () => {
   const homeSource = source('app/(tabs)/index.tsx');
 
-  assert.equal(i18n.translate('en', 'quickStart.title'), 'Quick Study Sprint');
-  assert.equal(i18n.translate('ar', 'quickStart.title'), 'جلسة دراسة سريعة');
+  assert.equal(i18n.translate('en', 'quickStart.title'), 'Quick Focus Block');
+  assert.equal(i18n.translate('ar', 'quickStart.title'), 'جلسة تركيز سريعة');
   assert.match(homeSource, /useCreateTask\(\)/);
-  assert.match(homeSource, /quickStudyTaskInput\(settings, t\('quickStart\.title'\)\)/);
+  assert.match(homeSource, /quickFocusTaskInput\(settings, t\('quickStart\.title'\)\)/);
   assert.match(homeSource, /await start\(taskId\)/);
 });
 
-test('store launch metadata is Arabic-first and student-focused', () => {
+test('store launch metadata is Arabic-first, professional, and free forever', () => {
   const listingSource = source('docs/store-listing.md');
 
   assert.match(listingSource, /# TimeRadar Store Listing/);
   assert.match(listingSource, /## Arabic/);
-  assert.match(listingSource, /تركيز دراسي بلا تشتيت/);
+  assert.match(listingSource, /تركيز مهني بلا تشتيت/);
   assert.match(listingSource, /## English/);
-  assert.match(listingSource, /Study focus, without the noise/);
+  assert.match(listingSource, /Professional focus, without the noise/);
+  assert.match(listingSource, /free forever/i);
+  assert.match(listingSource, /Supporter Pack/);
   assert.match(listingSource, /Screenshot Set/);
-  assert.match(listingSource, /Saudi students/);
+  assert.match(listingSource, /Saudi professionals/);
+  assert.doesNotMatch(listingSource, /Saudi students|student-focused|study sprint/i);
+});
+
+test('student-only positioning is removed while retaining the Study category label', () => {
+  const visibleSources = [
+    source('src/i18n/index.ts'),
+    source('app/(tabs)/index.tsx'),
+    source('app/(tabs)/stats.tsx'),
+    source('docs/store-listing.md'),
+  ].join('\n');
+
+  assert.doesNotMatch(visibleSources, /student|students|studentPromise|study sprint/i);
+  assert.equal(i18n.translate('en', 'categories.Study'), 'Study');
+  assert.equal(i18n.translate('ar', 'categories.Study'), 'دراسة');
 });
