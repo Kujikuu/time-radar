@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: radius.lg,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surfacePeach,

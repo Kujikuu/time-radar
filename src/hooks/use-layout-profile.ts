@@ -1,4 +1,4 @@
-import { useWindowDimensions, Platform } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
 export type LayoutProfile = 'compact' | 'regular' | 'wide';
 
@@ -27,6 +27,6 @@ export function useLayoutProfile() {
     isCompact: profile === 'compact',
     isRegular: profile === 'regular',
     isWide: profile === 'wide',
-    isTablet: Platform.OS === 'ios' ? Platform.isPad : width >= COMPACT_MAX,
+    isTablet: width >= COMPACT_MAX,
   };
 }

@@ -27,6 +27,8 @@ test('TimerRing labels timer actions for assistive technology', () => {
   assert.match(timerRingSource, /accessibilityLabel=\{displayAction\}/);
   assert.match(timerRingSource, /accessibilityLabel=\{t\('timer\.actions\.reset'\)\}/);
   assert.match(timerRingSource, /accessibilityLabel=\{t\('timer\.actions\.complete'\)\}/);
+  assert.match(timerRingSource, /iconAction:\s*\{[\s\S]*width:\s*44/);
+  assert.match(timerRingSource, /iconAction:\s*\{[\s\S]*height:\s*44/);
 });
 
 test('TimerRing exposes an optional accessible surface press without forcing secondary actions', () => {
@@ -35,15 +37,19 @@ test('TimerRing exposes an optional accessible surface press without forcing sec
   assert.match(timerRingSource, /onSurfacePress\?: \(\) => void/);
   assert.match(timerRingSource, /showSecondaryActions\?: boolean/);
   assert.match(timerRingSource, /accessibilityLabel=\{surfaceAccessibilityLabel\}/);
-  assert.match(timerRingSource, /<AppText pointerEvents="none" style=\{\[styles\.label/);
-  assert.match(timerRingSource, /<AppText pointerEvents="none" style=\{\[styles\.time/);
+  assert.match(timerRingSource, /style=\{\[styles\.label[\s\S]*styles\.nonInteractive/);
+  assert.match(timerRingSource, /style=\{\[styles\.time[\s\S]*styles\.nonInteractive/);
   assert.match(timerRingSource, /showSecondaryActions && hasActiveTimer/);
 });
 
 test('TimerRing stays within narrow tablet split columns', () => {
   const timerRingSource = source('src/features/focus/TimerRing.tsx');
 
-  assert.match(timerRingSource, /const viewportWidth = Platform\.OS === 'web' && typeof window !== 'undefined' \? window\.innerWidth : width/);
+  assert.doesNotMatch(timerRingSource, /Platform/);
+  assert.match(
+    timerRingSource,
+    /const viewportWidth =\s*process\.env\.EXPO_OS === 'web' && typeof window !== 'undefined' \? window\.innerWidth : width/
+  );
   assert.match(timerRingSource, /const defaultCap = isWide && viewportWidth >= 1100 \? 420 : 300/);
 });
 
@@ -90,18 +96,31 @@ test('SwipeableTaskRow exposes a leading-side swipe remove action and accessible
   assert.match(swipeableTaskRowSource, /direction === 'rtl' \? -SWIPE_ACTION_WIDTH : SWIPE_ACTION_WIDTH/);
   assert.match(swipeableTaskRowSource, /direction === 'rtl' \? styles\.actionOnRight : styles\.actionOnLeft/);
   assert.match(swipeableTaskRowSource, /translateX\.value = withSpring/);
+  assert.match(swipeableTaskRowSource, /runOnJS\(setActionOpen\)\(shouldOpen\)/);
+  assert.match(swipeableTaskRowSource, /setActionOpen\(false\)/);
+  assert.match(swipeableTaskRowSource, /aria-hidden/);
+  assert.match(swipeableTaskRowSource, /accessibilityElementsHidden/);
+  assert.match(swipeableTaskRowSource, /importantForAccessibility="no-hide-descendants"/);
+  assert.match(swipeableTaskRowSource, /focusable=\{false\}/);
+  assert.match(swipeableTaskRowSource, /disabled=\{!isActionOpen\}/);
+  assert.match(swipeableTaskRowSource, /tabIndex=\{-1\}/);
   assert.match(swipeableTaskRowSource, /accessibilityActions=\{\[\{ name: 'remove'/);
   assert.match(swipeableTaskRowSource, /onAccessibilityAction=\{handleAccessibilityAction\}/);
   assert.match(swipeableTaskRowSource, /t\('tasks\.removeTask'/);
+  assert.doesNotMatch(swipeableTaskRowSource, /accessibilityLabel=\{t\('tasks\.removeTask'\)\}/);
 });
 
 test('Task removal undo toast expires and cleans up its timer', () => {
   const tasksSource = source('src/features/focus/TasksListScreen.tsx');
+  const undoStateIndex = tasksSource.indexOf('setRemovedTask(task);');
+  const removeTaskIndex = tasksSource.indexOf('await remove(task.id);');
 
   assert.match(tasksSource, /TASK_REMOVAL_UNDO_TIMEOUT_MS = 4000/);
   assert.match(tasksSource, /useRef<ReturnType<typeof setTimeout> \| null>\(null\)/);
   assert.match(tasksSource, /setTimeout\(\(\) => \{\s*setRemovedTask\(null\);/s);
   assert.match(tasksSource, /clearTimeout\(undoDismissTimerRef\.current\)/);
+  assert.ok(undoStateIndex !== -1 && undoStateIndex < removeTaskIndex);
+  assert.match(tasksSource, /catch \(error\) \{[\s\S]*setRemovedTask\(null\);[\s\S]*throw error;/);
 });
 
 test('TaskForm exposes form input labels', () => {
@@ -110,6 +129,7 @@ test('TaskForm exposes form input labels', () => {
 
   assert.match(taskFormSource, /accessibilityLabel=\{t\('taskForm\.taskNameA11y'\)\}/);
   assert.match(sharedControlsSource, /accessibilityLabel=\{label\}/);
+  assert.match(sharedControlsSource, /accessibilityState=\{\{\s*disabled\s*\}\}/s);
 });
 
 test('Settings exposes language as a header icon toggle', () => {
@@ -149,7 +169,7 @@ test('Settings section headers keep titles anchored to the row start', () => {
 test('LocaleProvider uses web dir as the effective mirrored row direction', () => {
   const localeProviderSource = source('src/i18n/LocaleProvider.tsx');
 
-  assert.match(localeProviderSource, /Platform\.OS === 'web' \? direction/);
+  assert.match(localeProviderSource, /process\.env\.EXPO_OS === 'web' \? direction/);
   assert.match(localeProviderSource, /I18nManager\.isRTL \? 'rtl' : 'ltr'/);
 });
 
@@ -197,6 +217,7 @@ test('Auto start breaks toggle copy aligns to the active reading direction', () 
   assert.match(sharedControlsSource, /textAlignForTextDirection\(direction\)/);
   assert.match(sharedControlsSource, /rowDirectionForTextDirection\(direction,\s*nativeDirection\)/);
   assert.match(sharedControlsSource, /styles\.tileText/);
+  assert.match(sharedControlsSource, /accessibilityState=\{\{\s*disabled,\s*checked:\s*value\s*\}\}/s);
 });
 
 test('StepperRow and SwitchRow are reusable shared controls used by settings and task forms', () => {

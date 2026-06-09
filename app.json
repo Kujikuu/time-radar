@@ -2,7 +2,7 @@
   "expo": {
     "name": "Time Radar",
     "slug": "time-radar",
-    "version": "1.0.1",
+    "version": "1.0.4",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "timeradar",

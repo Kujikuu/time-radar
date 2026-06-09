@@ -8,6 +8,7 @@ export { IconButton } from './IconButton';
 export { MetricCard } from './MetricCard';
 export { PrimaryButton } from './PrimaryButton';
 export { Screen } from './Screen';
+export { ScreenHeader } from './ScreenHeader';
 export { SegmentedControl } from './SegmentedControl';
 export { SettingsSection } from './SettingsSection';
 export { SoftCard } from './SoftCard';

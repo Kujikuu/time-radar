@@ -194,6 +194,7 @@ export default function OnboardingScreen() {
                 <Pressable
                   accessibilityLabel={t('onboarding.pageA11y', { values: { page: index + 1 } })}
                   accessibilityRole="button"
+                  hitSlop={10}
                   key={slide.id}
                   onPress={() => goToPage(index)}
                   style={[styles.dot, index === activeIndex && styles.activeDot]}
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.bold,
   },
   skipButton: {
-    minHeight: 40,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

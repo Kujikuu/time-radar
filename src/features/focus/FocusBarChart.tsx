@@ -117,7 +117,7 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
           />
         ))}
       </Svg>
-      <View pointerEvents="none" style={styles.axisLabels}>
+      <View style={styles.axisLabels}>
         {bars.map((bar, index) =>
           index % 2 === 0 ? (
             <AppText
@@ -147,6 +147,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     height: 22,
+    pointerEvents: 'none',
   },
   axisLabel: {
     position: 'absolute',

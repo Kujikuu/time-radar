@@ -1,9 +1,10 @@
 import { IconTrash } from '@tabler/icons-react-native';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
+  runOnJS,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
@@ -30,6 +31,7 @@ type SwipeableTaskRowProps = {
 
 export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
   const { direction, nativeDirection, t } = useTranslation();
+  const [isActionOpen, setActionOpen] = useState(false);
   const translateX = useSharedValue(0);
   const openOffset = direction === 'rtl' ? -SWIPE_ACTION_WIDTH : SWIPE_ACTION_WIDTH;
   const actionSideStyle = direction === 'rtl' ? styles.actionOnRight : styles.actionOnLeft;
@@ -43,6 +45,7 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
   );
 
   const closeRow = useCallback(() => {
+    setActionOpen(false);
     translateX.value = withSpring(0, SWIPE_SPRING);
   }, [translateX]);
 
@@ -74,6 +77,7 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
         })
         .onEnd(() => {
           const shouldOpen = Math.abs(translateX.value) > SWIPE_OPEN_THRESHOLD;
+          runOnJS(setActionOpen)(shouldOpen);
           translateX.value = withSpring(shouldOpen ? openOffset : 0, SWIPE_SPRING);
         }),
     [openOffset, translateX]
@@ -90,9 +94,14 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
     <View style={styles.swipeContainer}>
       <View style={[styles.actionLayer, actionSideStyle]}>
         <Pressable
-          accessibilityLabel={t('tasks.removeTask')}
-          accessibilityRole="button"
+          aria-hidden
+          accessibilityElementsHidden
+          accessible={false}
+          focusable={false}
+          importantForAccessibility="no-hide-descendants"
+          disabled={!isActionOpen}
           onPress={handleRemove}
+          tabIndex={-1}
           style={({ pressed }) => [
             styles.removeAction,
             actionShapeStyle,
@@ -120,6 +129,7 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
 const styles = StyleSheet.create({
   swipeContainer: {
     borderRadius: radius.lg,
+    borderCurve: 'continuous',
     overflow: 'hidden',
   },
   actionLayer: {
@@ -142,6 +152,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.xs,
     paddingHorizontal: spacing.md,
+    borderCurve: 'continuous',
     backgroundColor: colors.accentDark,
   },
   removeActionOnLeft: {

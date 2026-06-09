@@ -2,7 +2,7 @@ import { IconTrendingUp } from '@tabler/icons-react-native';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, PrimaryButton, Screen, SegmentedControl, SoftCard } from '@/src/components';
+import { AppIcon, AppText, PrimaryButton, Screen, ScreenHeader, SegmentedControl, SoftCard } from '@/src/components';
 import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
 import { useSettings, useStats } from '@/src/features/focus/hooks';
@@ -45,9 +45,7 @@ export default function StatsScreen() {
 
   return (
     <Screen contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}>
-      <View style={styles.header}>
-        <AppText style={[styles.title, styles.contentText, contentText]}>{t('stats.title')}</AppText>
-      </View>
+      <ScreenHeader title={t('stats.title')} />
 
       <SegmentedControl<StatsRange>
         options={statsRangeOptions(locale)}
@@ -175,18 +173,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
     gap: spacing.lg,
   },
-  header: {
-    minHeight: 48,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    flex: 1,
-    minWidth: 0,
-    color: colors.text,
-    fontSize: typography.size.screenTitle,
-    fontWeight: typography.weight.bold,
-  },
   contentText: {
     minWidth: 0,
   },
@@ -222,6 +208,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     minHeight: 68,
     borderRadius: radius.lg,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surfaceMuted,
@@ -282,7 +269,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   restoreButton: {
-    minHeight: 40,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,

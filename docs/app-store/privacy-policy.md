@@ -22,7 +22,7 @@ If you allow notifications, TimeRadar schedules local timer alerts on your devic
 
 ## In-App Purchases
 
-TimeRadar offers an optional one-time Supporter Pack through Apple In-App Purchase. Apple processes the payment. TimeRadar stores only a local entitlement state so the app can remember whether the Supporter Pack is active.
+TimeRadar offers an optional one-time Supporter Pack through Apple In-App Purchase or Google Play Billing, depending on the platform. Apple or Google processes the payment. TimeRadar stores only a local entitlement state so the app can remember whether the Supporter Pack is active on that device.
 
 ## Contact
 

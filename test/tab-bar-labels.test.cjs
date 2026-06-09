@@ -3,7 +3,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const tabsLayoutSource = fs.readFileSync(path.join(__dirname, '../app/(tabs)/_layout.tsx'), 'utf8');
+const tabsLayoutSource = fs.readFileSync(
+  path.join(__dirname, '../src/navigation/tab-layout-content.tsx'),
+  'utf8'
+);
 
 test('bottom tab bar renders icon-only items', () => {
   assert.match(tabsLayoutSource, /tabBarShowLabel:\s*false/);
@@ -32,7 +35,10 @@ test('home restores the shared tab bar style after fullscreen timer closes', () 
   const homeSource = fs.readFileSync(path.join(__dirname, '../app/(tabs)/index.tsx'), 'utf8');
 
   assert.match(tabsLayoutSource, /export const bottomTabBarStyle/);
-  assert.match(homeSource, /import \{ bottomTabBarStyle \} from '\.\/_layout'/);
+  assert.match(
+    homeSource,
+    /import \{ bottomTabBarStyle \} from '@\/src\/navigation\/tab-layout-content'/
+  );
   assert.match(
     homeSource,
     /isImmersiveTimerVisible[\s\S]*tabBarStyle:\s*styles\.hiddenTabBar[\s\S]*bottomTabBarStyle/s

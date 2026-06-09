@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
     borderRadius: radius.md,
+    borderCurve: 'continuous',
     gap: spacing.md,
     minHeight: 48,
   },

@@ -155,6 +155,7 @@ const translations = {
     },
     tasks: {
       title: 'Focus tasks',
+      detailTitle: 'Focus task',
       createTask: 'Create focus task',
       queueTitle: 'Your focus queue',
       queueBody: {
@@ -394,6 +395,7 @@ const translations = {
     },
     tasks: {
       title: 'مهام التركيز',
+      detailTitle: 'مهمة التركيز',
       createTask: 'إنشاء مهمة تركيز',
       queueTitle: 'قائمة تركيزك',
       queueBody: {

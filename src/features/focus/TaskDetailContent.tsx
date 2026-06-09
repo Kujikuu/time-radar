@@ -2,7 +2,7 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, IconButton, PrimaryButton, SoftCard } from '@/src/components';
+import { AppText, IconButton, PrimaryButton, ScreenHeader, SoftCard } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromTask, useFocusTimer, useTaskDetail } from '@/src/features/focus/hooks';
 import { focusCategoryLabel, rowDirectionForTextDirection } from '@/src/i18n';
@@ -35,9 +35,11 @@ export function TaskDetailContent({ taskId, showBack = true, onBack }: TaskDetai
     return (
       <View style={styles.container}>
         {showBack ? (
-          <View style={[styles.header, contentRow]}>
-            <IconButton icon={BackIcon} label={t('common.goBack')} onPress={handleBack} />
-          </View>
+          <ScreenHeader
+            title={t('tasks.detailTitle')}
+            titleSize="compact"
+            leading={<IconButton icon={BackIcon} label={t('common.goBack')} onPress={handleBack} />}
+          />
         ) : null}
         <SoftCard style={styles.emptyCard}>
           <AppText style={styles.optionTitle}>{t('session.taskNotFound')}</AppText>
@@ -55,9 +57,11 @@ export function TaskDetailContent({ taskId, showBack = true, onBack }: TaskDetai
   return (
     <View style={styles.container}>
       {showBack ? (
-        <View style={[styles.header, contentRow]}>
-          <IconButton icon={BackIcon} label={t('common.goBack')} onPress={handleBack} />
-        </View>
+        <ScreenHeader
+          title={t('tasks.detailTitle')}
+          titleSize="compact"
+          leading={<IconButton icon={BackIcon} label={t('common.goBack')} onPress={handleBack} />}
+        />
       ) : null}
 
       <View style={styles.hero}>
@@ -98,11 +102,6 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.xl,
   },
-  header: {
-    minHeight: 48,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   hero: {
     alignItems: 'center',
     gap: spacing.md,
@@ -120,6 +119,7 @@ const styles = StyleSheet.create({
     gap: 7,
     paddingHorizontal: 13,
     borderRadius: radius.pill,
+    borderCurve: 'continuous',
     backgroundColor: colors.surface,
   },
   categoryDot: {

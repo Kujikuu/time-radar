@@ -47,18 +47,20 @@ export function SegmentedControl<T extends string>({
 
 const styles = StyleSheet.create({
   wrapper: {
-    minHeight: 44,
+    minHeight: 52,
     alignItems: 'center',
     padding: 4,
     borderRadius: radius.md,
+    borderCurve: 'continuous',
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
   },
   segment: {
     flex: 1,
-    height: 36,
+    minHeight: 44,
     borderRadius: radius.sm,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     minHeight: 54,
     borderRadius: radius.pill,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 18,

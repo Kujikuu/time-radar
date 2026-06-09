@@ -4,6 +4,7 @@ const path = require('node:path');
 const test = require('node:test');
 
 const source = (relativePath) => fs.readFileSync(path.join(__dirname, '..', relativePath), 'utf8');
+const normalizedSource = (relativePath) => source(relativePath).replace(/\s+/g, ' ');
 
 test('supporter product constants define the one-time $1.99 supporter pack', () => {
   const constants = require('../.test-build/features/support/constants.js');
@@ -56,6 +57,38 @@ test('settings and stats expose the supporter purchase and theme surfaces', () =
   assert.match(statsSource, /support\.purchaseAction/);
   assert.match(statsSource, /support\.freeForever/);
   assert.doesNotMatch(`${settingsSource}\n${statsSource}`, /TimeRadar Pro|pro\./);
+});
+
+test('native supporter purchase uses Apple and Google store requests', () => {
+  const nativePurchaseSource = source('src/features/support/purchase.ts');
+
+  assert.match(nativePurchaseSource, /fetchProducts\(\{\s*skus:\s*\[SUPPORTER_PRODUCT_ID\],\s*type:\s*SUPPORTER_PRODUCT_TYPE\s*\}\)/);
+  assert.match(nativePurchaseSource, /finishTransaction\(\{\s*purchase,\s*isConsumable:\s*false\s*\}\)/);
+  assert.match(nativePurchaseSource, /apple:\s*\{\s*sku:\s*SUPPORTER_PRODUCT_ID\s*\}/);
+  assert.match(nativePurchaseSource, /google:\s*\{\s*skus:\s*\[SUPPORTER_PRODUCT_ID\]\s*\}/);
+  assert.match(nativePurchaseSource, /restorePurchases\(\)/);
+  assert.match(nativePurchaseSource, /getAvailablePurchases\(\)/);
+});
+
+test('supporter purchase docs describe native iOS and Android stores without web checkout', () => {
+  const privacyPolicy = source('docs/app-store/privacy-policy.md');
+  const privacySite = normalizedSource('docs/app-store/site/privacy.html');
+  const submissionKit = source('docs/app-store/submission-kit.md');
+  const iapProduct = source('docs/app-store/iap-product.md');
+  const webPurchaseSource = source('src/features/support/purchase.web.ts');
+
+  for (const documentSource of [privacyPolicy, privacySite, submissionKit]) {
+    assert.match(documentSource, /Apple In-App Purchase or Google Play Billing/);
+  }
+
+  assert.match(iapProduct, /Google Play Console Setup/);
+  assert.match(iapProduct, /one-time product/);
+  assert.match(iapProduct, /supporter_pack_199/);
+  assert.doesNotMatch(
+    `${privacyPolicy}\n${privacySite}\n${submissionKit}`,
+    /processed (only )?by Apple In-App Purchase\.|Apple processes the payment|Apple's in-app purchase system/
+  );
+  assert.match(webPurchaseSource, /support\.unavailable/);
 });
 
 test('settings notification and supporter actions stay compact on narrow screens', () => {

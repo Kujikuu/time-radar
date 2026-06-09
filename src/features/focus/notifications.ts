@@ -1,5 +1,4 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
 
 import { getDeviceAppLocale } from '@/src/i18n/device';
 import { translate } from '@/src/i18n';
@@ -44,7 +43,7 @@ Notifications.setNotificationHandler({
 });
 
 export async function getNotificationPermissionStatus(): Promise<TimerNotificationPermissionStatus> {
-  if (Platform.OS === 'web') {
+  if (process.env.EXPO_OS === 'web') {
     return 'unsupported';
   }
 
@@ -57,7 +56,7 @@ export async function getNotificationPermissionStatus(): Promise<TimerNotificati
 }
 
 export async function requestTimerNotificationPermission(): Promise<TimerNotificationPermissionStatus> {
-  if (Platform.OS === 'web') {
+  if (process.env.EXPO_OS === 'web') {
     return 'unsupported';
   }
 
@@ -90,7 +89,7 @@ export async function scheduleTimerCompletionNotification({
   await cancelTimerNotifications();
 
   if (
-    Platform.OS === 'web' ||
+    process.env.EXPO_OS === 'web' ||
     !dueAt ||
     !settings.notificationsEnabled ||
     !isPhaseNotificationEnabled(phase, settings)
@@ -157,7 +156,7 @@ export async function presentTimerCompletionNotification({
   settings,
   automaticForegroundCompletion,
 }: ImmediateTimerCompletionNotificationInput): Promise<string | null> {
-  if (Platform.OS === 'web') {
+  if (process.env.EXPO_OS === 'web') {
     return null;
   }
 
@@ -195,7 +194,7 @@ export async function presentTimerCompletionNotification({
 }
 
 export async function cancelTimerNotifications(): Promise<void> {
-  if (Platform.OS === 'web') {
+  if (process.env.EXPO_OS === 'web') {
     return;
   }
 
@@ -217,7 +216,7 @@ export async function cancelTimerNotifications(): Promise<void> {
 }
 
 function configureTimerNotificationChannel() {
-  if (Platform.OS !== 'android') {
+  if (process.env.EXPO_OS !== 'android') {
     return Promise.resolve(null);
   }
 
@@ -246,7 +245,7 @@ function mapPermissionStatus(
     return 'granted';
   }
 
-  if (Platform.OS === 'ios' && permissions.ios?.status !== undefined) {
+  if (process.env.EXPO_OS === 'ios' && permissions.ios?.status !== undefined) {
     if (
       permissions.ios.status === Notifications.IosAuthorizationStatus.AUTHORIZED ||
       permissions.ios.status === Notifications.IosAuthorizationStatus.PROVISIONAL ||

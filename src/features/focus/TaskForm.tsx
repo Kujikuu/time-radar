@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     borderRadius: radius.md,
+    borderCurve: 'continuous',
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
     color: colors.text,

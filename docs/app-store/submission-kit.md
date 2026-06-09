@@ -163,7 +163,7 @@ Core flow:
 5. Use Stats to view local progress.
 6. Use Settings to switch Arabic/English and configure local timer alerts.
 
-The optional Supporter Pack is a one-time non-consumable in-app purchase with product ID supporter_pack_199. All core focus features remain free.
+The optional Supporter Pack is a one-time non-consumable in-app purchase with product ID supporter_pack_199. It is sold through Apple In-App Purchase or Google Play Billing, depending on platform. All core focus features remain free.
 ```
 
 Contact:
@@ -188,7 +188,7 @@ Reasoning:
 - No analytics SDK.
 - No tracking across apps or websites.
 - Local notifications are scheduled on device.
-- Supporter Pack is processed through Apple's in-app purchase system; TimeRadar does not send purchase receipts or personal identifiers to a developer server.
+- Supporter Pack is processed through Apple In-App Purchase or Google Play Billing; TimeRadar does not send purchase receipts or personal identifiers to a developer server.
 
 Tracking: `No`.
 
@@ -227,6 +227,16 @@ The app config declares:
 
 Recommended answer: no non-exempt encryption. The app does not implement custom encryption.
 
+## Google Play Billing Setup
+
+Use the same native product ID as iOS:
+
+```text
+supporter_pack_199
+```
+
+Create it as a one-time product in Google Play Console, set the base price to USD 1.99 or the closest local equivalent, add the same English and Arabic Supporter Pack names/descriptions from `docs/app-store/iap-product.md`, and activate it after Play Console requirements are complete.
+
 ## Final Submit Checklist
 
 1. Create/select the App Store Connect app for bundle ID `com.afifistudio.timeradar`.
@@ -238,5 +248,6 @@ Recommended answer: no non-exempt encryption. The app does not implement custom 
 7. Complete Age Rating as `4+`.
 8. Configure the non-consumable IAP `supporter_pack_199`.
 9. Attach the IAP to this first app version before review.
-10. Select build `1.0.1 (2)` after it appears from TestFlight/App Store Connect processing.
-11. Submit for App Review.
+10. Create the Google Play one-time product `supporter_pack_199` before Android release testing.
+11. Select build `1.0.1 (2)` after it appears from TestFlight/App Store Connect processing.
+12. Submit for App Review.

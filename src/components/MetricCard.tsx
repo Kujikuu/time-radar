@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     minHeight: 120,
     borderRadius: radius.md,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,

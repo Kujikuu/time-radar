@@ -1,9 +1,9 @@
 import { IconClipboardCheck, IconPlus } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, IconButton, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import { AppIcon, AppText, IconButton, PrimaryButton, Screen, ScreenHeader, SoftCard } from '@/src/components';
 import { useTaskRemoval, useTasks } from '@/src/features/focus/hooks';
 import { SwipeableTaskRow } from '@/src/features/focus/SwipeableTaskRow';
 import { FocusTask } from '@/src/features/focus/types';
@@ -26,6 +26,7 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
   const { isWide } = useLayoutProfile();
   const tabInsets = useTabScreenInsets();
   const [removedTask, setRemovedTask] = useState<FocusTask | null>(null);
+  const [pendingRemovalTask, setPendingRemovalTask] = useState<FocusTask | null>(null);
   const undoDismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
@@ -50,14 +51,20 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
 
   const confirmRemoveTask = useCallback(
     async (task: FocusTask) => {
-      await remove(task.id);
       clearUndoDismissTimer();
       setRemovedTask(task);
-      undoDismissTimerRef.current = setTimeout(() => {
+
+      try {
+        await remove(task.id);
+        undoDismissTimerRef.current = setTimeout(() => {
+          setRemovedTask(null);
+          undoDismissTimerRef.current = null;
+        }, TASK_REMOVAL_UNDO_TIMEOUT_MS);
+        await reload();
+      } catch (error) {
         setRemovedTask(null);
-        undoDismissTimerRef.current = null;
-      }, TASK_REMOVAL_UNDO_TIMEOUT_MS);
-      await reload();
+        throw error;
+      }
     },
     [clearUndoDismissTimer, reload, remove]
   );
@@ -65,30 +72,29 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
   const handleRemoveTask = useCallback(
     async (task: FocusTask) => {
       if (await isTaskActive(task.id)) {
-        Alert.alert(
-          t('tasks.removeActiveTitle'),
-          t('tasks.removeActiveBody', { values: { title: task.title } }),
-          [
-            {
-              text: t('common.cancel'),
-              style: 'cancel',
-            },
-            {
-              text: t('tasks.removeActiveConfirm'),
-              style: 'destructive',
-              onPress: () => {
-                void confirmRemoveTask(task);
-              },
-            },
-          ]
-        );
+        setPendingRemovalTask(task);
         return;
       }
 
       await confirmRemoveTask(task);
     },
-    [confirmRemoveTask, isTaskActive, t]
+    [confirmRemoveTask, isTaskActive]
   );
+
+  const handleCancelActiveRemoval = useCallback(() => {
+    setPendingRemovalTask(null);
+  }, []);
+
+  const handleConfirmActiveRemoval = useCallback(async () => {
+    if (!pendingRemovalTask) {
+      return;
+    }
+
+    const task = pendingRemovalTask;
+
+    setPendingRemovalTask(null);
+    await confirmRemoveTask(task);
+  }, [confirmRemoveTask, pendingRemovalTask]);
 
   const handleUndoRemove = useCallback(async () => {
     if (!removedTask) {
@@ -109,16 +115,18 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
           styles.screen,
           { paddingBottom: removedTask ? bottomInset + 60 : bottomInset },
         ]}>
-        <View style={[styles.header, contentRow]}>
-          <AppText style={[styles.title, styles.contentText, contentText]}>{t('tasks.title')}</AppText>
-          <IconButton
-            icon={IconPlus}
-            label={t('tasks.createTask')}
-            onPress={() => router.push('/task/new' as never)}
-            color={colors.accentDark}
-            style={styles.addButton}
-          />
-        </View>
+        <ScreenHeader
+          title={t('tasks.title')}
+          action={
+            <IconButton
+              icon={IconPlus}
+              label={t('tasks.createTask')}
+              onPress={() => router.push('/task/new' as never)}
+              color={colors.accentDark}
+              style={styles.addButton}
+            />
+          }
+        />
 
         <SoftCard style={[styles.summaryCard, contentRow]}>
           <View style={styles.summaryIcon}>
@@ -169,6 +177,55 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
           </Pressable>
         </View>
       ) : null}
+
+      <Modal
+        animationType="fade"
+        transparent
+        visible={Boolean(pendingRemovalTask)}
+        onRequestClose={handleCancelActiveRemoval}>
+        <View style={styles.confirmOverlay}>
+          <Pressable
+            accessibilityLabel={t('common.cancel')}
+            accessibilityRole="button"
+            style={StyleSheet.absoluteFill}
+            onPress={handleCancelActiveRemoval}
+          />
+          <View style={styles.confirmPanel} accessibilityRole="alert">
+            <View style={styles.confirmCopy}>
+              <AppText style={[styles.confirmTitle, styles.contentText, contentText]}>
+                {t('tasks.removeActiveTitle')}
+              </AppText>
+              <AppText style={[styles.confirmBody, styles.contentText, contentText]}>
+                {t('tasks.removeActiveBody', {
+                  values: { title: pendingRemovalTask?.title ?? '' },
+                })}
+              </AppText>
+            </View>
+            <View style={[styles.confirmActions, contentRow]}>
+              <Pressable
+                accessibilityLabel={t('common.cancel')}
+                accessibilityRole="button"
+                onPress={handleCancelActiveRemoval}
+                style={({ pressed }) => [
+                  styles.confirmCancelAction,
+                  pressed && styles.confirmActionPressed,
+                ]}>
+                <AppText style={styles.confirmCancelText}>{t('common.cancel')}</AppText>
+              </Pressable>
+              <Pressable
+                accessibilityLabel={t('tasks.removeActiveConfirm')}
+                accessibilityRole="button"
+                onPress={handleConfirmActiveRemoval}
+                style={({ pressed }) => [
+                  styles.confirmAction,
+                  pressed && styles.confirmActionPressed,
+                ]}>
+                <AppText style={styles.confirmActionText}>{t('tasks.removeActiveConfirm')}</AppText>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -180,19 +237,6 @@ const styles = StyleSheet.create({
   },
   screen: {
     gap: spacing.lg,
-  },
-  header: {
-    minHeight: 48,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  title: {
-    flex: 1,
-    minWidth: 0,
-    color: colors.text,
-    fontSize: typography.size.screenTitle,
-    fontWeight: typography.weight.bold,
   },
   contentText: {
     minWidth: 0,
@@ -261,21 +305,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.lg,
+    borderCurve: 'continuous',
     backgroundColor: colors.text,
-    ...Platform.select({
-      ios: {
-        shadowColor: colors.text,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.14,
-        shadowRadius: 22,
-      },
-      android: {
-        elevation: 8,
-      },
-      default: {
-        boxShadow: '0 10px 22px rgba(31, 26, 23, 0.14)',
-      },
-    }),
+    boxShadow: '0 10px 24px rgba(31, 26, 23, 0.18)',
   },
   undoBarEmbedded: {
     right: spacing.lg,
@@ -289,7 +321,7 @@ const styles = StyleSheet.create({
     fontWeight: typography.weight.semibold,
   },
   undoAction: {
-    minHeight: 38,
+    minHeight: 44,
     flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
@@ -302,6 +334,76 @@ const styles = StyleSheet.create({
   },
   undoActionText: {
     color: colors.accentDark,
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.bold,
+    textAlign: 'center',
+  },
+  confirmOverlay: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+    backgroundColor: 'rgba(31, 26, 23, 0.34)',
+  },
+  confirmPanel: {
+    width: '100%',
+    maxWidth: 420,
+    gap: spacing.lg,
+    padding: spacing.lg,
+    borderRadius: radius.xl,
+    borderCurve: 'continuous',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    boxShadow: '0 18px 38px rgba(31, 26, 23, 0.18)',
+  },
+  confirmCopy: {
+    gap: spacing.xs,
+  },
+  confirmTitle: {
+    color: colors.text,
+    fontSize: typography.size.bodyLarge,
+    fontWeight: typography.weight.bold,
+  },
+  confirmBody: {
+    color: colors.textMuted,
+    fontSize: typography.size.small,
+    lineHeight: typography.lineHeight.body,
+  },
+  confirmActions: {
+    gap: spacing.sm,
+  },
+  confirmAction: {
+    minHeight: 44,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.accentDark,
+  },
+  confirmCancelAction: {
+    minHeight: 44,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surfaceMuted,
+  },
+  confirmActionPressed: {
+    opacity: 0.84,
+  },
+  confirmActionText: {
+    color: colors.white,
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.bold,
+    textAlign: 'center',
+  },
+  confirmCancelText: {
+    color: colors.text,
     fontSize: typography.size.small,
     fontWeight: typography.weight.bold,
     textAlign: 'center',

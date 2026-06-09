@@ -7,7 +7,7 @@ export type FocusHapticEvent = 'start' | 'pause' | 'reset' | 'complete' | 'selec
 export function triggerFocusHaptic(settings: AppSettings | boolean, event: FocusHapticEvent) {
   const enabled = typeof settings === 'boolean' ? settings : settings.hapticsEnabled;
 
-  if (!enabled) {
+  if (!enabled || process.env.EXPO_OS !== 'ios') {
     return;
   }
 

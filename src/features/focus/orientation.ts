@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
 async function lockSupportedOrientation(orientationLock: ScreenOrientation.OrientationLock) {
-  if (Platform.OS === 'web') {
+  if (process.env.EXPO_OS === 'web') {
     return;
   }
 
@@ -26,7 +26,9 @@ export function lockLandscapeOrientation() {
 }
 
 export function lockDefaultOrientation() {
-  if (Platform.OS === 'ios' && Platform.isPad) {
+  const isPad = 'isPad' in Platform && Platform.isPad;
+
+  if (process.env.EXPO_OS === 'ios' && isPad) {
     return lockSupportedOrientation(ScreenOrientation.OrientationLock.DEFAULT);
   }
 

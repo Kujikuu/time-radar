@@ -17,5 +17,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: radius.lg,
+    borderCurve: 'continuous',
+    boxShadow: '0 8px 22px rgba(31, 26, 23, 0.05)',
   },
 });

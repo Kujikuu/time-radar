@@ -1,6 +1,6 @@
 import { useLocales } from 'expo-localization';
 import { createContext, type PropsWithChildren, use, useMemo, useState } from 'react';
-import { I18nManager, Platform } from 'react-native';
+import { I18nManager } from 'react-native';
 
 import type { AppLanguagePreference } from '@/src/features/focus/types';
 import {
@@ -29,7 +29,7 @@ const LocaleContext = createContext<LocaleContextValue>({
   locale: defaultLocale,
   direction: textDirectionForLocale(defaultLocale),
   nativeDirection:
-    Platform.OS === 'web'
+    process.env.EXPO_OS === 'web'
       ? textDirectionForLocale(defaultLocale)
       : I18nManager.isRTL
         ? 'rtl'
@@ -48,7 +48,7 @@ export function LocaleProvider({ children }: PropsWithChildren) {
   const locale = resolveAppLocale(locales, languagePreference);
   const direction = textDirectionForLocale(locale);
   const nativeDirection: AppTextDirection =
-    Platform.OS === 'web' ? direction : I18nManager.isRTL ? 'rtl' : 'ltr';
+    process.env.EXPO_OS === 'web' ? direction : I18nManager.isRTL ? 'rtl' : 'ltr';
 
   const value = useMemo<LocaleContextValue>(
     () => ({

@@ -4,7 +4,7 @@ import {
   IconPlayerPlay,
   IconRefresh,
 } from '@tabler/icons-react-native';
-import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Defs, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
 
 import { AppIcon, AppText } from '@/src/components';
@@ -49,7 +49,8 @@ export function TimerRing({
   const { isWide } = useLayoutProfile();
   const isImmersive = presentation === 'immersive';
   const availableSize = isImmersive ? Math.min(width, height) - 56 : width - 64;
-  const viewportWidth = Platform.OS === 'web' && typeof window !== 'undefined' ? window.innerWidth : width;
+  const viewportWidth =
+    process.env.EXPO_OS === 'web' && typeof window !== 'undefined' ? window.innerWidth : width;
   const defaultCap = isWide && viewportWidth >= 1100 ? 420 : 300;
   const immersiveCap = isWide ? 480 : 380;
   const defaultMin = isWide ? 280 : 248;
@@ -135,11 +136,11 @@ export function TimerRing({
           style={({ pressed }) => [styles.surfacePress, pressed && styles.surfacePressed]}
         />
       ) : null}
-      <View pointerEvents="box-none" style={[styles.center, { width: size - 58 }]}>
-        <AppText pointerEvents="none" style={[styles.label, isImmersive && styles.immersiveLabel, isPaused && styles.pausedLabel]}>
+      <View style={[styles.center, styles.touchPassthrough, { width: size - 58 }]}>
+        <AppText style={[styles.label, styles.nonInteractive, isImmersive && styles.immersiveLabel, isPaused && styles.pausedLabel]}>
           {label}
         </AppText>
-        <AppText pointerEvents="none" style={[styles.time, isImmersive && styles.immersiveTime]}>
+        <AppText style={[styles.time, styles.nonInteractive, isImmersive && styles.immersiveTime]}>
           {time}
         </AppText>
         <Pressable
@@ -170,7 +171,6 @@ export function TimerRing({
                 accessibilityLabel={t('timer.actions.reset')}
                 accessibilityRole="button"
                 onPress={onReset}
-                hitSlop={8}
                 style={({ pressed }) => [styles.iconAction, pressed && styles.secondaryPressed]}>
                 <AppIcon icon={IconRefresh} color={colors.accentDark} size={19} strokeWidth={2.2} />
               </Pressable>
@@ -180,7 +180,6 @@ export function TimerRing({
                 accessibilityLabel={t('timer.actions.complete')}
                 accessibilityRole="button"
                 onPress={onComplete}
-                hitSlop={8}
                 style={({ pressed }) => [styles.iconAction, pressed && styles.secondaryPressed]}>
                 <AppIcon icon={IconCheck} color={colors.accentDark} size={20} strokeWidth={2.3} />
               </Pressable>
@@ -211,6 +210,12 @@ const styles = StyleSheet.create({
   center: {
     position: 'absolute',
     alignItems: 'center',
+  },
+  touchPassthrough: {
+    pointerEvents: 'box-none',
+  },
+  nonInteractive: {
+    pointerEvents: 'none',
   },
   label: {
     maxWidth: '100%',
@@ -243,8 +248,9 @@ const styles = StyleSheet.create({
   startButton: {
     maxWidth: '100%',
     minWidth: 124,
-    minHeight: 42,
+    minHeight: 44,
     borderRadius: 999,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
@@ -280,14 +286,14 @@ const styles = StyleSheet.create({
     color: colors.accentDark,
   },
   secondaryActions: {
-    minHeight: 30,
+    minHeight: 44,
     alignItems: 'center',
-    gap: 20,
+    gap: 16,
     paddingTop: 12,
   },
   iconAction: {
-    width: 30,
-    height: 30,
+    width: 44,
+    height: 44,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',

@@ -28,9 +28,8 @@ import {
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { useSetNavigationChromeHidden } from '@/src/navigation/chrome-visibility';
 import { useTabScreenInsets } from '@/src/navigation/tablet-sidebar-metrics';
+import { bottomTabBarStyle } from '@/src/navigation/tab-layout-content';
 import { colors, radius, spacing, typography } from '@/src/theme';
-
-import { bottomTabBarStyle } from './_layout';
 
 export default function HomeScreen() {
   const { tasks, reload: reloadTasks } = useTasks();
@@ -181,7 +180,8 @@ export default function HomeScreen() {
         <Pressable
           accessibilityLabel={t('home.openStats')}
           accessibilityRole="button"
-          onPress={() => router.push('/(tabs)/stats' as never)}>
+          onPress={() => router.push('/(tabs)/stats' as never)}
+          style={({ pressed }) => [styles.statsLinkButton, pressed && styles.pressed]}>
           <AppText style={styles.linkText}>{t('common.seeAll')}</AppText>
         </Pressable>
       </View>
@@ -457,6 +457,14 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     fontWeight: typography.weight.semibold,
   },
+  statsLinkButton: {
+    flexShrink: 0,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+  },
   metricsGrid: {
     gap: spacing.sm,
   },
@@ -474,7 +482,7 @@ const styles = StyleSheet.create({
     minHeight: 46,
   },
   dismissButton: {
-    minHeight: 40,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

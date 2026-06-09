@@ -1,6 +1,6 @@
 import { usePathname } from 'expo-router';
 import { PropsWithChildren, useEffect, useMemo, useRef } from 'react';
-import { Platform, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
@@ -19,7 +19,7 @@ export function Screen({ children, scroll = true, contentStyle, variant = 'defau
   const { direction } = useLocale();
   const { isCompact, isWide } = useLayoutProfile();
   const webDirectionProps =
-    Platform.OS === 'web' ? ({ dir: direction } as Record<string, string>) : {};
+    process.env.EXPO_OS === 'web' ? ({ dir: direction } as Record<string, string>) : {};
 
   const contentLayoutStyle = useMemo(() => {
     if (variant === 'compact' || isCompact) {
@@ -51,7 +51,9 @@ export function Screen({ children, scroll = true, contentStyle, variant = 'defau
       {scroll ? (
         <ScrollView
           ref={scrollRef}
+          contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           bounces>
           {content}
@@ -86,6 +88,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   contentWide: {
+    maxWidth: 1100,
+    alignSelf: 'center',
     paddingHorizontal: 32,
   },
 });

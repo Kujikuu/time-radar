@@ -1,5 +1,4 @@
 import type { Href } from 'expo-router';
-import { Dimensions, Platform } from 'react-native';
 
 import { resolveLayoutProfile } from '@/src/hooks/use-layout-profile';
 
@@ -23,12 +22,4 @@ export function resolveNotificationHref(url: string, width: number): Href {
   }
 
   return url as Href;
-}
-
-export function currentLayoutWidth() {
-  return Dimensions.get('window').width;
-}
-
-export function isTabletDevice() {
-  return Platform.OS === 'ios' ? Platform.isPad : currentLayoutWidth() >= 600;
 }

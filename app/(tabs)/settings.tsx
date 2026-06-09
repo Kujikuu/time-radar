@@ -8,6 +8,7 @@ import {
   IconButton,
   PrimaryButton,
   Screen,
+  ScreenHeader,
   SettingsSection,
   StepperRow,
   SwitchRow,
@@ -82,16 +83,18 @@ export default function SettingsScreen() {
 
   return (
     <Screen contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}>
-      <View style={[styles.header, contentRow]}>
-        <AppText style={[styles.title, tileText]}>{t('settings.title')}</AppText>
-        <IconButton
-          icon={IconLanguage}
-          label={languageToggleLabel}
-          onPress={updateLanguagePreference}
-          color={colors.accentDark}
-          style={styles.languageButton}
-        />
-      </View>
+      <ScreenHeader
+        title={t('settings.title')}
+        action={
+          <IconButton
+            icon={IconLanguage}
+            label={languageToggleLabel}
+            onPress={updateLanguagePreference}
+            color={colors.accentDark}
+            style={styles.languageButton}
+          />
+        }
+      />
 
       <SettingsSection title={t('settings.timerDefaults')}>
         <StepperRow
@@ -352,19 +355,6 @@ const styles = StyleSheet.create({
   screen: {
     gap: spacing.lg,
   },
-  header: {
-    minHeight: 48,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  title: {
-    flex: 1,
-    minWidth: 0,
-    color: colors.text,
-    fontSize: typography.size.screenTitle,
-    fontWeight: typography.weight.bold,
-  },
   languageButton: {
     flexShrink: 0,
     backgroundColor: colors.surfaceMuted,
@@ -396,14 +386,14 @@ const styles = StyleSheet.create({
   },
   permissionButton: {
     alignSelf: 'flex-start',
-    minHeight: 42,
+    minHeight: 44,
     minWidth: 86,
     maxWidth: '50%',
     paddingHorizontal: spacing.md,
   },
   systemSettingsButton: {
     alignSelf: 'flex-start',
-    minHeight: 42,
+    minHeight: 44,
     minWidth: 0,
     maxWidth: '50%',
     paddingHorizontal: spacing.md,
@@ -416,7 +406,7 @@ const styles = StyleSheet.create({
   },
   supportButton: {
     alignSelf: 'flex-start',
-    minHeight: 42,
+    minHeight: 44,
     minWidth: 142,
     maxWidth: '50%',
     paddingHorizontal: spacing.md,

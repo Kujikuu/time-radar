@@ -7,13 +7,12 @@ import {
   useFonts,
 } from '@expo-google-fonts/poppins';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import * as Notifications from 'expo-notifications';
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, useWindowDimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
@@ -21,7 +20,7 @@ import { DATABASE_NAME, migrateDatabase } from '@/src/features/focus/database';
 import { lockDefaultOrientation } from '@/src/features/focus/orientation';
 import { LanguagePreferenceSync } from '@/src/i18n/LanguagePreferenceSync';
 import { LocaleProvider } from '@/src/i18n/LocaleProvider';
-import { currentLayoutWidth, resolveNotificationHref } from '@/src/navigation/task-detail-route';
+import { useTimerNotificationObserver } from '@/src/navigation/use-timer-notification-observer';
 import { colors } from '@/src/theme';
 
 export const unstable_settings = {
@@ -36,6 +35,7 @@ SplashScreen.setOptions({
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { width } = useWindowDimensions();
   const [fontsLoaded, fontError] = useFonts({
     Poppins: Poppins_400Regular,
     Poppins_400Regular,
@@ -49,7 +49,7 @@ export default function RootLayout() {
     'Thmanyah Sans Black': require('../assets/fonts/thmanyahsans/thmanyahsans-Black.otf'),
   });
 
-  useTimerNotificationObserver();
+  useTimerNotificationObserver(width);
 
   useEffect(() => {
     void lockDefaultOrientation();
@@ -102,41 +102,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-function useTimerNotificationObserver() {
-  useEffect(() => {
-    function redirectFromNotification(notification: Notifications.Notification) {
-      const url = notification.request.content.data?.url;
-
-      if (typeof url === 'string') {
-        router.push(resolveNotificationHref(url, currentLayoutWidth()));
-      }
-    }
-
-    try {
-      const lastResponse = Notifications.getLastNotificationResponse();
-
-      if (lastResponse?.notification) {
-        redirectFromNotification(lastResponse.notification);
-        Notifications.clearLastNotificationResponse();
-      }
-    } catch {
-      // Expo Notifications is unavailable on web and some preview runtimes.
-    }
-
-    let subscription: ReturnType<typeof Notifications.addNotificationResponseReceivedListener> | null =
-      null;
-
-    try {
-      subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-        redirectFromNotification(response.notification);
-      });
-    } catch {
-      // Expo Notifications is unavailable on web and some preview runtimes.
-    }
-
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-}

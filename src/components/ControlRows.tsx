@@ -85,6 +85,7 @@ function StepperButton({
     <Pressable
       accessibilityLabel={label}
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -126,8 +127,10 @@ export function SwitchRow({
         accessibilityLabel={label}
         accessibilityState={{ disabled, checked: value }}
         disabled={disabled}
+        hitSlop={12}
         value={value}
         onValueChange={onValueChange}
+        style={styles.switchControl}
         trackColor={{ false: colors.borderStrong, true: colors.accentSoft }}
         thumbColor={value ? colors.accent : colors.surface}
       />
@@ -163,22 +166,27 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   stepper: {
-    minWidth: 136,
+    minWidth: 144,
     flexShrink: 0,
-    height: 44,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: radius.pill,
+    borderCurve: 'continuous',
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
     backgroundColor: colors.backgroundWarm,
   },
   stepperButton: {
-    width: 40,
-    height: 42,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  switchControl: {
+    minWidth: 44,
+    minHeight: 44,
   },
   stepperButtonDisabled: {
     opacity: 0.42,

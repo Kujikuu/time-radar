@@ -34,9 +34,10 @@ export function IconButton({
 
 const styles = StyleSheet.create({
   button: {
-    width: 42,
-    height: 42,
+    width: 44,
+    height: 44,
     borderRadius: radius.pill,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surface,
