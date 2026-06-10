@@ -141,19 +141,28 @@ export default function OnboardingScreen() {
           showsHorizontalScrollIndicator={false}
           scrollEventThrottle={16}
           onMomentumScrollEnd={handleScrollEnd}>
-          {onboardingSlides.map((slide) => (
-            <View key={slide.id} style={[styles.slide, { width: pageWidth || undefined }]}>
-              <View style={styles.copy}>
-                {slide.titleKey ? (
-                  <AppText style={styles.title}>{t(slide.titleKey)}</AppText>
-                ) : (
-                  <BrandLogo variant="hero" />
-                )}
-                <AppText style={styles.subtitle}>{t(slide.bodyKey)}</AppText>
+          {onboardingSlides.map((slide, index) => {
+            const isActiveSlide = index === activeIndex;
+
+            return (
+              <View
+                accessibilityElementsHidden={!isActiveSlide}
+                aria-hidden={!isActiveSlide}
+                importantForAccessibility={isActiveSlide ? 'auto' : 'no-hide-descendants'}
+                key={slide.id}
+                style={[styles.slide, { width: pageWidth || undefined }]}>
+                <View style={styles.copy}>
+                  {slide.titleKey ? (
+                    <AppText style={styles.title}>{t(slide.titleKey)}</AppText>
+                  ) : (
+                    <BrandLogo variant="hero" />
+                  )}
+                  <AppText style={styles.subtitle}>{t(slide.bodyKey)}</AppText>
+                </View>
+                <OnboardingVisual type={slide.visual} />
               </View>
-              <OnboardingVisual type={slide.visual} />
-            </View>
-          ))}
+            );
+          })}
         </ScrollView>
       </View>
 

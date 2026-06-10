@@ -153,6 +153,18 @@ test('TaskForm exposes form input labels', () => {
   assert.match(sharedControlsSource, /<AppText selectable style=\{styles\.stepperNumber\}/);
 });
 
+test('Onboarding carousel hides inactive slides from assistive technology', () => {
+  const onboardingSource = source('app/index.tsx');
+
+  assert.match(onboardingSource, /const isActiveSlide = index === activeIndex/);
+  assert.match(onboardingSource, /accessibilityElementsHidden=\{!isActiveSlide\}/);
+  assert.match(onboardingSource, /aria-hidden=\{!isActiveSlide\}/);
+  assert.match(
+    onboardingSource,
+    /importantForAccessibility=\{isActiveSlide \? 'auto' : 'no-hide-descendants'\}/
+  );
+});
+
 test('Stats exposes stable headline data as selectable text', () => {
   const statsSource = source('app/(tabs)/stats.tsx');
   const timerRingSource = source('src/features/focus/TimerRing.tsx');
