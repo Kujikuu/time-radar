@@ -134,6 +134,26 @@ test('Task detail screen has a localized detail title and continuous metadata pi
   assert.match(taskDetailSource, /categoryPill:\s*\{[\s\S]*borderCurve:\s*'continuous'/);
 });
 
+test('Secondary task routes share theme-driven screen spacing', () => {
+  const routeScreenStylesSource = source('src/navigation/route-screen-styles.ts');
+  const sessionDetailSource = source('app/session/[id].tsx');
+  const taskDetailRouteSource = source('app/(tabs)/tasks/[id].tsx');
+  const newTaskSource = source('app/task/new.tsx');
+  const tasksLayoutSource = source('src/features/focus/tasks-responsive-layout.tsx');
+  const onboardingSource = source('app/index.tsx');
+
+  assert.match(routeScreenStylesSource, /secondaryContent:\s*\{[\s\S]*gap:\s*spacing\.xl/);
+  assert.match(routeScreenStylesSource, /secondaryContent:\s*\{[\s\S]*paddingBottom:\s*spacing\.xxl/);
+
+  for (const routeSource of [sessionDetailSource, taskDetailRouteSource, newTaskSource, tasksLayoutSource]) {
+    assert.match(routeSource, /routeScreenStyles\.secondaryContent/);
+    assert.doesNotMatch(routeSource, /paddingBottom:\s*34/);
+  }
+
+  assert.doesNotMatch(onboardingSource, /paddingBottom:\s*34/);
+  assert.match(onboardingSource, /paddingBottom:\s*spacing\.xxl/);
+});
+
 test('Secondary shared visual surfaces use continuous corners', () => {
   const metricCardSource = source('src/components/MetricCard.tsx');
   const tabletSidebarSource = source('src/components/TabletSidebarNavigation.tsx');

@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   screen: {
     justifyContent: 'space-between',
     paddingTop: 26,
-    paddingBottom: 34,
+    paddingBottom: spacing.xxl,
   },
   carousel: {
     flex: 1,

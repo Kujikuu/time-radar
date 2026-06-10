@@ -2,13 +2,13 @@ import { useLocalSearchParams } from 'expo-router';
 
 import { Screen } from '@/src/components';
 import { TaskDetailContent } from '@/src/features/focus/TaskDetailContent';
-import { spacing } from '@/src/theme';
+import { routeScreenStyles } from '@/src/navigation/route-screen-styles';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   return (
-    <Screen contentStyle={{ gap: spacing.xl, paddingBottom: 34 }}>
+    <Screen contentStyle={routeScreenStyles.secondaryContent}>
       <TaskDetailContent taskId={id} />
     </Screen>
   );

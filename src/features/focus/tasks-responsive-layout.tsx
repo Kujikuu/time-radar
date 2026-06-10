@@ -5,7 +5,8 @@ import { Screen } from '@/src/components';
 import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
 import { structuralRowDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
-import { colors, spacing } from '@/src/theme';
+import { routeScreenStyles } from '@/src/navigation/route-screen-styles';
+import { colors } from '@/src/theme';
 
 import { TaskDetailContent, TaskDetailPlaceholder } from './TaskDetailContent';
 import { TasksListScreen } from './TasksListScreen';
@@ -26,7 +27,7 @@ function WideTasksSplitLayout() {
         <TasksListScreen embedded />
       </View>
       <View style={styles.detailPane}>
-        <Screen contentStyle={styles.detailScreen}>
+        <Screen contentStyle={routeScreenStyles.secondaryContent}>
           {taskId ? (
             <TaskDetailContent taskId={taskId} showBack={false} />
           ) : (
@@ -62,9 +63,5 @@ const styles = StyleSheet.create({
   detailPane: {
     flex: 1,
     minWidth: 0,
-  },
-  detailScreen: {
-    gap: spacing.xl,
-    paddingBottom: spacing.xxl,
   },
 });

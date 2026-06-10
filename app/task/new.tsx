@@ -1,13 +1,13 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
-import { StyleSheet, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
 import { IconButton, Screen, ScreenHeader } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromSettings, useCreateTask, useSettings } from '@/src/features/focus/hooks';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
+import { routeScreenStyles } from '@/src/navigation/route-screen-styles';
 import { taskDetailHref } from '@/src/navigation/task-detail-route';
-import { spacing } from '@/src/theme';
 
 export default function NewTaskScreen() {
   const createTask = useCreateTask();
@@ -22,7 +22,7 @@ export default function NewTaskScreen() {
   };
 
   return (
-    <Screen contentStyle={styles.screen}>
+    <Screen contentStyle={routeScreenStyles.secondaryContent}>
       <ScreenHeader
         centered
         titleSize="compact"
@@ -38,10 +38,3 @@ export default function NewTaskScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    gap: spacing.xl,
-    paddingBottom: 34,
-  },
-});
