@@ -65,10 +65,14 @@ export function TaskDetailContent({ taskId, showBack = true, onBack }: TaskDetai
       ) : null}
 
       <View style={styles.hero}>
-        <AppText style={styles.title}>{task.title}</AppText>
+        <AppText selectable style={styles.title}>
+          {task.title}
+        </AppText>
         <View style={[styles.categoryPill, contentRow]}>
           <View style={styles.categoryDot} />
-          <AppText style={styles.categoryText}>{focusCategoryLabel(locale, task.category)}</AppText>
+          <AppText selectable style={styles.categoryText}>
+            {focusCategoryLabel(locale, task.category)}
+          </AppText>
         </View>
       </View>
 

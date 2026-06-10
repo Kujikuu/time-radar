@@ -9,8 +9,21 @@ test('PrimaryButton exposes button label, disabled state, and native disabled pr
   const primaryButtonSource = source('src/components/PrimaryButton.tsx');
 
   assert.match(primaryButtonSource, /accessibilityLabel=\{resolvedAccessibilityLabel\}/);
-  assert.match(primaryButtonSource, /accessibilityState=\{\{\s*disabled\s*\}\}/s);
-  assert.match(primaryButtonSource, /disabled=\{disabled\}/);
+  assert.match(primaryButtonSource, /const isDisabled = disabled \|\| !onPress/);
+  assert.match(primaryButtonSource, /accessibilityState=\{\{\s*disabled: isDisabled\s*\}\}/s);
+  assert.match(primaryButtonSource, /disabled=\{isDisabled\}/);
+  assert.match(primaryButtonSource, /isDisabled && styles\.disabled/);
+  assert.match(primaryButtonSource, /pressed && !isDisabled && styles\.pressed/);
+});
+
+test('IconButton exposes disabled state and native disabled prop', () => {
+  const iconButtonSource = source('src/components/IconButton.tsx');
+
+  assert.match(iconButtonSource, /const isDisabled = disabled \|\| !onPress/);
+  assert.match(iconButtonSource, /accessibilityState=\{\{\s*disabled: isDisabled\s*\}\}/s);
+  assert.match(iconButtonSource, /disabled=\{isDisabled\}/);
+  assert.match(iconButtonSource, /isDisabled && styles\.disabled/);
+  assert.match(iconButtonSource, /pressed && !isDisabled && styles\.pressed/);
 });
 
 test('SegmentedControl exposes each option label and selected state', () => {
@@ -25,6 +38,11 @@ test('TimerRing labels timer actions for assistive technology', () => {
   const timerRingSource = source('src/features/focus/TimerRing.tsx');
 
   assert.match(timerRingSource, /accessibilityLabel=\{displayAction\}/);
+  assert.match(timerRingSource, /const primaryActionDisabled = !onPrimaryAction/);
+  assert.match(timerRingSource, /accessibilityState=\{\{\s*disabled: primaryActionDisabled\s*\}\}/s);
+  assert.match(timerRingSource, /disabled=\{primaryActionDisabled\}/);
+  assert.match(timerRingSource, /primaryActionDisabled && styles\.actionDisabled/);
+  assert.match(timerRingSource, /pressed && !primaryActionDisabled && styles\.pressed/);
   assert.match(timerRingSource, /accessibilityLabel=\{t\('timer\.actions\.reset'\)\}/);
   assert.match(timerRingSource, /accessibilityLabel=\{t\('timer\.actions\.complete'\)\}/);
   assert.match(timerRingSource, /iconAction:\s*\{[\s\S]*width:\s*44/);
@@ -77,6 +95,8 @@ test('FocusTaskCard exposes a descriptive task action label', () => {
     focusTaskCardSource,
     /accessibilityLabel=\{t\('tasks\.openTask'/
   );
+  assert.match(focusTaskCardSource, /<AppText selectable style=\{\[styles\.title/);
+  assert.match(focusTaskCardSource, /<AppText selectable style=\{\[styles\.meta/);
 });
 
 test('SwipeableTaskRow exposes a leading-side swipe remove action and accessible fallback', () => {
@@ -130,6 +150,26 @@ test('TaskForm exposes form input labels', () => {
   assert.match(taskFormSource, /accessibilityLabel=\{t\('taskForm\.taskNameA11y'\)\}/);
   assert.match(sharedControlsSource, /accessibilityLabel=\{label\}/);
   assert.match(sharedControlsSource, /accessibilityState=\{\{\s*disabled\s*\}\}/s);
+  assert.match(sharedControlsSource, /<AppText selectable style=\{styles\.stepperNumber\}/);
+});
+
+test('Stats exposes stable headline data as selectable text', () => {
+  const statsSource = source('app/(tabs)/stats.tsx');
+  const timerRingSource = source('src/features/focus/TimerRing.tsx');
+
+  assert.match(statsSource, /<AppText selectable style=\{\[styles\.dateLabel/);
+  assert.match(statsSource, /<AppText selectable style=\{\[styles\.focusValue/);
+  assert.match(statsSource, /<AppText selectable style=\{styles\.trendValue\}/);
+  assert.doesNotMatch(timerRingSource, /<AppText selectable style=\{\[styles\.time/);
+});
+
+test('Task detail exposes selectable task data and destructive confirmation copy', () => {
+  const taskDetailSource = source('src/features/focus/TaskDetailContent.tsx');
+  const tasksSource = source('src/features/focus/TasksListScreen.tsx');
+
+  assert.match(taskDetailSource, /<AppText selectable style=\{styles\.title\}/);
+  assert.match(taskDetailSource, /<AppText selectable style=\{styles\.categoryText\}/);
+  assert.match(tasksSource, /<AppText selectable style=\{\[styles\.confirmBody/);
 });
 
 test('Settings exposes language as a header icon toggle', () => {

@@ -92,10 +92,17 @@ test('task form guides and blocks blank task names before submit', () => {
     i18n.translate('ar', 'taskForm.taskNameRequired'),
     'سمّ مهمة التركيز قبل المتابعة.'
   );
+  assert.match(taskFormSource, /accessibilityHint=\{titleError \?\? undefined\}/);
   assert.match(taskFormSource, /placeholder=\{t\('taskForm\.taskNamePlaceholder'\)\}/);
+  assert.match(taskFormSource, /returnKeyType="done"/);
   assert.match(taskFormSource, /setTitleError\(t\('taskForm\.taskNameRequired'\)\)/);
   assert.match(taskFormSource, /if \(!title\.trim\(\)\)/);
+  assert.match(taskFormSource, /onSubmitEditing=\{handleSubmit\}/);
   assert.match(taskFormSource, /onPress=\{handleSubmit\}/);
+  assert.match(
+    taskFormSource,
+    /<AppText[\s\S]*accessibilityRole="alert"[\s\S]*aria-live="polite"[\s\S]*selectable[\s\S]*style=\{styles\.errorText\}/
+  );
 });
 
 test('professional positioning and support copy keep TimeRadar free forever', () => {

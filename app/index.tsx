@@ -194,11 +194,11 @@ export default function OnboardingScreen() {
                 <Pressable
                   accessibilityLabel={t('onboarding.pageA11y', { values: { page: index + 1 } })}
                   accessibilityRole="button"
-                  hitSlop={10}
                   key={slide.id}
                   onPress={() => goToPage(index)}
-                  style={[styles.dot, index === activeIndex && styles.activeDot]}
-                />
+                  style={({ pressed }) => [styles.dotButton, pressed && styles.pressed]}>
+                  <View style={[styles.dot, index === activeIndex && styles.activeDot]} />
+                </Pressable>
               ))}
             </View>
           </>
@@ -292,8 +292,13 @@ const styles = StyleSheet.create({
   },
   dots: {
     justifyContent: 'center',
-    gap: spacing.sm,
     paddingTop: spacing.sm,
+  },
+  dotButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   dot: {
     width: 9,

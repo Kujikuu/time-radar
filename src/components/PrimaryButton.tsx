@@ -25,19 +25,20 @@ export function PrimaryButton({
   const resolvedAccessibilityLabel =
     accessibilityLabel ?? (typeof children === 'string' ? children : undefined);
   const buttonDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
+  const isDisabled = disabled || !onPress;
 
   return (
     <Pressable
       accessibilityLabel={resolvedAccessibilityLabel}
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      disabled={disabled}
+      accessibilityState={{ disabled: isDisabled }}
+      disabled={isDisabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
         buttonDirection,
-        disabled && styles.disabled,
-        pressed && !disabled && styles.pressed,
+        isDisabled && styles.disabled,
+        pressed && !isDisabled && styles.pressed,
         style,
       ]}>
       <AppText style={styles.label}>{children}</AppText>

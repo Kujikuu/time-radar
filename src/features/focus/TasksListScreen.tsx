@@ -195,7 +195,7 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
               <AppText style={[styles.confirmTitle, styles.contentText, contentText]}>
                 {t('tasks.removeActiveTitle')}
               </AppText>
-              <AppText style={[styles.confirmBody, styles.contentText, contentText]}>
+              <AppText selectable style={[styles.confirmBody, styles.contentText, contentText]}>
                 {t('tasks.removeActiveBody', {
                   values: { title: pendingRemovalTask?.title ?? '' },
                 })}

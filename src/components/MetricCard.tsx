@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.size.title,
     fontWeight: typography.weight.bold,
+    fontVariant: ['tabular-nums'],
     textAlign: 'center',
   },
   label: {

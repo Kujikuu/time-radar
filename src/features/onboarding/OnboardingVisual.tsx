@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: typography.size.cardTitle,
     fontWeight: typography.weight.extraBold,
+    fontVariant: ['tabular-nums'],
   },
   sessionRows: {
     width: '100%',
@@ -141,6 +142,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.size.small,
     fontWeight: typography.weight.extraBold,
+    fontVariant: ['tabular-nums'],
   },
   statsCard: {
     gap: spacing.md,
@@ -162,11 +164,13 @@ const styles = StyleSheet.create({
     color: colors.green,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.extraBold,
+    fontVariant: ['tabular-nums'],
   },
   bigMetric: {
     color: colors.text,
     fontSize: typography.size.metric,
     fontWeight: typography.weight.regular,
+    fontVariant: ['tabular-nums'],
   },
   bars: {
     height: 104,

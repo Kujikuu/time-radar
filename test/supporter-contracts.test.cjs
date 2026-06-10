@@ -59,6 +59,20 @@ test('settings and stats expose the supporter purchase and theme surfaces', () =
   assert.doesNotMatch(`${settingsSource}\n${statsSource}`, /TimeRadar Pro|pro\./);
 });
 
+test('supporter restore actions share disabled state and selectable status copy', () => {
+  const settingsSource = source('app/(tabs)/settings.tsx');
+  const statsSource = source('app/(tabs)/stats.tsx');
+
+  for (const routeSource of [settingsSource, statsSource]) {
+    assert.match(routeSource, /const supportActionsDisabled = supporterPurchase\.status\.loading;/);
+    assert.match(routeSource, /disabled=\{supportActionsDisabled\}/);
+    assert.match(routeSource, /accessibilityState=\{\{ disabled: supportActionsDisabled \}\}/);
+    assert.match(routeSource, /pressed && !supportActionsDisabled && styles\.pressed/);
+    assert.match(routeSource, /<AppText selectable style=\{\[styles\.supportStatus/);
+    assert.match(routeSource, /restoreButtonDisabled:\s*\{[\s\S]*opacity:\s*0\.5/);
+  }
+});
+
 test('native supporter purchase uses Apple and Google store requests', () => {
   const nativePurchaseSource = source('src/features/support/purchase.ts');
 

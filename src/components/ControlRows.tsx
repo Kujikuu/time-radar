@@ -56,7 +56,9 @@ export function StepperRow({
           onPress={() => onChange(Math.max(min, value - step))}
         />
         <View style={styles.stepperValue}>
-          <AppText style={styles.stepperNumber}>{value}</AppText>
+          <AppText selectable style={styles.stepperNumber}>
+            {value}
+          </AppText>
           <AppText style={styles.stepperSuffix}>{suffix}</AppText>
         </View>
         <StepperButton

@@ -47,6 +47,7 @@ export default function SettingsScreen() {
     onPurchased: activateSupporter,
   });
   const supporterMessageKey = supportMessageKey ?? supporterPurchase.status.messageKey;
+  const supportActionsDisabled = supporterPurchase.status.loading;
 
   const enableNotifications = async () => {
     const status =
@@ -298,7 +299,7 @@ export default function SettingsScreen() {
           {!settings.supporterPurchased ? (
             <PrimaryButton
               style={styles.supportButton}
-              disabled={supporterPurchase.status.loading}
+              disabled={supportActionsDisabled}
               onPress={async () => {
                 const result = await supporterPurchase.buy();
                 setSupportMessageKey(result.messageKey);
@@ -312,7 +313,7 @@ export default function SettingsScreen() {
           ) : null}
         </View>
         {supporterMessageKey ? (
-          <AppText style={[styles.supportStatus, styles.tileText, tileText]}>
+          <AppText selectable style={[styles.supportStatus, styles.tileText, tileText]}>
             {t(supporterMessageKey)}
           </AppText>
         ) : null}
@@ -320,6 +321,8 @@ export default function SettingsScreen() {
         <Pressable
           accessibilityLabel={t('support.restore')}
           accessibilityRole="button"
+          accessibilityState={{ disabled: supportActionsDisabled }}
+          disabled={supportActionsDisabled}
           onPress={async () => {
             const result = await supporterPurchase.restore();
             setSupportMessageKey(result.messageKey);
@@ -328,7 +331,11 @@ export default function SettingsScreen() {
               activateSupporter();
             }
           }}
-          style={({ pressed }) => [styles.restoreButton, pressed && styles.pressed]}>
+          style={({ pressed }) => [
+            styles.restoreButton,
+            supportActionsDisabled && styles.restoreButtonDisabled,
+            pressed && !supportActionsDisabled && styles.pressed,
+          ]}>
           <AppText style={styles.restoreText}>{t('support.restore')}</AppText>
         </Pressable>
         {settings.supporterPurchased ? (
@@ -423,6 +430,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
+  },
+  restoreButtonDisabled: {
+    opacity: 0.5,
   },
   restoreText: {
     color: colors.accentDark,

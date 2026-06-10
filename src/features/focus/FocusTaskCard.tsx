@@ -41,8 +41,10 @@ export function FocusTaskCard({
           <AppIcon icon={IconFileText} size={26} color={colors.accentDark} />
         </View>
         <View style={styles.copy}>
-          <AppText style={[styles.title, styles.contentText, contentText]}>{task.title}</AppText>
-          <AppText style={[styles.meta, styles.contentText, contentText]}>
+          <AppText selectable style={[styles.title, styles.contentText, contentText]}>
+            {task.title}
+          </AppText>
+          <AppText selectable style={[styles.meta, styles.contentText, contentText]}>
             {formatDuration(task.focusMinutes)}
           </AppText>
         </View>
@@ -91,6 +93,7 @@ const styles = StyleSheet.create({
   meta: {
     color: colors.textMuted,
     fontSize: typography.size.caption,
+    fontVariant: ['tabular-nums'],
   },
   playButton: {
     width: 44,

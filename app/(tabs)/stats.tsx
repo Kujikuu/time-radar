@@ -38,6 +38,7 @@ export default function StatsScreen() {
     onPurchased: activateSupporter,
   });
   const supporterMessageKey = supportMessageKey ?? supporterPurchase.status.messageKey;
+  const supportActionsDisabled = supporterPurchase.status.loading;
   const summaryLabel =
     range === 'Day'
       ? `${t('home.today')}, ${formatDate(new Date(), { month: 'short', day: 'numeric' })}`
@@ -54,10 +55,12 @@ export default function StatsScreen() {
       />
 
       <View style={styles.todayBlock}>
-        <AppText style={[styles.dateLabel, styles.contentText, contentText]}>{summaryLabel}</AppText>
+        <AppText selectable style={[styles.dateLabel, styles.contentText, contentText]}>
+          {summaryLabel}
+        </AppText>
         <View style={[styles.metricRow, contentRow]}>
           <View style={styles.focusCopy}>
-            <AppText style={[styles.focusValue, styles.contentText, contentText]}>
+            <AppText selectable style={[styles.focusValue, styles.contentText, contentText]}>
               {formatDuration(summary.focusMinutes)}
             </AppText>
             <AppText style={[styles.focusLabel, styles.contentText, contentText]}>
@@ -66,7 +69,7 @@ export default function StatsScreen() {
           </View>
           <View style={styles.trendBadge}>
             <AppIcon icon={IconTrendingUp} size={20} color={colors.green} />
-            <AppText style={styles.trendValue}>
+            <AppText selectable style={styles.trendValue}>
               {summary.trendPercent > 0 ? '+' : ''}
               {summary.trendPercent}%
             </AppText>
@@ -123,7 +126,7 @@ export default function StatsScreen() {
           <View style={[styles.supportActions, contentRow]}>
             <PrimaryButton
               style={styles.supportButton}
-              disabled={supporterPurchase.status.loading}
+              disabled={supportActionsDisabled}
               onPress={async () => {
                 const result = await supporterPurchase.buy();
                 setSupportMessageKey(result.messageKey);
@@ -137,6 +140,8 @@ export default function StatsScreen() {
             <Pressable
               accessibilityLabel={t('support.restore')}
               accessibilityRole="button"
+              accessibilityState={{ disabled: supportActionsDisabled }}
+              disabled={supportActionsDisabled}
               onPress={async () => {
                 const result = await supporterPurchase.restore();
                 setSupportMessageKey(result.messageKey);
@@ -145,13 +150,17 @@ export default function StatsScreen() {
                   activateSupporter();
                 }
               }}
-              style={({ pressed }) => [styles.restoreButton, pressed && styles.pressed]}>
+              style={({ pressed }) => [
+                styles.restoreButton,
+                supportActionsDisabled && styles.restoreButtonDisabled,
+                pressed && !supportActionsDisabled && styles.pressed,
+              ]}>
               <AppText style={styles.restoreText}>{t('support.restore')}</AppText>
             </Pressable>
           </View>
         )}
         {supporterMessageKey ? (
-          <AppText style={[styles.supportStatus, styles.contentText, contentText]}>
+          <AppText selectable style={[styles.supportStatus, styles.contentText, contentText]}>
             {t(supporterMessageKey)}
           </AppText>
         ) : null}
@@ -198,6 +207,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.size.stat,
     fontWeight: typography.weight.regular,
+    fontVariant: ['tabular-nums'],
   },
   focusLabel: {
     color: colors.textMuted,
@@ -218,6 +228,7 @@ const styles = StyleSheet.create({
     color: colors.green,
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
+    fontVariant: ['tabular-nums'],
   },
   trendLabel: {
     color: colors.textMuted,
@@ -273,6 +284,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
+  },
+  restoreButtonDisabled: {
+    opacity: 0.5,
   },
   restoreText: {
     color: colors.accentDark,

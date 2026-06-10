@@ -155,5 +155,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: typography.size.control,
     fontWeight: typography.weight.medium,
+    fontVariant: ['tabular-nums'],
   },
 });

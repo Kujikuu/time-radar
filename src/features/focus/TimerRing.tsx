@@ -75,6 +75,7 @@ export function TimerRing({
   const canShowSecondaryActions = showSecondaryActions && hasActiveTimer;
   const displayAction = primaryActionLabel;
   const PrimaryIcon = primaryActionState === 'pause' ? IconPlayerPause : IconPlayerPlay;
+  const primaryActionDisabled = !onPrimaryAction;
   const actionDirection = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   return (
@@ -146,13 +147,16 @@ export function TimerRing({
         <Pressable
           accessibilityLabel={displayAction}
           accessibilityRole="button"
+          accessibilityState={{ disabled: primaryActionDisabled }}
+          disabled={primaryActionDisabled}
           onPress={onPrimaryAction}
           style={({ pressed }) => [
             styles.startButton,
             isImmersive && styles.immersiveStartButton,
             actionDirection,
             isPaused && styles.resumeButton,
-            pressed && styles.pressed,
+            primaryActionDisabled && styles.actionDisabled,
+            pressed && !primaryActionDisabled && styles.pressed,
           ]}>
           <AppText style={[styles.startLabel, isImmersive && styles.immersiveStartLabel, isPaused && styles.resumeLabel]}>
             {displayAction}
@@ -266,6 +270,9 @@ const styles = StyleSheet.create({
   },
   resumeButton: {
     backgroundColor: colors.surface,
+  },
+  actionDisabled: {
+    opacity: 0.5,
   },
   pressed: {
     opacity: 0.86,

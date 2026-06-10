@@ -83,11 +83,14 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
         <View style={styles.field}>
           <AppText style={styles.label}>{t('taskForm.taskName')}</AppText>
           <TextInput
+            accessibilityHint={titleError ?? undefined}
             accessibilityLabel={t('taskForm.taskNameA11y')}
             placeholder={t('taskForm.taskNamePlaceholder')}
             placeholderTextColor={colors.textSoft}
+            returnKeyType="done"
             value={title}
             onChangeText={updateTitle}
+            onSubmitEditing={handleSubmit}
             style={[
               styles.input,
               titleError ? styles.inputError : null,
@@ -98,7 +101,15 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
               },
             ]}
           />
-          {titleError ? <AppText style={styles.errorText}>{titleError}</AppText> : null}
+          {titleError ? (
+            <AppText
+              accessibilityRole="alert"
+              aria-live="polite"
+              selectable
+              style={styles.errorText}>
+              {titleError}
+            </AppText>
+          ) : null}
         </View>
 
         <View style={styles.field}>

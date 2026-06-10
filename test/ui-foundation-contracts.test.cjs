@@ -72,7 +72,9 @@ test('Secondary route actions keep accessible touch targets', () => {
   assert.match(settingsSource, /supportButton:\s*\{[\s\S]*minHeight:\s*44/);
   assert.match(tasksSource, /undoAction:\s*\{[\s\S]*minHeight:\s*44/);
   assert.match(onboardingSource, /skipButton:\s*\{[\s\S]*minHeight:\s*44/);
-  assert.match(onboardingSource, /hitSlop=\{10\}/);
+  assert.doesNotMatch(onboardingSource, /hitSlop=\{10\}/);
+  assert.match(onboardingSource, /dotButton:\s*\{[\s\S]*width:\s*44/);
+  assert.match(onboardingSource, /dotButton:\s*\{[\s\S]*height:\s*44/);
 });
 
 test('Active task removal uses an app-styled confirmation modal', () => {
