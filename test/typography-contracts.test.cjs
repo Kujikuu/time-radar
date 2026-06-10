@@ -74,7 +74,7 @@ test('numeric display surfaces use tabular figures', () => {
   assert.match(sources.controlRows, /stepperNumber:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.timerRing, /time:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.focusTaskCard, /meta:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
-  assert.match(sources.focusBarChart, /fontFeatureSettings="'tnum'"/);
+  assert.match(sources.focusBarChart, /tickLabel:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.focusBarChart, /axisLabel:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.stats, /focusValue:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.stats, /trendValue:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);

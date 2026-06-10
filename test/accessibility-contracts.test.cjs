@@ -228,7 +228,9 @@ test('FocusBarChart renders x-axis labels with native text for Arabic shaping', 
   const focusBarChartSource = source('src/features/focus/FocusBarChart.tsx');
 
   assert.match(focusBarChartSource, /import \{ AppText \} from '@\/src\/components'/);
+  assert.match(focusBarChartSource, /styles\.tickLabels/);
   assert.match(focusBarChartSource, /styles\.axisLabels/);
+  assert.doesNotMatch(focusBarChartSource, /Text as SvgText/);
   assert.doesNotMatch(focusBarChartSource, /<SvgText[\s\S]*\{bar\.label\}[\s\S]*<\/SvgText>/);
 });
 

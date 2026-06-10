@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
-import Svg, { Line, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Line, Rect } from 'react-native-svg';
 
 import { AppText } from '@/src/components';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
@@ -88,23 +88,6 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
             />
           );
         })}
-        {chartTicks.map((tick) => {
-          const y =
-            chartTop + chartAreaHeight - (tick / chartMaxMinutes) * chartAreaHeight + 4;
-
-          return (
-            <SvgText
-              key={tick}
-              x="0"
-              y={y}
-              fill={colors.textMuted}
-              fontSize={typography.size.micro}
-              fontFamily={typography.family}
-              fontFeatureSettings="'tnum'">
-              {locale === 'ar' ? `${tick}د` : `${tick}m`}
-            </SvgText>
-          );
-        })}
         {bars.map((bar) => (
           <Rect
             key={bar.key}
@@ -118,6 +101,18 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
           />
         ))}
       </Svg>
+      <View style={styles.tickLabels}>
+        {chartTicks.map((tick) => {
+          const y =
+            chartTop + chartAreaHeight - (tick / chartMaxMinutes) * chartAreaHeight + 4;
+
+          return (
+            <AppText key={tick} style={[styles.tickLabel, { top: y - 7 }]}>
+              {locale === 'ar' ? `${tick}د` : `${tick}m`}
+            </AppText>
+          );
+        })}
+      </View>
       <View style={styles.axisLabels}>
         {bars.map((bar, index) =>
           index % 2 === 0 ? (
@@ -149,6 +144,22 @@ const styles = StyleSheet.create({
     left: 0,
     height: 22,
     pointerEvents: 'none',
+  },
+  tickLabels: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 34,
+    height: chartHeight,
+    pointerEvents: 'none',
+  },
+  tickLabel: {
+    position: 'absolute',
+    left: 0,
+    width: 30,
+    color: colors.textMuted,
+    fontSize: typography.size.micro,
+    fontVariant: ['tabular-nums'],
   },
   axisLabel: {
     position: 'absolute',
