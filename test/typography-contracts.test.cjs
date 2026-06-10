@@ -64,6 +64,7 @@ test('numeric display surfaces use tabular figures', () => {
     controlRows: source('src/components/ControlRows.tsx'),
     timerRing: source('src/features/focus/TimerRing.tsx'),
     focusTaskCard: source('src/features/focus/FocusTaskCard.tsx'),
+    focusBarChart: source('src/features/focus/FocusBarChart.tsx'),
     stats: source('app/(tabs)/stats.tsx'),
     distributionDonut: source('src/features/focus/DistributionDonut.tsx'),
     onboardingVisual: source('src/features/onboarding/OnboardingVisual.tsx'),
@@ -73,6 +74,8 @@ test('numeric display surfaces use tabular figures', () => {
   assert.match(sources.controlRows, /stepperNumber:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.timerRing, /time:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.focusTaskCard, /meta:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
+  assert.match(sources.focusBarChart, /fontFeatureSettings="'tnum'"/);
+  assert.match(sources.focusBarChart, /axisLabel:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.stats, /focusValue:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.stats, /trendValue:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);
   assert.match(sources.distributionDonut, /legendValue:\s*\{[\s\S]*fontVariant:\s*\['tabular-nums'\]/);

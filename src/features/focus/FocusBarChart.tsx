@@ -99,7 +99,8 @@ export const FocusBarChart = memo(function FocusBarChart({ data }: FocusBarChart
               y={y}
               fill={colors.textMuted}
               fontSize={typography.size.micro}
-              fontFamily={typography.family}>
+              fontFamily={typography.family}
+              fontFeatureSettings="'tnum'">
               {locale === 'ar' ? `${tick}د` : `${tick}m`}
             </SvgText>
           );
@@ -155,6 +156,7 @@ const styles = StyleSheet.create({
     marginLeft: -21,
     color: colors.textMuted,
     fontSize: typography.size.micro,
+    fontVariant: ['tabular-nums'],
     textAlign: 'center',
   },
 });
