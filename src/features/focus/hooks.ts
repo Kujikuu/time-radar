@@ -8,6 +8,8 @@ import type { AppLocale } from '@/src/i18n';
 import { formatDuration, translate } from '@/src/i18n';
 import { colors } from '@/src/theme';
 
+import { syncTimerToWidget } from '@/src/widgets/widget-sync';
+
 import { triggerFocusHaptic } from './haptics';
 import {
   cancelTimerNotifications,
@@ -303,6 +305,20 @@ export function useFocusTimer() {
       subscription.remove();
     };
   }, [completePhase, db]);
+
+  useEffect(() => {
+    if (snapshot.timer) {
+      syncTimerToWidget({
+        taskTitle: snapshot.task?.title ?? 'Focus',
+        phase: snapshot.timer.phase,
+        status: snapshot.timer.status,
+        remainingSeconds: snapshot.remainingSeconds,
+        plannedSeconds: snapshot.timer.plannedSeconds,
+      });
+    } else {
+      syncTimerToWidget(null);
+    }
+  }, [snapshot]);
 
   const start = useCallback(
     async (taskId: string) => {
