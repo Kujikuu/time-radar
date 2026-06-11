@@ -102,13 +102,17 @@ export function useSupporterPurchase({
       return { purchased: false, messageKey: 'support.unavailable' };
     }
 
-    await requestPurchase({
-      request: {
-        apple: { sku: SUPPORTER_PRODUCT_ID },
-        google: { skus: [SUPPORTER_PRODUCT_ID] },
-      },
-      type: SUPPORTER_PRODUCT_TYPE,
-    });
+    try {
+      await requestPurchase({
+        request: {
+          apple: { sku: SUPPORTER_PRODUCT_ID },
+          google: { skus: [SUPPORTER_PRODUCT_ID] },
+        },
+        type: SUPPORTER_PRODUCT_TYPE,
+      });
+    } catch {
+      return { purchased: false, messageKey: 'support.purchaseUnavailable' };
+    }
 
     return { purchased: false, messageKey: 'support.purchasePending' };
   }, [connected, requestPurchase]);
@@ -123,8 +127,15 @@ export function useSupporterPurchase({
       markPurchased();
     }
 
-    await restorePurchases();
-    await getAvailablePurchases();
+    try {
+      await restorePurchases();
+      await getAvailablePurchases();
+    } catch {
+      return {
+        purchased: restored,
+        messageKey: restored ? 'support.purchaseRestored' : 'support.purchaseUnavailable',
+      };
+    }
 
     return {
       purchased: restored,

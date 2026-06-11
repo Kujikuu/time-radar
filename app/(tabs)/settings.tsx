@@ -1,5 +1,4 @@
 import { IconLanguage } from '@tabler/icons-react-native';
-import { useCallback, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import {
@@ -15,7 +14,7 @@ import {
 } from '@/src/components';
 import { triggerFocusHaptic } from '@/src/features/focus/haptics';
 import { useNotificationPermissionStatus, useSettings } from '@/src/features/focus/hooks';
-import { useSupporterPurchase } from '@/src/features/support/purchase';
+import { useSupporterActions } from '@/src/features/support/use-supporter-actions';
 import {
   languageTogglePreferenceForLocale,
   rowDirectionForTextDirection,
@@ -26,7 +25,6 @@ import { useTabScreenInsets } from '@/src/navigation/tablet-sidebar-metrics';
 import { colors, spacing, typography } from '@/src/theme';
 
 export default function SettingsScreen() {
-  const [supportMessageKey, setSupportMessageKey] = useState<string | undefined>();
   const { settings, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
   const { direction, locale, nativeDirection, setLanguagePreference, t } = useTranslation();
@@ -39,15 +37,13 @@ export default function SettingsScreen() {
     locale === 'ar' ? t('settings.switchToEnglish') : t('settings.switchToArabic');
   const tileText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
-  const activateSupporter = useCallback(() => {
-    void save({ supporterPurchased: true, supporterThemeEnabled: true });
-  }, [save]);
-  const supporterPurchase = useSupporterPurchase({
-    locallyPurchased: settings.supporterPurchased,
-    onPurchased: activateSupporter,
-  });
-  const supporterMessageKey = supportMessageKey ?? supporterPurchase.status.messageKey;
-  const supportActionsDisabled = supporterPurchase.status.loading;
+  const {
+    supporterMessageKey,
+    supportActionsDisabled,
+    priceLabel,
+    buy,
+    restore,
+  } = useSupporterActions();
 
   const enableNotifications = async () => {
     const status =
@@ -285,7 +281,7 @@ export default function SettingsScreen() {
       <SettingsSection
         title={t('support.title')}
         badge={
-          settings.supporterPurchased ? t('support.badge') : supporterPurchase.status.priceLabel
+          settings.supporterPurchased ? t('support.badge') : priceLabel
         }>
         <View style={[styles.supportPanel, contentRow]}>
           <View style={styles.permissionCopy}>
@@ -300,14 +296,7 @@ export default function SettingsScreen() {
             <PrimaryButton
               style={styles.supportButton}
               disabled={supportActionsDisabled}
-              onPress={async () => {
-                const result = await supporterPurchase.buy();
-                setSupportMessageKey(result.messageKey);
-
-                if (result.purchased) {
-                  activateSupporter();
-                }
-              }}>
+              onPress={buy}>
               {t('support.purchaseAction')}
             </PrimaryButton>
           ) : null}
@@ -323,14 +312,7 @@ export default function SettingsScreen() {
           accessibilityRole="button"
           accessibilityState={{ disabled: supportActionsDisabled }}
           disabled={supportActionsDisabled}
-          onPress={async () => {
-            const result = await supporterPurchase.restore();
-            setSupportMessageKey(result.messageKey);
-
-            if (result.purchased) {
-              activateSupporter();
-            }
-          }}
+          onPress={restore}
           style={({ pressed }) => [
             styles.restoreButton,
             supportActionsDisabled && styles.restoreButtonDisabled,

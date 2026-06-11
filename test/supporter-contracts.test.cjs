@@ -60,11 +60,16 @@ test('settings and stats expose the supporter purchase and theme surfaces', () =
 });
 
 test('supporter restore actions share disabled state and selectable status copy', () => {
+  const hookSource = source('src/features/support/use-supporter-actions.ts');
   const settingsSource = source('app/(tabs)/settings.tsx');
   const statsSource = source('app/(tabs)/stats.tsx');
 
+  assert.match(hookSource, /const supportActionsDisabled = supporterPurchase\.status\.loading;/);
+  assert.match(hookSource, /const buy/);
+  assert.match(hookSource, /const restore/);
+
   for (const routeSource of [settingsSource, statsSource]) {
-    assert.match(routeSource, /const supportActionsDisabled = supporterPurchase\.status\.loading;/);
+    assert.match(routeSource, /useSupporterActions/);
     assert.match(routeSource, /disabled=\{supportActionsDisabled\}/);
     assert.match(routeSource, /accessibilityState=\{\{ disabled: supportActionsDisabled \}\}/);
     assert.match(routeSource, /pressed && !supportActionsDisabled && styles\.pressed/);

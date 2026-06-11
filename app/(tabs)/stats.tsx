@@ -1,13 +1,13 @@
 import { IconTrendingUp } from '@tabler/icons-react-native';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppIcon, AppText, PrimaryButton, Screen, ScreenHeader, SegmentedControl, SoftCard } from '@/src/components';
 import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
-import { useSettings, useStats } from '@/src/features/focus/hooks';
+import { useStats } from '@/src/features/focus/hooks';
 import { StatsRange } from '@/src/features/focus/types';
-import { useSupporterPurchase } from '@/src/features/support/purchase';
+import { useSupporterActions } from '@/src/features/support/use-supporter-actions';
 import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
 import {
   rowDirectionForTextDirection,
@@ -22,23 +22,20 @@ import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function StatsScreen() {
   const [range, setRange] = useState<StatsRange>('Day');
-  const [supportMessageKey, setSupportMessageKey] = useState<string | undefined>();
   const { direction, formatDate, formatDuration, locale, nativeDirection, t } = useTranslation();
   const { summary } = useStats(range, locale);
-  const { settings, save } = useSettings();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const { isWide } = useLayoutProfile();
   const tabInsets = useTabScreenInsets();
-  const activateSupporter = useCallback(() => {
-    void save({ supporterPurchased: true, supporterThemeEnabled: true });
-  }, [save]);
-  const supporterPurchase = useSupporterPurchase({
-    locallyPurchased: settings.supporterPurchased,
-    onPurchased: activateSupporter,
-  });
-  const supporterMessageKey = supportMessageKey ?? supporterPurchase.status.messageKey;
-  const supportActionsDisabled = supporterPurchase.status.loading;
+  const {
+    settings,
+    supporterMessageKey,
+    supportActionsDisabled,
+    priceLabel,
+    buy,
+    restore,
+  } = useSupporterActions();
   const summaryLabel =
     range === 'Day'
       ? `${t('home.today')}, ${formatDate(new Date(), { month: 'short', day: 'numeric' })}`
@@ -127,29 +124,15 @@ export default function StatsScreen() {
             <PrimaryButton
               style={styles.supportButton}
               disabled={supportActionsDisabled}
-              onPress={async () => {
-                const result = await supporterPurchase.buy();
-                setSupportMessageKey(result.messageKey);
-
-                if (result.purchased) {
-                  activateSupporter();
-                }
-              }}>
-              {`${t('support.purchaseAction')} ${supporterPurchase.status.priceLabel}`}
+              onPress={buy}>
+              {`${t('support.purchaseAction')} ${priceLabel}`}
             </PrimaryButton>
             <Pressable
               accessibilityLabel={t('support.restore')}
               accessibilityRole="button"
               accessibilityState={{ disabled: supportActionsDisabled }}
               disabled={supportActionsDisabled}
-              onPress={async () => {
-                const result = await supporterPurchase.restore();
-                setSupportMessageKey(result.messageKey);
-
-                if (result.purchased) {
-                  activateSupporter();
-                }
-              }}
+              onPress={restore}
               style={({ pressed }) => [
                 styles.restoreButton,
                 supportActionsDisabled && styles.restoreButtonDisabled,
