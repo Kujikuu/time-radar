@@ -141,7 +141,20 @@
           "initialOrientation": "PORTRAIT_UP"
         }
       ],
-      "expo-iap"
+      "expo-iap",
+      [
+        "@bittingz/expo-widgets",
+        {
+          "ios": {
+            "src": "./ios/widgets",
+            "devTeamId": "TEAM_ID_PLACEHOLDER",
+            "mode": "production",
+            "entitlements": {
+              "com.apple.security.application-groups": ["group.com.sniper.timeradar"]
+            }
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
