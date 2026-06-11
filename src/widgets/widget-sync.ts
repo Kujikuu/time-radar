@@ -4,13 +4,13 @@ import type { TimerWidgetInput } from './types';
 import { formatTimerWidgetData } from './timer-widget-data';
 
 const WIDGET_DATA_KEY = 'timer-widget-data';
-const SUITE_NAME = 'group.com.sniper.timeradar';
+const SUITE_NAME = 'group.com.sniper.timeradar.expowidgets';
 
-let userDefaults: typeof import('@bittingz/expo-widgets').UserDefaults | null = null;
+let setWidgetDataFn: ((data: string) => void) | null = null;
 
-async function getUserDefaults() {
-  if (userDefaults) {
-    return userDefaults;
+async function loadSetWidgetData() {
+  if (setWidgetDataFn) {
+    return setWidgetDataFn;
   }
 
   if (Platform.OS !== 'ios') {
@@ -18,28 +18,34 @@ async function getUserDefaults() {
   }
 
   try {
-    const { UserDefaults } = await import('@bittingz/expo-widgets');
-    userDefaults = UserDefaults;
-    return userDefaults;
+    const mod = await import('@bittingz/expo-widgets');
+    setWidgetDataFn = mod.setWidgetData;
+    return setWidgetDataFn;
   } catch {
     return null;
   }
 }
 
 export async function syncTimerToWidget(input: TimerWidgetInput | null): Promise<void> {
-  const defaults = await getUserDefaults();
-  if (!defaults) {
+  const fn = await loadSetWidgetData();
+
+  if (!fn) {
     return;
   }
+
   const data = formatTimerWidgetData(input);
-  const serialized = data ? JSON.stringify(data) : null;
-  defaults.setString(suiteName, WIDGET_DATA_KEY, serialized ?? '');
+  const serialized = data ? JSON.stringify(data) : '';
+  fn(serialized);
 }
 
 export async function clearWidgetData(): Promise<void> {
-  const defaults = await getUserDefaults();
-  if (!defaults) {
+  const fn = await loadSetWidgetData();
+
+  if (!fn) {
     return;
   }
-  defaults.setString(suiteName, WIDGET_DATA_KEY, '');
+
+  fn('');
 }
+
+export { SUITE_NAME, WIDGET_DATA_KEY };

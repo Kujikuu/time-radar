@@ -1,7 +1,7 @@
 import WidgetKit
 
 struct TimerWidgetProvider: TimelineProvider {
-    let suiteName = "group.com.sniper.timeradar"
+    let suiteName = "group.expo.modules.widgets.example.expowidgets"
 
     func placeholder(in context: Context) -> TimerWidgetEntry {
         TimerWidgetEntry(
@@ -27,7 +27,7 @@ struct TimerWidgetProvider: TimelineProvider {
 
     private func readWidgetData() -> TimerWidgetEntry {
         guard let defaults = UserDefaults(suiteName: suiteName),
-              let raw = defaults.string(forKey: "timer-widget-data"),
+              let raw = defaults.string(forKey: "MyData"),
               let data = raw.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
