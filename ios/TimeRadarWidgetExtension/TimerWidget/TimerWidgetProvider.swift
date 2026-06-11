@@ -28,8 +28,8 @@ struct TimerWidgetProvider: TimelineProvider {
     private func readWidgetData() -> TimerWidgetEntry {
         guard let defaults = UserDefaults(suiteName: suiteName),
               let raw = defaults.string(forKey: "MyData"),
-              let rawData = raw.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any]
+              let data = raw.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
             return TimerWidgetEntry(
                 date: Date(),
@@ -43,11 +43,11 @@ struct TimerWidgetProvider: TimelineProvider {
 
         return TimerWidgetEntry(
             date: Date(),
-            taskTitle: json["taskTitle"] as? String,
-            phase: json["phase"] as? String,
-            status: json["status"] as? String,
-            displayTime: json["displayTime"] as? String,
-            progress: json["progress"] as? Double ?? 0
+            taskTitle: data["taskTitle"] as? String,
+            phase: data["phase"] as? String,
+            status: data["status"] as? String,
+            displayTime: data["displayTime"] as? String,
+            progress: data["progress"] as? Double ?? 0
         )
     }
 }

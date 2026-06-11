@@ -13,7 +13,8 @@
         "usesNonExemptEncryption": false
       },
       "requireFullScreen": false,
-      "supportsTablet": true
+      "supportsTablet": true,
+      "deploymentTarget": "16.4"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,8 +23,6 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
       "package": "com.afifistudio.timeradar"
     },
     "web": {
@@ -146,15 +145,19 @@
         "@bittingz/expo-widgets",
         {
           "ios": {
-            "src": "./ios/widgets",
+            "src": "./widgets-src",
             "devTeamId": "TEAM_ID_PLACEHOLDER",
             "mode": "production",
             "entitlements": {
-              "com.apple.security.application-groups": ["group.com.sniper.timeradar"]
+              "com.apple.security.application-groups": [
+                "group.com.sniper.timeradar"
+              ]
             }
           }
         }
-      ]
+      ],
+      "expo-image",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   surfacePress: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     borderRadius: 999,
   },
   surfacePressed: {

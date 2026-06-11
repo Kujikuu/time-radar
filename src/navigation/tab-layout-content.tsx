@@ -7,7 +7,7 @@ import {
   IconSettingsFilled,
   IconSmartHome,
 } from '@tabler/icons-react-native';
-import { BottomTabBar } from '@react-navigation/bottom-tabs';
+import { BottomTabBar } from "expo-router/js-tabs";
 import { Tabs } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
