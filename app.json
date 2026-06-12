@@ -141,21 +141,7 @@
         }
       ],
       "expo-iap",
-      [
-        "@bittingz/expo-widgets",
-        {
-          "android": {
-            "src": "./widgets-android",
-            "widgets": [
-              {
-                "name": "TimerRadarWidgetProvider",
-                "resourceName": "@xml/timer_radar_widget_info"
-              }
-            ],
-            "distPlaceholder": "com.afifistudio.timeradar"
-          }
-        }
-      ],
+      "./plugins/with-timer-radar-android-widget",
       "expo-image",
       "expo-status-bar",
       [

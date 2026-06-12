@@ -13,17 +13,9 @@ function json(relativePath) {
   return JSON.parse(read(relativePath));
 }
 
-function widgetPluginOptions() {
-  const app = json('app.json');
-  const plugin = app.expo.plugins.find((entry) => Array.isArray(entry) && entry[0] === '@bittingz/expo-widgets');
-  assert.ok(plugin, 'app.json should configure @bittingz/expo-widgets');
-  return plugin[1];
-}
-
 test('expo doctor allows the intentional widget dependency metadata gaps', () => {
   const pkg = json('package.json');
   assert.deepEqual(pkg.expo?.doctor?.reactNativeDirectoryCheck?.exclude, [
-    '@bittingz/expo-widgets',
     'expo-modules-jsi',
   ]);
 });
@@ -31,8 +23,26 @@ test('expo doctor allows the intentional widget dependency metadata gaps', () =>
 test('widget native modules are autolinked only on their supported platforms', () => {
   const pkg = json('package.json');
 
-  assert.deepEqual(pkg.expo?.autolinking?.ios?.exclude, ['@bittingz/expo-widgets']);
+  assert.equal(pkg.dependencies?.['@bittingz/expo-widgets'], undefined);
+  assert.equal(pkg.expo?.autolinking?.ios, undefined);
   assert.deepEqual(pkg.expo?.autolinking?.android?.exclude, ['expo-widgets']);
+});
+
+test('android widget uses an app-local bridge instead of @bittingz/expo-widgets', () => {
+  const app = json('app.json');
+  const plugins = app.expo.plugins;
+  const pluginSource = read('plugins/with-timer-radar-android-widget.js');
+  const moduleSource = read('widgets-android/src/main/java/package_name/TimerRadarWidgetModule.kt');
+  const packageSource = read('widgets-android/src/main/java/package_name/TimerRadarWidgetPackage.kt');
+
+  assert.equal(plugins.some((entry) => Array.isArray(entry) && entry[0] === '@bittingz/expo-widgets'), false);
+  assert.ok(plugins.includes('./plugins/with-timer-radar-android-widget'));
+  assert.match(pluginSource, /add\(TimerRadarWidgetPackage\(\)\)/);
+  assert.match(pluginSource, /WIDGET_RECEIVER_NAME = '\.TimerRadarWidgetProvider'/);
+  assert.match(moduleSource, /getName\(\): String = "TimerRadarWidget"/);
+  assert.match(moduleSource, /getSharedPreferences\("\$targetPackageName\.widgetdata"/);
+  assert.match(moduleSource, /AppWidgetManager\.ACTION_APPWIDGET_UPDATE/);
+  assert.match(packageSource, /TimerRadarWidgetModule\(reactContext\)/);
 });
 
 test('official expo-widgets config owns the iOS widget target', () => {
@@ -58,29 +68,19 @@ test('official expo-widgets config owns the iOS widget target', () => {
   ]);
 });
 
-test('android widget plugin config is limited to android widget sources', () => {
-  const options = widgetPluginOptions();
-
-  assert.equal(options.ios, undefined);
-  assert.equal(options.android.src, './widgets-android');
-  assert.deepEqual(options.android.widgets, [
-    {
-      name: 'TimerRadarWidgetProvider',
-      resourceName: '@xml/timer_radar_widget_info',
-    },
-  ]);
-});
-
 test('widget sync writes iOS data and Android package-scoped data', () => {
   const source = read('src/widgets/widget-sync.ts');
+  const rootLayoutSource = read('app/_layout.tsx');
 
   assert.match(source, /FocusTimerWidget\.updateSnapshot/);
   assert.match(source, /import\('\.\/focus-timer-widget'\)/);
-  assert.match(source, /import\('@bittingz\/expo-widgets'\)/);
+  assert.match(source, /NativeModules\.TimerRadarWidget/);
   assert.match(source, /ANDROID_WIDGET_PACKAGE = 'com\.afifistudio\.timeradar'/);
-  assert.match(source, /fn\(serialized, packageName\)/);
+  assert.match(source, /widgetModule\.setWidgetData\(serialized, packageName\)/);
   assert.match(source, /Platform\.OS === 'ios'/);
   assert.match(source, /Platform\.OS === 'android'/);
+  assert.match(rootLayoutSource, /import \{ clearWidgetData \} from '@\/src\/widgets\/widget-sync'/);
+  assert.match(rootLayoutSource, /void clearWidgetData\(\)/);
 });
 
 test('iOS widget layout is created with official expo-widgets', () => {

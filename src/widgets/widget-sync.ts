@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import type { TimerWidgetInput } from './types';
 import { formatTimerWidgetData } from './timer-widget-data';
@@ -6,24 +6,12 @@ import { formatTimerWidgetData } from './timer-widget-data';
 const ANDROID_WIDGET_PACKAGE = 'com.afifistudio.timeradar';
 const ANDROID_WIDGET_DATA_KEY = 'widgetdata';
 
-let setAndroidWidgetDataFn: ((data: string, packageName?: string) => void) | null = null;
+type TimerRadarWidgetNativeModule = {
+  setWidgetData: (data: string, packageName?: string) => void;
+};
 
-async function loadAndroidSetWidgetData() {
-  if (setAndroidWidgetDataFn) {
-    return setAndroidWidgetDataFn;
-  }
-
-  if (Platform.OS !== 'android') {
-    return null;
-  }
-
-  try {
-    const mod = await import('@bittingz/expo-widgets');
-    setAndroidWidgetDataFn = mod.setWidgetData;
-    return setAndroidWidgetDataFn;
-  } catch {
-    return null;
-  }
+function getAndroidWidgetModule(): TimerRadarWidgetNativeModule | null {
+  return (NativeModules.TimerRadarWidget as TimerRadarWidgetNativeModule | undefined) ?? null;
 }
 
 async function syncTimerToIosWidget(input: TimerWidgetInput | null): Promise<void> {
@@ -40,9 +28,9 @@ async function syncTimerToIosWidget(input: TimerWidgetInput | null): Promise<voi
 }
 
 async function syncTimerToAndroidWidget(input: TimerWidgetInput | null): Promise<void> {
-  const fn = await loadAndroidSetWidgetData();
+  const widgetModule = getAndroidWidgetModule();
 
-  if (!fn) {
+  if (!widgetModule) {
     return;
   }
 
@@ -51,7 +39,7 @@ async function syncTimerToAndroidWidget(input: TimerWidgetInput | null): Promise
   const packageName = ANDROID_WIDGET_PACKAGE;
 
   try {
-    fn(serialized, packageName);
+    widgetModule.setWidgetData(serialized, packageName);
   } catch {
     // Widget sync should never block the in-app timer experience.
   }

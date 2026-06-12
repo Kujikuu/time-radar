@@ -8,10 +8,10 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "postinstall": "node scripts/patch-react-native-gradle-plugin.js",
     "test": "rm -rf .test-build && tsc -p tsconfig.test.json && node --test test/*.test.cjs"
   },
   "dependencies": {
-    "@bittingz/expo-widgets": "3.1.0-beta.6",
     "@expo-google-fonts/poppins": "^0.4.1",
     "@expo/ui": "~56.0.17",
     "@tabler/icons-react-native": "^3.44.0",
@@ -56,17 +56,11 @@
     "doctor": {
       "reactNativeDirectoryCheck": {
         "exclude": [
-          "@bittingz/expo-widgets",
           "expo-modules-jsi"
         ]
       }
     },
     "autolinking": {
-      "ios": {
-        "exclude": [
-          "@bittingz/expo-widgets"
-        ]
-      },
       "android": {
         "exclude": [
           "expo-widgets"

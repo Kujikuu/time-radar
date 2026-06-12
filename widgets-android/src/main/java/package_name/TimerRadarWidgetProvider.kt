@@ -1,4 +1,4 @@
-package com.afifistudio.timeradar
+package package_name
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -21,8 +21,6 @@ class TimerRadarWidgetProvider : AppWidgetProvider() {
   }
 
   companion object {
-    private const val WIDGET_DATA_KEY = "widgetdata"
-
     fun updateAppWidget(
       context: Context,
       appWidgetManager: AppWidgetManager,

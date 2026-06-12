@@ -22,6 +22,7 @@ import { LanguagePreferenceSync } from '@/src/i18n/LanguagePreferenceSync';
 import { LocaleProvider } from '@/src/i18n/LocaleProvider';
 import { useTimerNotificationObserver } from '@/src/navigation/use-timer-notification-observer';
 import { colors } from '@/src/theme';
+import { clearWidgetData } from '@/src/widgets/widget-sync';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -58,6 +59,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       void SplashScreen.hideAsync();
+      void clearWidgetData();
     }
   }, [fontError, fontsLoaded]);
 
