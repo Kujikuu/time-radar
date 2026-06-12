@@ -308,7 +308,7 @@ export function useFocusTimer() {
 
   useEffect(() => {
     if (snapshot.timer) {
-      syncTimerToWidget({
+      void syncTimerToWidget({
         taskTitle: snapshot.task?.title ?? 'Focus',
         phase: snapshot.timer.phase,
         status: snapshot.timer.status,
@@ -316,7 +316,7 @@ export function useFocusTimer() {
         plannedSeconds: snapshot.timer.plannedSeconds,
       });
     } else {
-      syncTimerToWidget(null);
+      void syncTimerToWidget(null);
     }
   }, [snapshot]);
 

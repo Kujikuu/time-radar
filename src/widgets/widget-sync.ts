@@ -3,31 +3,44 @@ import { Platform } from 'react-native';
 import type { TimerWidgetInput } from './types';
 import { formatTimerWidgetData } from './timer-widget-data';
 
-const WIDGET_DATA_KEY = 'timer-widget-data';
-const SUITE_NAME = 'group.com.sniper.timeradar.expowidgets';
+const ANDROID_WIDGET_PACKAGE = 'com.afifistudio.timeradar';
+const ANDROID_WIDGET_DATA_KEY = 'widgetdata';
 
-let setWidgetDataFn: ((data: string) => void) | null = null;
+let setAndroidWidgetDataFn: ((data: string, packageName?: string) => void) | null = null;
 
-async function loadSetWidgetData() {
-  if (setWidgetDataFn) {
-    return setWidgetDataFn;
+async function loadAndroidSetWidgetData() {
+  if (setAndroidWidgetDataFn) {
+    return setAndroidWidgetDataFn;
   }
 
-  if (Platform.OS !== 'ios') {
+  if (Platform.OS !== 'android') {
     return null;
   }
 
   try {
     const mod = await import('@bittingz/expo-widgets');
-    setWidgetDataFn = mod.setWidgetData;
-    return setWidgetDataFn;
+    setAndroidWidgetDataFn = mod.setWidgetData;
+    return setAndroidWidgetDataFn;
   } catch {
     return null;
   }
 }
 
-export async function syncTimerToWidget(input: TimerWidgetInput | null): Promise<void> {
-  const fn = await loadSetWidgetData();
+async function syncTimerToIosWidget(input: TimerWidgetInput | null): Promise<void> {
+  const data = formatTimerWidgetData(input);
+
+  try {
+    // Expo/Metro resolves this TSX module; the Node16 test compiler requires JS extensions.
+    // @ts-ignore
+    const { EMPTY_TIMER_WIDGET_DATA, FocusTimerWidget } = await import('./focus-timer-widget');
+    FocusTimerWidget.updateSnapshot(data ?? EMPTY_TIMER_WIDGET_DATA);
+  } catch {
+    // Widget sync should never block the in-app timer experience.
+  }
+}
+
+async function syncTimerToAndroidWidget(input: TimerWidgetInput | null): Promise<void> {
+  const fn = await loadAndroidSetWidgetData();
 
   if (!fn) {
     return;
@@ -35,17 +48,28 @@ export async function syncTimerToWidget(input: TimerWidgetInput | null): Promise
 
   const data = formatTimerWidgetData(input);
   const serialized = data ? JSON.stringify(data) : '';
-  fn(serialized);
+  const packageName = ANDROID_WIDGET_PACKAGE;
+
+  try {
+    fn(serialized, packageName);
+  } catch {
+    // Widget sync should never block the in-app timer experience.
+  }
 }
 
-export async function clearWidgetData(): Promise<void> {
-  const fn = await loadSetWidgetData();
-
-  if (!fn) {
+export async function syncTimerToWidget(input: TimerWidgetInput | null): Promise<void> {
+  if (Platform.OS === 'ios') {
+    await syncTimerToIosWidget(input);
     return;
   }
 
-  fn('');
+  if (Platform.OS === 'android') {
+    await syncTimerToAndroidWidget(input);
+  }
 }
 
-export { SUITE_NAME, WIDGET_DATA_KEY };
+export async function clearWidgetData(): Promise<void> {
+  await syncTimerToWidget(null);
+}
+
+export { ANDROID_WIDGET_DATA_KEY, ANDROID_WIDGET_PACKAGE };

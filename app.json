@@ -144,20 +144,47 @@
       [
         "@bittingz/expo-widgets",
         {
-          "ios": {
-            "src": "./widgets-src",
-            "devTeamId": "TEAM_ID_PLACEHOLDER",
-            "mode": "production",
-            "entitlements": {
-              "com.apple.security.application-groups": [
-                "group.com.sniper.timeradar"
-              ]
-            }
+          "android": {
+            "src": "./widgets-android",
+            "widgets": [
+              {
+                "name": "TimerRadarWidgetProvider",
+                "resourceName": "@xml/timer_radar_widget_info"
+              }
+            ],
+            "distPlaceholder": "com.afifistudio.timeradar"
           }
         }
       ],
       "expo-image",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "com.afifistudio.timeradar.widgets",
+          "groupIdentifier": "group.com.afifistudio.timeradar",
+          "widgets": [
+            {
+              "name": "FocusTimerWidget",
+              "displayName": "Time Radar",
+              "description": "Shows your active focus timer.",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium"
+              ],
+              "contentMarginsDisabled": true,
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium"
+                ],
+                "contentMarginsDisabled": true
+              },
+              "android": null
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

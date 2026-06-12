@@ -50,7 +50,7 @@ export function useSupporterPurchase({
 }: UseSupporterPurchaseOptions = {}) {
   return {
     status: unsupportedStatus(locallyPurchased),
-    buy: useCallback(buySupporterPack, []),
-    restore: useCallback(restoreSupporterPack, []),
+    buy: useCallback(() => buySupporterPack(), []),
+    restore: useCallback(() => restoreSupporterPack(), []),
   };
 }

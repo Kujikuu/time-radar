@@ -5,7 +5,8 @@
     "moduleResolution": "Node16",
     "outDir": ".test-build",
     "noEmit": false,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "rootDir": "src"
   },
   "include": [
     "src/features/focus/types.ts",
@@ -19,6 +20,7 @@
     "src/i18n/**/*.ts",
     "src/navigation/**/*.ts",
     "src/types/**/*.d.ts",
-    "src/widgets/**/*.ts"
+    "src/widgets/timer-widget-data.ts",
+    "src/widgets/types.ts"
   ]
 }

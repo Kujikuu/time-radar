@@ -39,7 +39,6 @@ export function useSupporterPurchase({
 
   useEffect(() => {
     if (locallyPurchased) {
-      setStorePurchased(true);
       entitlementReportedRef.current = true;
     }
   }, [locallyPurchased]);
@@ -75,14 +74,17 @@ export function useSupporterPurchase({
     void getAvailablePurchases();
   }, [connected, fetchProducts, getAvailablePurchases]);
 
+  const hasAvailableSupporterPurchase = availablePurchases.some(isSupporterPurchase);
+
   useEffect(() => {
-    if (availablePurchases.some(isSupporterPurchase)) {
-      markPurchased();
+    if (hasAvailableSupporterPurchase && !entitlementReportedRef.current) {
+      entitlementReportedRef.current = true;
+      onPurchased?.();
     }
-  }, [availablePurchases, markPurchased]);
+  }, [hasAvailableSupporterPurchase, onPurchased]);
 
   const product = products.find((item) => item.id === SUPPORTER_PRODUCT_ID);
-  const purchased = locallyPurchased || storePurchased;
+  const purchased = locallyPurchased || storePurchased || hasAvailableSupporterPurchase;
   const priceLabel = product?.displayPrice ?? SUPPORTER_PRICE_LABEL;
 
   const status = useMemo<SupporterProductStatus>(

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+  android:initialLayout="@layout/timer_radar_widget"
+  android:minHeight="90dp"
+  android:minResizeHeight="72dp"
+  android:minResizeWidth="120dp"
+  android:minWidth="180dp"
+  android:resizeMode="horizontal|vertical"
+  android:updatePeriodMillis="0"
+  android:widgetCategory="home_screen" />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Line, Path } from 'react-native-svg';
 
@@ -7,9 +7,10 @@ import { colors } from '@/src/theme';
 
 export function RadarMark() {
   const { isWide } = useLayoutProfile();
-  const rotation = useRef(new Animated.Value(0)).current;
+  const [rotation] = useState(() => new Animated.Value(0));
   const [reduceMotion, setReduceMotion] = useState(false);
   const [sweepAngle, setSweepAngle] = useState(0);
+  const visibleSweepAngle = reduceMotion ? 0 : sweepAngle;
 
   useEffect(() => {
     let isMounted = true;
@@ -32,7 +33,6 @@ export function RadarMark() {
     if (reduceMotion) {
       rotation.stopAnimation();
       rotation.setValue(0);
-      setSweepAngle(0);
       return;
     }
 
@@ -65,7 +65,7 @@ export function RadarMark() {
   return (
     <View style={[styles.wrapper, isWide && styles.wrapperWide]}>
       <Svg width="100%" height="100%" viewBox="0 0 260 260">
-        <G transform={`rotate(${sweepAngle} 130 130)`}>
+        <G transform={`rotate(${visibleSweepAngle} 130 130)`}>
           <Path
             d="M130 130 L211.3 48.7 A115 115 0 0 1 245 130 Z"
             fill={colors.accentSoft}
@@ -84,7 +84,7 @@ export function RadarMark() {
             opacity="0.22"
           />
         ))}
-        <G transform={`rotate(${sweepAngle} 130 130)`}>
+        <G transform={`rotate(${visibleSweepAngle} 130 130)`}>
           <Line x1="130" y1="130" x2="211.3" y2="48.7" stroke={colors.white} strokeWidth="7" />
         </G>
         <Circle cx="130" cy="130" r="13" fill={colors.accent} opacity="0.84" />

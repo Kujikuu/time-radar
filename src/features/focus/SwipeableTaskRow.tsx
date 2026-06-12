@@ -46,6 +46,7 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
 
   const closeRow = useCallback(() => {
     setActionOpen(false);
+    // eslint-disable-next-line react-hooks/immutability -- Reanimated shared values are intentionally mutable.
     translateX.value = withSpring(0, SWIPE_SPRING);
   }, [translateX]);
 
@@ -73,11 +74,13 @@ export function SwipeableTaskRow({ task, onRemove }: SwipeableTaskRowProps) {
               ? Math.min(Math.max(event.translationX, 0), SWIPE_ACTION_WIDTH)
               : Math.max(Math.min(event.translationX, 0), -SWIPE_ACTION_WIDTH);
 
+          // eslint-disable-next-line react-hooks/immutability -- Reanimated shared values are intentionally mutable.
           translateX.value = nextOffset;
         })
         .onEnd(() => {
           const shouldOpen = Math.abs(translateX.value) > SWIPE_OPEN_THRESHOLD;
           runOnJS(setActionOpen)(shouldOpen);
+          // eslint-disable-next-line react-hooks/immutability -- Reanimated shared values are intentionally mutable.
           translateX.value = withSpring(shouldOpen ? openOffset : 0, SWIPE_SPRING);
         }),
     [openOffset, translateX]
