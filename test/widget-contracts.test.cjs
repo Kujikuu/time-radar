@@ -93,6 +93,17 @@ test('iOS widget layout is created with official expo-widgets', () => {
   assert.doesNotMatch(source, /WidgetKit/);
 });
 
+test('iOS widget tolerates placeholder props before the app writes timer data', () => {
+  const source = read('src/widgets/focus-timer-widget.tsx');
+
+  assert.match(source, /resolveTimerWidgetData\(props: Partial<TimerWidgetData> \| null \| undefined\)/);
+  assert.match(source, /typeof props\?\.updatedAt === 'string'/);
+  assert.match(source, /EMPTY_TIMER_WIDGET_DATA/);
+  assert.doesNotMatch(source, /props\.updatedAt\.length/);
+  assert.match(source, /background\('#FCF8F4'\)/);
+  assert.match(source, /containerBackground\('#FCF8F4', 'widget'\)/);
+});
+
 test('Android widget source reads the package-scoped widget data preference', () => {
   const providerPath = path.join(
     root,

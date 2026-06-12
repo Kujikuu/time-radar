@@ -1,5 +1,6 @@
 import { HStack, ProgressView, Spacer, Text, VStack } from '@expo/ui/swift-ui';
 import {
+  background,
   containerBackground,
   font,
   foregroundStyle,
@@ -40,14 +41,54 @@ function statusLabel(status: TimerWidgetData['status']): string {
   return status === 'running' ? 'Running' : 'Paused';
 }
 
+function resolveTimerWidgetData(props: Partial<TimerWidgetData> | null | undefined): {
+  data: TimerWidgetData;
+  hasTimer: boolean;
+} {
+  const updatedAt = typeof props?.updatedAt === 'string' ? props.updatedAt : '';
+
+  if (updatedAt.length === 0) {
+    return { data: EMPTY_TIMER_WIDGET_DATA, hasTimer: false };
+  }
+
+  return {
+    data: {
+      taskTitle:
+        typeof props?.taskTitle === 'string' && props.taskTitle.length > 0
+          ? props.taskTitle
+          : EMPTY_TIMER_WIDGET_DATA.taskTitle,
+      phase:
+        typeof props?.phase === 'string' && props.phase.length > 0
+          ? props.phase
+          : EMPTY_TIMER_WIDGET_DATA.phase,
+      status: props?.status === 'running' ? 'running' : 'paused',
+      remainingSeconds:
+        typeof props?.remainingSeconds === 'number'
+          ? props.remainingSeconds
+          : EMPTY_TIMER_WIDGET_DATA.remainingSeconds,
+      plannedSeconds:
+        typeof props?.plannedSeconds === 'number'
+          ? props.plannedSeconds
+          : EMPTY_TIMER_WIDGET_DATA.plannedSeconds,
+      displayTime:
+        typeof props?.displayTime === 'string' && props.displayTime.length > 0
+          ? props.displayTime
+          : EMPTY_TIMER_WIDGET_DATA.displayTime,
+      progress:
+        typeof props?.progress === 'number' ? props.progress : EMPTY_TIMER_WIDGET_DATA.progress,
+      updatedAt,
+    },
+    hasTimer: true,
+  };
+}
+
 export function FocusTimerWidgetView(
-  props: TimerWidgetData,
+  props: Partial<TimerWidgetData>,
   environment: WidgetEnvironment
 ) {
   'widget';
 
-  const hasTimer = props.updatedAt.length > 0;
-  const data = hasTimer ? props : EMPTY_TIMER_WIDGET_DATA;
+  const { data, hasTimer } = resolveTimerWidgetData(props);
   const isSmall = environment.widgetFamily === 'systemSmall';
   const progress = normalizeProgress(data.progress);
   const status = hasTimer ? statusLabel(data.status) : 'Ready';
@@ -58,6 +99,7 @@ export function FocusTimerWidgetView(
         alignment="leading"
         spacing={8}
         modifiers={[
+          background('#FCF8F4'),
           containerBackground('#FCF8F4', 'widget'),
           padding({ all: 14 }),
           widgetURL('timeradar://'),
@@ -110,6 +152,7 @@ export function FocusTimerWidgetView(
       alignment="center"
       spacing={14}
       modifiers={[
+        background('#FCF8F4'),
         containerBackground('#FCF8F4', 'widget'),
         padding({ all: 16 }),
         widgetURL('timeradar://'),
