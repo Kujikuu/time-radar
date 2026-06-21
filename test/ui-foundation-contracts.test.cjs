@@ -66,7 +66,7 @@ test('Secondary route actions keep accessible touch targets', () => {
 
   assert.match(homeSource, /statsLinkButton:\s*\{[\s\S]*minHeight:\s*44/);
   assert.match(homeSource, /dismissButton:\s*\{[\s\S]*minHeight:\s*44/);
-  assert.match(statsSource, /restoreButton:\s*\{[\s\S]*minHeight:\s*44/);
+  assert.match(statsSource, /supportLink:\s*\{[\s\S]*minHeight:\s*44/);
   assert.match(settingsSource, /permissionButton:\s*\{[\s\S]*minHeight:\s*44/);
   assert.match(settingsSource, /systemSettingsButton:\s*\{[\s\S]*minHeight:\s*44/);
   assert.match(settingsSource, /supportButton:\s*\{[\s\S]*minHeight:\s*44/);

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import {
   AppText,
@@ -35,6 +35,7 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
   const [sessions, setSessions] = useState(initialValue.sessions);
   const [autoStartBreaks, setAutoStartBreaks] = useState(initialValue.autoStartBreaks);
   const [titleError, setTitleError] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const input = useMemo<TaskInput>(
     () => ({
@@ -132,42 +133,54 @@ export function TaskForm({ initialValue, submitLabel, onSubmit }: TaskFormProps)
           step={5}
           onChange={setFocusMinutes}
         />
-        <StepperRow
-          label={t('taskForm.shortBreak')}
-          value={shortBreakMinutes}
-          suffix={t('units.min')}
-          min={1}
-          max={60}
-          step={1}
-          onChange={setShortBreakMinutes}
-        />
-        <StepperRow
-          label={t('taskForm.longBreak')}
-          value={longBreakMinutes}
-          suffix={t('units.min')}
-          min={5}
-          max={120}
-          step={5}
-          onChange={setLongBreakMinutes}
-        />
-        <StepperRow
-          label={t('taskForm.sessionsBeforeLongBreak')}
-          value={sessions}
-          suffix={t('units.sessions')}
-          min={1}
-          max={12}
-          step={1}
-          onChange={setSessions}
-        />
-      </SoftCard>
 
-      <SoftCard style={styles.card}>
-        <SwitchRow
-          label={t('taskForm.autoStartBreaks')}
-          helper={t('taskForm.autoStartBreaksHelper')}
-          value={autoStartBreaks}
-          onValueChange={setAutoStartBreaks}
-        />
+        <Pressable
+          accessibilityLabel={showAdvanced ? t('taskForm.hideAdvanced') : t('taskForm.showAdvanced')}
+          accessibilityRole="button"
+          onPress={() => setShowAdvanced((current) => !current)}
+          style={({ pressed }) => [styles.advancedToggle, pressed && styles.advancedTogglePressed]}>
+          <AppText style={styles.advancedToggleText}>
+            {showAdvanced ? t('taskForm.hideAdvanced') : t('taskForm.showAdvanced')}
+          </AppText>
+        </Pressable>
+
+        {showAdvanced ? (
+          <>
+            <StepperRow
+              label={t('taskForm.shortBreak')}
+              value={shortBreakMinutes}
+              suffix={t('units.min')}
+              min={1}
+              max={60}
+              step={1}
+              onChange={setShortBreakMinutes}
+            />
+            <StepperRow
+              label={t('taskForm.longBreak')}
+              value={longBreakMinutes}
+              suffix={t('units.min')}
+              min={5}
+              max={120}
+              step={5}
+              onChange={setLongBreakMinutes}
+            />
+            <StepperRow
+              label={t('taskForm.sessionsBeforeLongBreak')}
+              value={sessions}
+              suffix={t('units.sessions')}
+              min={1}
+              max={12}
+              step={1}
+              onChange={setSessions}
+            />
+            <SwitchRow
+              label={t('taskForm.autoStartBreaks')}
+              helper={t('taskForm.autoStartBreaksHelper')}
+              value={autoStartBreaks}
+              onValueChange={setAutoStartBreaks}
+            />
+          </>
+        ) : null}
       </SoftCard>
 
       <PrimaryButton onPress={handleSubmit}>{submitLabel}</PrimaryButton>
@@ -210,5 +223,23 @@ const styles = StyleSheet.create({
     fontSize: typography.size.caption,
     fontWeight: typography.weight.semibold,
     lineHeight: typography.lineHeight.caption,
+  },
+  advancedToggle: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderCurve: 'continuous',
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.surfaceMuted,
+  },
+  advancedTogglePressed: {
+    opacity: 0.84,
+  },
+  advancedToggleText: {
+    color: colors.accentDark,
+    fontSize: typography.size.small,
+    fontWeight: typography.weight.bold,
+    textAlign: 'center',
   },
 });

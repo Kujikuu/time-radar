@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, IconButton, PrimaryButton, Screen, ScreenHeader, SoftCard } from '@/src/components';
+import { AppIcon, AppText, IconButton, LoadingPlaceholder, PrimaryButton, Screen, ScreenHeader, SoftCard } from '@/src/components';
 import { useTaskRemoval, useTasks } from '@/src/features/focus/hooks';
 import { SwipeableTaskRow } from '@/src/features/focus/SwipeableTaskRow';
 import { FocusTask } from '@/src/features/focus/types';
@@ -20,11 +20,12 @@ type TasksListScreenProps = {
 };
 
 export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
-  const { tasks, reload } = useTasks();
+  const { tasks, loading, reload } = useTasks();
   const { isTaskActive, remove, restore } = useTaskRemoval();
   const { direction, nativeDirection, t } = useTranslation();
   const { isWide } = useLayoutProfile();
   const tabInsets = useTabScreenInsets();
+  const [refreshing, setRefreshing] = useState(false);
   const [removedTask, setRemovedTask] = useState<FocusTask | null>(null);
   const [pendingRemovalTask, setPendingRemovalTask] = useState<FocusTask | null>(null);
   const undoDismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -107,10 +108,21 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
     await reload();
   }, [clearUndoDismissTimer, reload, removedTask, restore]);
 
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await reload();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [reload]);
+
   return (
     <View style={styles.root}>
       <Screen
         scroll
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
         contentStyle={[
           styles.screen,
           { paddingBottom: removedTask ? bottomInset + 60 : bottomInset },
@@ -128,38 +140,44 @@ export function TasksListScreen({ embedded = false }: TasksListScreenProps) {
           }
         />
 
-        <SoftCard style={[styles.summaryCard, contentRow]}>
-          <View style={styles.summaryIcon}>
-            <AppIcon icon={IconClipboardCheck} size={25} color={colors.accentDark} />
-          </View>
-          <View style={styles.summaryCopy}>
-            <AppText style={[styles.summaryTitle, styles.contentText, contentText]}>
-              {t('tasks.queueTitle')}
-            </AppText>
-            <AppText style={[styles.summaryText, styles.contentText, contentText]}>
-              {t(queueBodyKey, { values: { count: tasks.length } })}
-            </AppText>
-          </View>
-        </SoftCard>
-
-        {tasks.length > 0 ? (
-          <View style={styles.list}>
-            {tasks.map((task) => (
-              <SwipeableTaskRow key={task.id} task={task} onRemove={handleRemoveTask} />
-            ))}
-          </View>
+        {loading ? (
+          <LoadingPlaceholder variant="list" />
         ) : (
-          <SoftCard style={styles.emptyCard}>
-            <AppText style={[styles.emptyTitle, styles.contentText, contentText]}>
-              {t('tasks.emptyTitle')}
-            </AppText>
-            <AppText style={[styles.emptyText, styles.contentText, contentText]}>
-              {t('tasks.emptyBody')}
-            </AppText>
-            <PrimaryButton onPress={() => router.push('/task/new' as never)} style={styles.emptyAction}>
-              {t('tasks.emptyAction')}
-            </PrimaryButton>
-          </SoftCard>
+          <>
+            <SoftCard style={[styles.summaryCard, contentRow]}>
+              <View style={styles.summaryIcon}>
+                <AppIcon icon={IconClipboardCheck} size={25} color={colors.accentDark} />
+              </View>
+              <View style={styles.summaryCopy}>
+                <AppText style={[styles.summaryTitle, styles.contentText, contentText]}>
+                  {t('tasks.queueTitle')}
+                </AppText>
+                <AppText style={[styles.summaryText, styles.contentText, contentText]}>
+                  {t(queueBodyKey, { values: { count: tasks.length } })}
+                </AppText>
+              </View>
+            </SoftCard>
+
+            {tasks.length > 0 ? (
+              <View style={styles.list}>
+                {tasks.map((task) => (
+                  <SwipeableTaskRow key={task.id} task={task} onRemove={handleRemoveTask} />
+                ))}
+              </View>
+            ) : (
+              <SoftCard style={styles.emptyCard}>
+                <AppText style={[styles.emptyTitle, styles.contentText, contentText]}>
+                  {t('tasks.emptyTitle')}
+                </AppText>
+                <AppText style={[styles.emptyText, styles.contentText, contentText]}>
+                  {t('tasks.emptyBody')}
+                </AppText>
+                <PrimaryButton onPress={() => router.push('/task/new' as never)} style={styles.emptyAction}>
+                  {t('tasks.emptyAction')}
+                </PrimaryButton>
+              </SoftCard>
+            )}
+          </>
         )}
       </Screen>
 

@@ -1,12 +1,21 @@
-import { IconTrendingUp } from '@tabler/icons-react-native';
-import { useState } from 'react';
+import { router } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, PrimaryButton, Screen, ScreenHeader, SegmentedControl, SoftCard } from '@/src/components';
+import {
+  AppIcon,
+  AppText,
+  LoadingPlaceholder,
+  Screen,
+  ScreenHeader,
+  SegmentedControl,
+  SoftCard,
+} from '@/src/components';
 import { DistributionDonut } from '@/src/features/focus/DistributionDonut';
 import { FocusBarChart } from '@/src/features/focus/FocusBarChart';
 import { useStats } from '@/src/features/focus/hooks';
 import { StatsRange } from '@/src/features/focus/types';
+import { trendAccessibilityLabel, trendVisualForPercent } from '@/src/features/focus/trend-visual';
 import { useSupporterActions } from '@/src/features/support/use-supporter-actions';
 import { useLayoutProfile } from '@/src/hooks/use-layout-profile';
 import {
@@ -22,27 +31,35 @@ import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function StatsScreen() {
   const [range, setRange] = useState<StatsRange>('Day');
+  const [refreshing, setRefreshing] = useState(false);
   const { direction, formatDate, formatDuration, locale, nativeDirection, t } = useTranslation();
-  const { summary } = useStats(range, locale);
+  const { summary, loading, reload } = useStats(range, locale);
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
   const { isWide } = useLayoutProfile();
   const tabInsets = useTabScreenInsets();
-  const {
-    settings,
-    supporterMessageKey,
-    supportActionsDisabled,
-    priceLabel,
-    buy,
-    restore,
-  } = useSupporterActions();
+  const { settings } = useSupporterActions();
+  const trendVisual = trendVisualForPercent(summary.trendPercent);
+  const hasFocusData = summary.focusMinutes > 0;
   const summaryLabel =
     range === 'Day'
       ? `${t('home.today')}, ${formatDate(new Date(), { month: 'short', day: 'numeric' })}`
       : statsRangeLabel(locale, range);
 
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await reload();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [reload]);
+
   return (
-    <Screen contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}>
+    <Screen
+      contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}
+      refreshing={refreshing}
+      onRefresh={handleRefresh}>
       <ScreenHeader title={t('stats.title')} />
 
       <SegmentedControl<StatsRange>
@@ -51,103 +68,83 @@ export default function StatsScreen() {
         onChange={setRange}
       />
 
-      <View style={styles.todayBlock}>
-        <AppText selectable style={[styles.dateLabel, styles.contentText, contentText]}>
-          {summaryLabel}
-        </AppText>
-        <View style={[styles.metricRow, contentRow]}>
-          <View style={styles.focusCopy}>
-            <AppText selectable style={[styles.focusValue, styles.contentText, contentText]}>
-              {formatDuration(summary.focusMinutes)}
-            </AppText>
-            <AppText style={[styles.focusLabel, styles.contentText, contentText]}>
-              {t('stats.focusTime')}
-            </AppText>
-          </View>
-          <View style={styles.trendBadge}>
-            <AppIcon icon={IconTrendingUp} size={20} color={colors.green} />
-            <AppText selectable style={styles.trendValue}>
-              {summary.trendPercent > 0 ? '+' : ''}
-              {summary.trendPercent}%
-            </AppText>
-            <AppText style={styles.trendLabel}>{t('stats.previous')}</AppText>
-          </View>
-        </View>
-      </View>
-
-      {isWide ? (
-        <View style={[styles.chartRow, { flexDirection: structuralRowDirection(direction) }]}>
-          <View style={styles.chartColumn}>
-            <FocusBarChart data={summary.hourlyFocus} />
-          </View>
-          <View style={styles.chartColumn}>
-            <AppText style={[styles.sectionTitle, styles.contentText, contentText]}>
-              {t('stats.distribution')}
-            </AppText>
-            <DistributionDonut data={summary.distribution} />
-          </View>
-        </View>
+      {loading ? (
+        <LoadingPlaceholder variant="stats" />
       ) : (
         <>
-          <FocusBarChart data={summary.hourlyFocus} />
-
-          <View style={styles.section}>
-            <AppText style={[styles.sectionTitle, styles.contentText, contentText]}>
-              {t('stats.distribution')}
+          <View style={styles.todayBlock}>
+            <AppText selectable style={[styles.dateLabel, styles.contentText, contentText]}>
+              {summaryLabel}
             </AppText>
-            <DistributionDonut data={summary.distribution} />
+            <View style={[styles.metricRow, contentRow]}>
+              <View style={styles.focusCopy}>
+                <AppText selectable style={[styles.focusValue, styles.contentText, contentText]}>
+                  {formatDuration(summary.focusMinutes)}
+                </AppText>
+                <AppText style={[styles.focusLabel, styles.contentText, contentText]}>
+                  {t('stats.focusTime')}
+                </AppText>
+              </View>
+              <View
+                accessible
+                accessibilityLabel={trendAccessibilityLabel(locale, summary.trendPercent)}
+                style={styles.trendBadge}>
+                <AppIcon icon={trendVisual.icon} size={20} color={trendVisual.color} />
+                <AppText
+                  selectable
+                  style={[styles.trendValue, { color: trendVisual.color }]}>
+                  {summary.trendPercent > 0 ? '+' : ''}
+                  {summary.trendPercent}%
+                </AppText>
+                <AppText style={styles.trendLabel}>{t('stats.previous')}</AppText>
+              </View>
+            </View>
           </View>
+
+          {hasFocusData ? (
+            isWide ? (
+              <View style={[styles.chartRow, { flexDirection: structuralRowDirection(direction) }]}>
+                <View style={styles.chartColumn}>
+                  <FocusBarChart data={summary.hourlyFocus} />
+                </View>
+                <View style={styles.chartColumn}>
+                  <AppText style={[styles.sectionTitle, styles.contentText, contentText]}>
+                    {t('stats.distribution')}
+                  </AppText>
+                  <DistributionDonut data={summary.distribution} />
+                </View>
+              </View>
+            ) : (
+              <>
+                <FocusBarChart data={summary.hourlyFocus} />
+
+                <View style={styles.section}>
+                  <AppText style={[styles.sectionTitle, styles.contentText, contentText]}>
+                    {t('stats.distribution')}
+                  </AppText>
+                  <DistributionDonut data={summary.distribution} />
+                </View>
+              </>
+            )
+          ) : (
+            <SoftCard style={styles.emptyCard}>
+              <AppText style={[styles.emptyTitle, contentText]}>{t('stats.emptyTitle')}</AppText>
+              <AppText style={[styles.emptyBody, contentText]}>{t('stats.emptyBody')}</AppText>
+            </SoftCard>
+          )}
+
+          {!settings.supporterPurchased ? (
+            <Pressable
+              accessibilityHint={t('stats.supportLinkHint')}
+              accessibilityLabel={t('stats.supportLink')}
+              accessibilityRole="button"
+              onPress={() => router.push('/(tabs)/settings' as never)}
+              style={({ pressed }) => [styles.supportLink, contentRow, pressed && styles.pressed]}>
+              <AppText style={styles.supportLinkText}>{t('stats.supportLink')}</AppText>
+            </Pressable>
+          ) : null}
         </>
       )}
-
-      <SoftCard
-        style={
-          settings.supporterPurchased && settings.supporterThemeEnabled
-            ? [styles.supportCard, styles.supporterActiveCard]
-            : styles.supportCard
-        }>
-        <AppText style={[styles.supportEyebrow, styles.contentText, contentText]}>
-          {settings.supporterPurchased ? t('support.freeForever') : t('support.eyebrow')}
-        </AppText>
-        <AppText style={[styles.supportTitle, styles.contentText, contentText]}>
-          {settings.supporterPurchased ? t('support.purchasedTitle') : t('support.title')}
-        </AppText>
-        <AppText style={[styles.supportBody, styles.contentText, contentText]}>
-          {settings.supporterPurchased ? t('support.purchasedBody') : t('support.body')}
-        </AppText>
-        {settings.supporterPurchased ? (
-          <View style={[styles.supportBadge, contentRow]}>
-            <AppText style={styles.supportBadgeText}>{t('support.badge')}</AppText>
-          </View>
-        ) : (
-          <View style={[styles.supportActions, contentRow]}>
-            <PrimaryButton
-              style={styles.supportButton}
-              disabled={supportActionsDisabled}
-              onPress={buy}>
-              {`${t('support.purchaseAction')} ${priceLabel}`}
-            </PrimaryButton>
-            <Pressable
-              accessibilityLabel={t('support.restore')}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: supportActionsDisabled }}
-              disabled={supportActionsDisabled}
-              onPress={restore}
-              style={({ pressed }) => [
-                styles.restoreButton,
-                supportActionsDisabled && styles.restoreButtonDisabled,
-                pressed && !supportActionsDisabled && styles.pressed,
-              ]}>
-              <AppText style={styles.restoreText}>{t('support.restore')}</AppText>
-            </Pressable>
-          </View>
-        )}
-        {supporterMessageKey ? (
-          <AppText selectable style={[styles.supportStatus, styles.contentText, contentText]}>
-            {t(supporterMessageKey)}
-          </AppText>
-        ) : null}
-      </SoftCard>
     </Screen>
   );
 }
@@ -208,7 +205,6 @@ const styles = StyleSheet.create({
     gap: 1,
   },
   trendValue: {
-    color: colors.green,
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
     fontVariant: ['tabular-nums'],
@@ -226,75 +222,31 @@ const styles = StyleSheet.create({
     fontSize: typography.size.body,
     fontWeight: typography.weight.bold,
   },
-  supportCard: {
+  emptyCard: {
     gap: spacing.sm,
     padding: spacing.lg,
     backgroundColor: colors.backgroundWarm,
   },
-  supporterActiveCard: {
-    borderColor: colors.accentSoft,
-    borderWidth: StyleSheet.hairlineWidth,
-    backgroundColor: colors.supporterSurface,
-  },
-  supportEyebrow: {
-    color: colors.accentDark,
-    fontSize: typography.size.eyebrow,
-    fontWeight: typography.weight.extraBold,
-    textTransform: 'uppercase',
-  },
-  supportTitle: {
+  emptyTitle: {
     color: colors.text,
-    fontSize: typography.size.cardTitle,
+    fontSize: typography.size.bodyLarge,
     fontWeight: typography.weight.bold,
   },
-  supportBody: {
+  emptyBody: {
     color: colors.textMuted,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.paragraph,
+    fontSize: typography.size.small,
+    lineHeight: typography.lineHeight.body,
   },
-  supportActions: {
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  supportButton: {
-    minHeight: 44,
-    paddingHorizontal: spacing.md,
-  },
-  restoreButton: {
+  supportLink: {
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
   },
-  restoreButtonDisabled: {
-    opacity: 0.5,
-  },
-  restoreText: {
+  supportLinkText: {
     color: colors.accentDark,
-    fontSize: typography.size.caption,
+    fontSize: typography.size.small,
     fontWeight: typography.weight.bold,
-  },
-  supportBadge: {
-    minHeight: 38,
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    borderRadius: radius.pill,
-    justifyContent: 'center',
-    marginTop: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfacePeach,
-  },
-  supportBadgeText: {
-    color: colors.accentDark,
-    fontSize: typography.size.caption,
-    fontWeight: typography.weight.bold,
-  },
-  supportStatus: {
-    color: colors.textMuted,
-    fontSize: typography.size.caption,
-    lineHeight: typography.lineHeight.helper,
   },
   pressed: {
     opacity: 0.76,

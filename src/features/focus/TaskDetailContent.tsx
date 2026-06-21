@@ -2,7 +2,7 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react-native';
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, IconButton, PrimaryButton, ScreenHeader, SoftCard } from '@/src/components';
+import { AppText, IconButton, LoadingPlaceholder, PrimaryButton, ScreenHeader, SoftCard } from '@/src/components';
 import { TaskForm } from '@/src/features/focus/TaskForm';
 import { taskInputFromTask, useFocusTimer, useTaskDetail } from '@/src/features/focus/hooks';
 import { focusCategoryLabel, rowDirectionForTextDirection } from '@/src/i18n';
@@ -16,7 +16,7 @@ type TaskDetailContentProps = {
 };
 
 export function TaskDetailContent({ taskId, showBack = true, onBack }: TaskDetailContentProps) {
-  const { task, save } = useTaskDetail(taskId);
+  const { task, loading, save } = useTaskDetail(taskId);
   const { start } = useFocusTimer();
   const { direction, locale, nativeDirection, t } = useTranslation();
   const BackIcon = direction === 'rtl' ? IconChevronRight : IconChevronLeft;
@@ -30,6 +30,21 @@ export function TaskDetailContent({ taskId, showBack = true, onBack }: TaskDetai
 
     router.back();
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        {showBack ? (
+          <ScreenHeader
+            title={t('tasks.detailTitle')}
+            titleSize="compact"
+            leading={<IconButton icon={BackIcon} label={t('common.goBack')} onPress={handleBack} />}
+          />
+        ) : null}
+        <LoadingPlaceholder variant="detail" />
+      </View>
+    );
+  }
 
   if (!task) {
     return (

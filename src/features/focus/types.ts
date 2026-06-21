@@ -2,6 +2,10 @@ import type { TablerIcon } from '@/src/components';
 
 export type FocusCategory = 'Work' | 'Study' | 'Personal';
 export type TimerPhase = 'focus' | 'short_break' | 'long_break';
+export type PhaseCompletionEvent = {
+  phase: TimerPhase;
+  at: number;
+};
 export type TimerStatus = 'running' | 'paused';
 export type SessionStatus = 'completed' | 'reset';
 export type StatsRange = 'Day' | 'Week' | 'Month' | 'Year';

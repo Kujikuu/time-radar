@@ -8,9 +8,9 @@ const tabsLayoutSource = fs.readFileSync(
   'utf8'
 );
 
-test('bottom tab bar renders icon-only items', () => {
-  assert.match(tabsLayoutSource, /tabBarShowLabel:\s*false/);
-  assert.doesNotMatch(tabsLayoutSource, /tabBarLabelStyle:/);
+test('bottom tab bar renders compact labels under icons', () => {
+  assert.match(tabsLayoutSource, /tabBarShowLabel:\s*true/);
+  assert.match(tabsLayoutSource, /tabBarLabelStyle:\s*styles\.tabBarLabel/);
 });
 
 test('bottom tab bar is fixed to the mobile bottom edge without extra safe-area growth', () => {
@@ -21,8 +21,8 @@ test('bottom tab bar is fixed to the mobile bottom edge without extra safe-area 
   assert.match(tabsLayoutSource, /right:\s*0/);
   assert.match(tabsLayoutSource, /bottom:\s*0/);
   assert.doesNotMatch(tabsLayoutSource, /marginBottom:/);
-  assert.doesNotMatch(tabsLayoutSource, /marginTop:/);
-  assert.match(tabsLayoutSource, /paddingTop:\s*10/);
+  assert.doesNotMatch(tabsLayoutSource, /bottomTabBarStyle:[\s\S]*marginTop:/);
+  assert.match(tabsLayoutSource, /paddingTop:\s*8/);
 });
 
 test('bottom tab bar keeps the approved rounded connected shape', () => {

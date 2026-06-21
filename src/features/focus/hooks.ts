@@ -49,6 +49,7 @@ import {
 import {
   AppSettings,
   FocusTask,
+  PhaseCompletionEvent,
   ProgressMetric,
   StatsRange,
   StatsSummary,
@@ -235,6 +236,7 @@ export function useFocusTimer() {
     primaryActionLabel: 'Start',
   });
   const completingRef = useRef(false);
+  const [lastCompletion, setLastCompletion] = useState<PhaseCompletionEvent | null>(null);
 
   const reload = useCallback(async () => {
     setSnapshot(await getActiveTimerSnapshot(db));
@@ -259,6 +261,13 @@ export function useFocusTimer() {
           phase: completionSnapshot.timer.phase,
           settings,
           automaticForegroundCompletion: notifyForegroundCompletion,
+        });
+      }
+
+      if (AppState.currentState === 'active' && completionSnapshot.timer) {
+        setLastCompletion({
+          phase: completionSnapshot.timer.phase,
+          at: Date.now(),
         });
       }
 
@@ -360,6 +369,10 @@ export function useFocusTimer() {
     await reload();
   }, [db, reload]);
 
+  const clearLastCompletion = useCallback(() => {
+    setLastCompletion(null);
+  }, []);
+
   return {
     snapshot,
     start,
@@ -367,6 +380,8 @@ export function useFocusTimer() {
     reset,
     completePhase,
     reload,
+    lastCompletion,
+    clearLastCompletion,
   };
 }
 

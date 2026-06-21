@@ -5,6 +5,7 @@ export { BrandLogo } from './BrandLogo';
 export { StepperRow, SwitchRow } from './ControlRows';
 export { Divider } from './Divider';
 export { IconButton } from './IconButton';
+export { LoadingPlaceholder } from './LoadingPlaceholder';
 export { MetricCard } from './MetricCard';
 export { PrimaryButton } from './PrimaryButton';
 export { Screen } from './Screen';

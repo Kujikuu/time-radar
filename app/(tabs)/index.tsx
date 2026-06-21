@@ -1,11 +1,21 @@
 import { IconTrendingUp } from '@tabler/icons-react-native';
 import { router, Tabs } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon, AppText, BrandLogo, MetricCard, PrimaryButton, Screen, SoftCard } from '@/src/components';
+import {
+  AppIcon,
+  AppText,
+  BrandLogo,
+  LoadingPlaceholder,
+  MetricCard,
+  PrimaryButton,
+  Screen,
+  SoftCard,
+} from '@/src/components';
 import { FocusTaskCard } from '@/src/features/focus/FocusTaskCard';
 import { ImmersiveTimerView } from '@/src/features/focus/ImmersiveTimerView';
+import { PhaseCompletionToast } from '@/src/features/focus/PhaseCompletionToast';
 import {
   useFocusTimer,
   useCreateTask,
@@ -32,17 +42,29 @@ import { bottomTabBarStyle } from '@/src/navigation/tab-layout-content';
 import { colors, radius, spacing, typography } from '@/src/theme';
 
 export default function HomeScreen() {
-  const { tasks, reload: reloadTasks } = useTasks();
+  const { tasks, loading: tasksLoading, reload: reloadTasks } = useTasks();
   const { direction, formatDate, locale, nativeDirection, t } = useTranslation();
-  const { summary } = useStats('Day', locale);
+  const { summary, loading: statsLoading } = useStats('Day', locale);
   const radarSignal = buildRadarSignal(summary.focusMinutes);
   const progressMetrics = useProgressMetrics(summary, locale);
   const createTask = useCreateTask();
-  const { snapshot, start, toggle, reset, completePhase } = useFocusTimer();
-  const { settings, save } = useSettings();
+  const {
+    snapshot,
+    start,
+    toggle,
+    reset,
+    completePhase,
+    lastCompletion,
+    clearLastCompletion,
+  } = useFocusTimer();
+  const { settings, loading: settingsLoading, save } = useSettings();
   const notificationPermission = useNotificationPermissionStatus();
   const quickStartRef = useRef(false);
   const [isImmersiveTimerVisible, setImmersiveTimerVisible] = useState(false);
+  const radarPulse = useState(() => new Animated.Value(1))[0];
+  const isLoading = tasksLoading || statsLoading || settingsLoading;
+  const showCompactHeader =
+    tasks.length > 0 || Boolean(snapshot.timer) || summary.focusMinutes > 0;
   const nextTask = snapshot.task ?? tasks[0] ?? null;
   const todayDate = formatDate(new Date(), {
     month: 'short',
@@ -86,6 +108,25 @@ export default function HomeScreen() {
     return () => setNavigationChromeHidden(false);
   }, [isImmersiveTimerVisible, setNavigationChromeHidden]);
 
+  useEffect(() => {
+    if (!lastCompletion) {
+      return;
+    }
+
+    Animated.sequence([
+      Animated.timing(radarPulse, {
+        toValue: 1.04,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+      Animated.timing(radarPulse, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [lastCompletion, radarPulse]);
+
   const allowNotifications = async () => {
     const status = await notificationPermission.request();
 
@@ -127,32 +168,40 @@ export default function HomeScreen() {
     setImmersiveTimerVisible(false);
   }, []);
 
-  const renderRadarCard = () => (
-    <SoftCard
-      style={
-        settings.supporterPurchased && settings.supporterThemeEnabled
-          ? [styles.radarCard, styles.supporterRadarCard]
-          : styles.radarCard
-      }>
-      <View style={[styles.radarHeader, rowDirection]}>
-        <View style={styles.radarTitleGroup}>
-          <AppText style={[styles.radarTitle, sectionTitleText]}>{t('radar.title')}</AppText>
-          <AppText style={[styles.radarHelper, sectionTitleText]}>{t('radar.helper')}</AppText>
+  const renderRadarCard = (compact = false) => (
+    <Animated.View style={{ transform: [{ scale: radarPulse }] }}>
+      <SoftCard
+        style={[
+          styles.radarCard,
+          ...(compact ? [styles.radarCardCompact] : []),
+          ...(settings.supporterPurchased && settings.supporterThemeEnabled
+            ? [styles.supporterRadarCard]
+            : []),
+        ]}>
+        <View style={[styles.radarHeader, rowDirection]}>
+          <View style={styles.radarTitleGroup}>
+            <AppText style={[styles.radarTitle, compact && styles.radarTitleCompact, sectionTitleText]}>
+              {t('radar.title')}
+            </AppText>
+            {!compact ? (
+              <AppText style={[styles.radarHelper, sectionTitleText]}>{t('radar.helper')}</AppText>
+            ) : null}
+          </View>
+          <View style={[styles.radarIcon, compact && styles.radarIconCompact]}>
+            <AppIcon icon={IconTrendingUp} size={compact ? 20 : 24} color={colors.accentDark} />
+          </View>
         </View>
-        <View style={styles.radarIcon}>
-          <AppIcon icon={IconTrendingUp} size={24} color={colors.accentDark} />
+        <View style={styles.signalTrack}>
+          <View style={[styles.signalFill, { width: `${radarSignal.percent}%` }]} />
         </View>
-      </View>
-      <View style={styles.signalTrack}>
-        <View style={[styles.signalFill, { width: `${radarSignal.percent}%` }]} />
-      </View>
-      <View style={[styles.radarFooter, rowDirection]}>
-        <AppText style={styles.radarStatus}>{t(`radar.status.${radarSignal.status}`)}</AppText>
-        <AppText selectable style={styles.radarPercent}>
-          {t('radar.progress', { values: { percent: radarSignal.percent } })}
-        </AppText>
-      </View>
-    </SoftCard>
+        <View style={[styles.radarFooter, rowDirection]}>
+          <AppText style={styles.radarStatus}>{t(`radar.status.${radarSignal.status}`)}</AppText>
+          <AppText selectable style={styles.radarPercent}>
+            {t('radar.progress', { values: { percent: radarSignal.percent } })}
+          </AppText>
+        </View>
+      </SoftCard>
+    </Animated.View>
   );
 
   const renderTimerCard = () => (
@@ -221,8 +270,8 @@ export default function HomeScreen() {
 
   const renderTimerColumn = () => (
     <View style={styles.splitColumn}>
-      {renderRadarCard()}
       {renderTimerCard()}
+      {renderRadarCard()}
     </View>
   );
 
@@ -258,9 +307,9 @@ export default function HomeScreen() {
         />
       ) : (
         <Screen contentStyle={[styles.screen, { paddingBottom: tabInsets.paddingBottom }]}>
-          <View style={styles.header}>
-            <BrandLogo />
-            <AppText style={styles.promise}>{t('home.promise')}</AppText>
+          <View style={[styles.header, showCompactHeader && styles.headerCompact]}>
+            <BrandLogo variant={showCompactHeader ? 'header' : 'hero'} />
+            {!showCompactHeader ? <AppText style={styles.promise}>{t('home.promise')}</AppText> : null}
             {settings.supporterPurchased && settings.supporterThemeEnabled ? (
               <AppText style={styles.supporterBadge}>{t('support.badge')}</AppText>
             ) : null}
@@ -292,22 +341,26 @@ export default function HomeScreen() {
             </SoftCard>
           ) : null}
 
-          {isWide ? (
+          {isLoading ? (
+            <LoadingPlaceholder variant="home" />
+          ) : isWide ? (
             <View style={[styles.splitRow, splitRowDirection]}>
               {renderTimerColumn()}
               {renderProgressColumn()}
             </View>
           ) : (
             <>
-              {renderRadarCard()}
               {renderTimerCard()}
+              {renderRadarCard(true)}
               {renderProgressSection()}
               {renderUpNextSection()}
             </>
           )}
-
         </Screen>
       )}
+      {lastCompletion ? (
+        <PhaseCompletionToast phase={lastCompletion.phase} onDismiss={clearLastCompletion} />
+      ) : null}
     </>
   );
 }
@@ -334,6 +387,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+  },
+  headerCompact: {
+    minHeight: 44,
   },
   promise: {
     color: colors.textMuted,
@@ -380,6 +436,10 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     backgroundColor: colors.backgroundWarm,
   },
+  radarCardCompact: {
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
   supporterRadarCard: {
     borderColor: colors.accentSoft,
     borderWidth: StyleSheet.hairlineWidth,
@@ -400,6 +460,9 @@ const styles = StyleSheet.create({
     fontSize: typography.size.bodyLarge,
     fontWeight: typography.weight.bold,
   },
+  radarTitleCompact: {
+    fontSize: typography.size.control,
+  },
   radarHelper: {
     color: colors.textMuted,
     fontSize: typography.size.caption,
@@ -413,6 +476,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.accentSoft,
+  },
+  radarIconCompact: {
+    width: 40,
+    height: 40,
   },
   signalTrack: {
     height: 10,
@@ -453,7 +520,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     flexShrink: 0,
-    color: colors.textSoft,
+    color: colors.textMuted,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.semibold,
   },

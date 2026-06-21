@@ -10,7 +10,7 @@ const brandLogoSource = fs.readFileSync(path.join(__dirname, '../src/components/
 test('onboarding and home use the brand logo asset for the visible app identity', () => {
   assert.match(brandLogoSource, /timeradar-logo\.png/);
   assert.match(onboardingSource, /<BrandLogo\s+variant="hero"\s+\/>/);
-  assert.match(homeSource, /<BrandLogo\s+\/>/);
+  assert.match(homeSource, /<BrandLogo variant=\{showCompactHeader \? 'header' : 'hero'\}/);
   assert.doesNotMatch(onboardingSource, /title:\s*'TimeRadar'/);
   assert.doesNotMatch(homeSource, /<Text\s+style=\{styles\.appTitle\}>TimeRadar<\/Text>/);
 });

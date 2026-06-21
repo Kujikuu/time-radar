@@ -54,28 +54,25 @@ test('settings and stats expose the supporter purchase and theme surfaces', () =
   assert.match(settingsSource, /support\.title/);
   assert.match(settingsSource, /support\.restore/);
   assert.match(settingsSource, /supporterThemeEnabled/);
-  assert.match(statsSource, /support\.purchaseAction/);
-  assert.match(statsSource, /support\.freeForever/);
+  assert.match(statsSource, /t\('stats\.supportLink'\)/);
+  assert.match(statsSource, /settings\.supporterPurchased/);
   assert.doesNotMatch(`${settingsSource}\n${statsSource}`, /TimeRadar Pro|pro\./);
 });
 
 test('supporter restore actions share disabled state and selectable status copy', () => {
   const hookSource = source('src/features/support/use-supporter-actions.ts');
   const settingsSource = source('app/(tabs)/settings.tsx');
-  const statsSource = source('app/(tabs)/stats.tsx');
 
   assert.match(hookSource, /const supportActionsDisabled = supporterPurchase\.status\.loading;/);
   assert.match(hookSource, /const buy/);
   assert.match(hookSource, /const restore/);
 
-  for (const routeSource of [settingsSource, statsSource]) {
-    assert.match(routeSource, /useSupporterActions/);
-    assert.match(routeSource, /disabled=\{supportActionsDisabled\}/);
-    assert.match(routeSource, /accessibilityState=\{\{ disabled: supportActionsDisabled \}\}/);
-    assert.match(routeSource, /pressed && !supportActionsDisabled && styles\.pressed/);
-    assert.match(routeSource, /<AppText selectable style=\{\[styles\.supportStatus/);
-    assert.match(routeSource, /restoreButtonDisabled:\s*\{[\s\S]*opacity:\s*0\.5/);
-  }
+  assert.match(settingsSource, /useSupporterActions/);
+  assert.match(settingsSource, /disabled=\{supportActionsDisabled\}/);
+  assert.match(settingsSource, /accessibilityState=\{\{ disabled: supportActionsDisabled \}\}/);
+  assert.match(settingsSource, /pressed && !supportActionsDisabled && styles\.pressed/);
+  assert.match(settingsSource, /<AppText selectable style=\{\[styles\.supportStatus/);
+  assert.match(settingsSource, /restoreButtonDisabled:\s*\{[\s\S]*opacity:\s*0\.5/);
 });
 
 test('native supporter purchase uses Apple and Google store requests', () => {

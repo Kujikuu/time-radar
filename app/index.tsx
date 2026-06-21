@@ -231,7 +231,6 @@ const styles = StyleSheet.create({
   },
   slide: {
     flex: 1,
-    minHeight: 610,
     justifyContent: 'space-evenly',
     gap: spacing.xl,
   },

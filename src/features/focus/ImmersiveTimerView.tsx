@@ -1,9 +1,13 @@
+import { IconX } from '@tabler/icons-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useRef } from 'react';
 import { BackHandler, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { IconButton } from '@/src/components';
+import { rowDirectionForTextDirection } from '@/src/i18n';
+import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { colors, spacing } from '@/src/theme';
 
 import { lockDefaultOrientation, lockLandscapeOrientation } from './orientation';
@@ -35,6 +39,8 @@ export function ImmersiveTimerView({
   onExit,
 }: ImmersiveTimerViewProps) {
   const lastTapAtRef = useRef(0);
+  const { direction, nativeDirection, t } = useTranslation();
+  const chromeRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
   useKeepAwake('time-radar-immersive-timer');
 
@@ -73,6 +79,15 @@ export function ImmersiveTimerView({
     <View style={styles.root}>
       <StatusBar hidden />
       <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.chrome, chromeRow]}>
+          <IconButton
+            icon={IconX}
+            label={t('timer.actions.closeFullscreen')}
+            onPress={onExit}
+            color={colors.text}
+            style={styles.closeButton}
+          />
+        </View>
         <View style={styles.surface}>
           <TimerRing
             presentation="immersive"
@@ -100,6 +115,15 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  chrome: {
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+  },
+  closeButton: {
+    backgroundColor: colors.surfaceMuted,
   },
   surface: {
     flex: 1,

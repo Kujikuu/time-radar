@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { AppIcon, AppText, SoftCard } from '@/src/components';
+import { useFocusTimer } from '@/src/features/focus/hooks';
 import { rowDirectionForTextDirection, textAlignForTextDirection } from '@/src/i18n';
 import { useTranslation } from '@/src/i18n/LocaleProvider';
 import { taskDetailHref } from '@/src/navigation/task-detail-route';
@@ -23,20 +24,30 @@ export function FocusTaskCard({
 }: FocusTaskCardProps) {
   const { direction, formatDuration, nativeDirection, t } = useTranslation();
   const { width } = useWindowDimensions();
+  const { start } = useFocusTimer();
   const contentText = { textAlign: textAlignForTextDirection(direction) };
   const contentRow = { flexDirection: rowDirectionForTextDirection(direction, nativeDirection) };
 
+  const openTaskDetail = () => {
+    router.push(taskDetailHref(task.id, width));
+  };
+
+  const handleStartSession = async () => {
+    await start(task.id);
+    router.replace('/(tabs)' as never);
+  };
+
   return (
-    <Pressable
-      accessibilityLabel={t('tasks.openTask', {
-        values: { title: task.title, minutes: task.focusMinutes },
-      })}
-      accessibilityActions={accessibilityActions}
-      accessibilityRole="button"
-      onAccessibilityAction={onAccessibilityAction}
-      onPress={() => router.push(taskDetailHref(task.id, width))}
-      style={({ pressed }) => pressed && styles.pressed}>
-      <SoftCard style={[styles.card, contentRow]}>
+    <SoftCard style={[styles.card, contentRow]}>
+      <Pressable
+        accessibilityActions={accessibilityActions}
+        accessibilityLabel={t('tasks.openTask', {
+          values: { title: task.title, minutes: task.focusMinutes },
+        })}
+        accessibilityRole="button"
+        onAccessibilityAction={onAccessibilityAction}
+        onPress={openTaskDetail}
+        style={({ pressed }) => [styles.body, contentRow, pressed && styles.pressed]}>
         <View style={styles.iconWrap}>
           <AppIcon icon={IconFileText} size={26} color={colors.accentDark} />
         </View>
@@ -48,11 +59,17 @@ export function FocusTaskCard({
             {formatDuration(task.focusMinutes)}
           </AppText>
         </View>
-        <View style={styles.playButton}>
-          <AppIcon icon={IconPlayerPlay} size={18} color={colors.text} />
-        </View>
-      </SoftCard>
-    </Pressable>
+      </Pressable>
+      <Pressable
+        accessibilityLabel={t('tasks.startTask', {
+          values: { title: task.title, minutes: task.focusMinutes },
+        })}
+        accessibilityRole="button"
+        onPress={handleStartSession}
+        style={({ pressed }) => [styles.playButton, pressed && styles.pressed]}>
+        <AppIcon icon={IconPlayerPlay} size={18} color={colors.text} />
+      </Pressable>
+    </SoftCard>
   );
 }
 
@@ -64,6 +81,12 @@ const styles = StyleSheet.create({
     minHeight: 80,
     alignItems: 'center',
     padding: 14,
+    gap: 14,
+  },
+  body: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
     gap: 14,
   },
   iconWrap: {

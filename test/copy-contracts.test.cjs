@@ -124,8 +124,7 @@ test('professional positioning and support copy keep TimeRadar free forever', ()
   assert.match(homeSource, /buildRadarSignal\(summary\.focusMinutes\)/);
   assert.match(homeSource, /t\('home\.promise'\)/);
   assert.match(homeSource, /t\(`radar\.status\.\$\{radarSignal\.status\}`\)/);
-  assert.match(statsSource, /t\('support\.title'\)/);
-  assert.match(statsSource, /t\('support\.body'\)/);
+  assert.match(statsSource, /t\('stats\.supportLink'\)/);
   assert.doesNotMatch(`${homeSource}\n${statsSource}`, /studentPromise|TimeRadar Pro|pro\./);
 });
 

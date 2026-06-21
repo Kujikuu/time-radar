@@ -71,7 +71,7 @@ test('TimerRing stays within narrow tablet split columns', () => {
   assert.match(timerRingSource, /const defaultCap = isWide && viewportWidth >= 1100 \? 420 : 300/);
 });
 
-test('ImmersiveTimerView keeps the timer awake and exits through double tap', () => {
+test('ImmersiveTimerView keeps the timer awake and exposes visible and double-tap exit', () => {
   const immersiveTimerPath = path.join(
     __dirname,
     '..',
@@ -86,14 +86,19 @@ test('ImmersiveTimerView keeps the timer awake and exits through double tap', ()
   assert.match(immersiveTimerSource, /<StatusBar hidden/);
   assert.match(immersiveTimerSource, /DOUBLE_TAP_THRESHOLD_MS = 320/);
   assert.match(immersiveTimerSource, /showSecondaryActions=\{false\}/);
+  assert.match(immersiveTimerSource, /t\('timer\.actions\.closeFullscreen'\)/);
 });
 
-test('FocusTaskCard exposes a descriptive task action label', () => {
+test('FocusTaskCard exposes separate open and start action labels', () => {
   const focusTaskCardSource = source('src/features/focus/FocusTaskCard.tsx');
 
   assert.match(
     focusTaskCardSource,
     /accessibilityLabel=\{t\('tasks\.openTask'/
+  );
+  assert.match(
+    focusTaskCardSource,
+    /accessibilityLabel=\{t\('tasks\.startTask'/
   );
   assert.match(focusTaskCardSource, /<AppText selectable style=\{\[styles\.title/);
   assert.match(focusTaskCardSource, /<AppText selectable style=\{\[styles\.meta/);
@@ -171,7 +176,7 @@ test('Stats exposes stable headline data as selectable text', () => {
 
   assert.match(statsSource, /<AppText selectable style=\{\[styles\.dateLabel/);
   assert.match(statsSource, /<AppText selectable style=\{\[styles\.focusValue/);
-  assert.match(statsSource, /<AppText selectable style=\{styles\.trendValue\}/);
+  assert.match(statsSource, /selectable[\s\S]*style=\{\[styles\.trendValue/);
   assert.doesNotMatch(timerRingSource, /<AppText selectable style=\{\[styles\.time/);
 });
 

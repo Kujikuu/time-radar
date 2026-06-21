@@ -32,4 +32,6 @@ declare module '@tabler/icons-react-native' {
   export const IconTargetArrow: ComponentType<IconProps>;
   export const IconTrendingUp: ComponentType<IconProps>;
   export const IconTrash: ComponentType<IconProps>;
+  export const IconTrendingDown: ComponentType<IconProps>;
+  export const IconX: ComponentType<IconProps>;
 }

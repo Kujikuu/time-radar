@@ -25,7 +25,7 @@ import {
   bottomTabRouteOrder,
   type BottomTabRouteName,
 } from '@/src/navigation/tab-rules';
-import { colors, radius } from '@/src/theme';
+import { colors, radius, spacing, typography } from '@/src/theme';
 
 export const bottomTabBarStyle = {
   position: 'absolute',
@@ -33,8 +33,8 @@ export const bottomTabBarStyle = {
   right: 0,
   bottom: 0,
   height: 78,
-  paddingTop: 10,
-  paddingBottom: 10,
+  paddingTop: 8,
+  paddingBottom: 8,
   paddingHorizontal: 12,
   borderTopLeftRadius: radius.lg,
   borderTopRightRadius: radius.lg,
@@ -107,7 +107,8 @@ function TabLayoutContent() {
             tabBarInactiveTintColor: colors.textMuted,
             headerShown: false,
             tabBarButton: HapticTab,
-            tabBarShowLabel: false,
+            tabBarShowLabel: true,
+            tabBarLabelStyle: styles.tabBarLabel,
             tabBarStyle: isWide ? styles.hiddenTabBar : bottomTabBarStyle,
             tabBarItemStyle: {
               borderRadius: radius.md,
@@ -154,5 +155,10 @@ const styles = StyleSheet.create({
   },
   hiddenTabBar: {
     display: 'none',
+  },
+  tabBarLabel: {
+    fontSize: typography.size.micro,
+    fontWeight: typography.weight.semibold,
+    paddingTop: spacing.xs,
   },
 });
