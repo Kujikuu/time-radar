@@ -40,10 +40,21 @@ export function useSupporterActions() {
       settings,
       supporterMessageKey,
       supportActionsDisabled,
+      productLoadFailed: supporterPurchase.status.productLoadFailed,
+      retryProductLoad: supporterPurchase.retryProductLoad,
       priceLabel: supporterPurchase.status.priceLabel,
       buy,
       restore,
     }),
-    [buy, restore, settings, supportActionsDisabled, supporterMessageKey, supporterPurchase.status.priceLabel]
+    [
+      buy,
+      restore,
+      settings,
+      supportActionsDisabled,
+      supporterMessageKey,
+      supporterPurchase.status.productLoadFailed,
+      supporterPurchase.status.priceLabel,
+      supporterPurchase.retryProductLoad,
+    ]
   );
 }

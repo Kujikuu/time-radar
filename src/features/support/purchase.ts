@@ -16,6 +16,18 @@ type UseSupporterPurchaseOptions = {
   onPurchased?: () => void;
 };
 
+const PRODUCT_LOAD_TIMEOUT_MS = 10_000;
+
+function logIapError(scope: string, error: unknown) {
+  const detail =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : JSON.stringify(error);
+  console.warn(`[IAP:${scope}] ${detail}`, error);
+}
+
 function isSupporterPurchase(purchase: Purchase) {
   return purchase.productId === SUPPORTER_PRODUCT_ID;
 }
@@ -26,7 +38,9 @@ export function useSupporterPurchase({
 }: UseSupporterPurchaseOptions = {}) {
   const [storePurchased, setStorePurchased] = useState(false);
   const [messageKey, setMessageKey] = useState<string | undefined>();
+  const [productLoadFailed, setProductLoadFailed] = useState(false);
   const entitlementReportedRef = useRef(locallyPurchased);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const markPurchased = useCallback(() => {
     setStorePurchased(true);
@@ -52,8 +66,15 @@ export function useSupporterPurchase({
     requestPurchase,
     restorePurchases,
   } = useIAP({
-    onError: () => setMessageKey('support.purchaseUnavailable'),
-    onPurchaseError: () => setMessageKey('support.purchaseUnavailable'),
+    onError: (error: unknown) => {
+      logIapError('store', error);
+      setMessageKey('support.purchaseUnavailable');
+      setProductLoadFailed(true);
+    },
+    onPurchaseError: (error: unknown) => {
+      logIapError('purchase', error);
+      setMessageKey('support.purchaseUnavailable');
+    },
     onPurchaseSuccess: async (purchase) => {
       if (!isSupporterPurchase(purchase)) {
         return;
@@ -65,14 +86,59 @@ export function useSupporterPurchase({
     },
   });
 
+  const clearLoadTimeout = useCallback(() => {
+    if (loadTimeoutRef.current !== null) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
+    }
+  }, []);
+
+  const product = products.find((item) => item.id === SUPPORTER_PRODUCT_ID);
+
+  const doFetchProducts = useCallback(async () => {
+    if (!connected) {
+      return;
+    }
+
+    setProductLoadFailed(false);
+    clearLoadTimeout();
+    loadTimeoutRef.current = setTimeout(() => {
+      logIapError('fetchTimeout', { productId: SUPPORTER_PRODUCT_ID });
+      setProductLoadFailed(true);
+    }, PRODUCT_LOAD_TIMEOUT_MS);
+
+    try {
+      await fetchProducts({ skus: [SUPPORTER_PRODUCT_ID], type: SUPPORTER_PRODUCT_TYPE });
+      await getAvailablePurchases();
+    } catch (error: unknown) {
+      logIapError('fetch', error);
+      setProductLoadFailed(true);
+    }
+    // Success path is owned by the product-arrived effect below — fetchProducts resolving
+    // does not synchronously populate products[].
+  }, [clearLoadTimeout, connected, fetchProducts, getAvailablePurchases]);
+
+  const retryProductLoad = useCallback(() => {
+    void doFetchProducts();
+  }, [doFetchProducts]);
+
   useEffect(() => {
     if (!connected) {
       return;
     }
 
-    void fetchProducts({ skus: [SUPPORTER_PRODUCT_ID], type: SUPPORTER_PRODUCT_TYPE });
-    void getAvailablePurchases();
-  }, [connected, fetchProducts, getAvailablePurchases]);
+    void doFetchProducts();
+    return clearLoadTimeout;
+  }, [connected, doFetchProducts, clearLoadTimeout]);
+
+  useEffect(() => {
+    if (product) {
+      clearLoadTimeout();
+      setProductLoadFailed(false);
+    }
+  }, [product, clearLoadTimeout]);
+
+  useEffect(() => clearLoadTimeout, [clearLoadTimeout]);
 
   const hasAvailableSupporterPurchase = availablePurchases.some(isSupporterPurchase);
 
@@ -83,9 +149,12 @@ export function useSupporterPurchase({
     }
   }, [hasAvailableSupporterPurchase, onPurchased]);
 
-  const product = products.find((item) => item.id === SUPPORTER_PRODUCT_ID);
   const purchased = locallyPurchased || storePurchased || hasAvailableSupporterPurchase;
   const priceLabel = product?.displayPrice ?? SUPPORTER_PRICE_LABEL;
+
+  const hasProduct = Boolean(product);
+  const fetchSettled = hasProduct || productLoadFailed;
+  const loading = connected && !fetchSettled;
 
   const status = useMemo<SupporterProductStatus>(
     () => ({
@@ -93,15 +162,22 @@ export function useSupporterPurchase({
       purchased,
       productId: SUPPORTER_PRODUCT_ID,
       priceLabel,
-      loading: !connected || products.length === 0,
+      loading,
+      productLoadFailed,
+      canRetry: connected && productLoadFailed,
       messageKey,
     }),
-    [connected, messageKey, priceLabel, products.length, purchased]
+    [connected, loading, messageKey, priceLabel, productLoadFailed, purchased]
   );
 
   const buy = useCallback(async (): Promise<SupporterPurchaseResult> => {
     if (!connected) {
       return { purchased: false, messageKey: 'support.unavailable' };
+    }
+
+    if (!product) {
+      void retryProductLoad();
+      return { purchased: false, messageKey: 'support.productLoadFailed' };
     }
 
     try {
@@ -112,12 +188,13 @@ export function useSupporterPurchase({
         },
         type: SUPPORTER_PRODUCT_TYPE,
       });
-    } catch {
+    } catch (error: unknown) {
+      logIapError('buy', error);
       return { purchased: false, messageKey: 'support.purchaseUnavailable' };
     }
 
     return { purchased: false, messageKey: 'support.purchasePending' };
-  }, [connected, requestPurchase]);
+  }, [connected, product, requestPurchase, retryProductLoad]);
 
   const restore = useCallback(async (): Promise<SupporterPurchaseResult> => {
     if (!connected) {
@@ -132,7 +209,8 @@ export function useSupporterPurchase({
     try {
       await restorePurchases();
       await getAvailablePurchases();
-    } catch {
+    } catch (error: unknown) {
+      logIapError('restore', error);
       return {
         purchased: restored,
         messageKey: restored ? 'support.purchaseRestored' : 'support.purchaseUnavailable',
@@ -145,5 +223,5 @@ export function useSupporterPurchase({
     };
   }, [availablePurchases, connected, getAvailablePurchases, markPurchased, restorePurchases]);
 
-  return { status, buy, restore };
+  return { status, buy, restore, retryProductLoad };
 }

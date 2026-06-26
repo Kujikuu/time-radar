@@ -16,6 +16,8 @@ export type SupporterProductStatus = {
   productId: string;
   priceLabel: string;
   loading: boolean;
+  productLoadFailed: boolean;
+  canRetry: boolean;
   messageKey?: string;
 };
 
@@ -30,6 +32,8 @@ const unsupportedStatus = (purchased = false): SupporterProductStatus => ({
   productId: SUPPORTER_PRODUCT_ID,
   priceLabel: SUPPORTER_PRICE_LABEL,
   loading: false,
+  productLoadFailed: false,
+  canRetry: false,
   messageKey: 'support.unavailable',
 });
 

@@ -156,6 +156,8 @@ const translations = {
       purchaseRestored: 'Supporter Pack restored.',
       purchaseRestorePending: 'Restore is checking your store account. The pack will activate automatically if found.',
       purchaseNotFound: 'No Supporter Pack purchase was found for this account.',
+      productLoadFailed: "Couldn't load the Supporter Pack from the App Store. Please try again.",
+      retryLoad: 'Try again',
     },
     tasks: {
       title: 'Focus tasks',
@@ -411,6 +413,8 @@ const translations = {
       purchaseRestored: 'تمت استعادة حزمة الداعم.',
       purchaseRestorePending: 'تتحقق الاستعادة من حسابك في المتجر. ستتفعّل الحزمة تلقائيًا إذا كانت موجودة.',
       purchaseNotFound: 'لم يتم العثور على شراء حزمة الداعم لهذا الحساب.',
+      productLoadFailed: 'تعذّر تحميل حزمة الداعم من متجر التطبيقات. حاول مرة أخرى.',
+      retryLoad: 'حاول مرة أخرى',
     },
     tasks: {
       title: 'مهام التركيز',

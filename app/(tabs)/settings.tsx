@@ -40,6 +40,8 @@ export default function SettingsScreen() {
   const {
     supporterMessageKey,
     supportActionsDisabled,
+    productLoadFailed,
+    retryProductLoad,
     priceLabel,
     buy,
     restore,
@@ -306,6 +308,15 @@ export default function SettingsScreen() {
             {t(supporterMessageKey)}
           </AppText>
         ) : null}
+        {productLoadFailed ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('support.retryLoad')}
+            onPress={retryProductLoad}
+            style={({ pressed }) => [styles.retryLink, pressed && styles.pressed]}>
+            <AppText style={styles.retryText}>{t('support.retryLoad')}</AppText>
+          </Pressable>
+        ) : null}
         <Divider />
         <Pressable
           accessibilityLabel={t('support.restore')}
@@ -417,6 +428,19 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   restoreText: {
+    color: colors.accentDark,
+    fontSize: typography.size.caption,
+    fontWeight: typography.weight.bold,
+  },
+  retryLink: {
+    minHeight: 44,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+    paddingBottom: spacing.sm,
+  },
+  retryText: {
     color: colors.accentDark,
     fontSize: typography.size.caption,
     fontWeight: typography.weight.bold,
